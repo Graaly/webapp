@@ -97,7 +97,7 @@
                         </span>-->
                         {{item.creation.date | formatDate($store.state.user.language)}}
                         <span v-if="item.destination === 'friends'">
-                          - 
+                          -
                           <a v-if="!isLiked(item)" v-on:click="like(index)">{{ $t('label.Like') }}</a>
                           <a v-if="isLiked(item)" v-on:click="unlike(index)">{{ $t('label.Like') }}</a>
                           <span v-if="item.likes.length > 0">({{ item.likes.length }})</span>
@@ -117,9 +117,9 @@
           </div>
         </transition>
       </div>
-      
+
       <!------------------ HEADER COMPONENT ------------------------>
-      
+
       <div class="q-py-sm q-px-md dark-banner opaque-banner fixed-top">
         <q-btn flat icon="arrow_back" @click="backToTheMap()" />
         <div class="row q-pa-sm">
@@ -219,7 +219,8 @@ export default {
       level: {
         progress: 0.04
       },
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL
     }
   },
   mounted() {
@@ -256,7 +257,7 @@ export default {
         range = 'world'
       }
       this.range = range
-      
+
       await this.getRanking(range)
     },
     /*
@@ -287,7 +288,7 @@ export default {
         this.progression = 4
       }*/
     },
-        
+
     /*
      * List news
      */
@@ -304,8 +305,8 @@ export default {
           done()
         }
       })
-    },     
-    
+    },
+
     /*
      * Like news
      */
@@ -339,7 +340,7 @@ export default {
       }
       return false;
     },
-    
+
     /*
      * Load the ranking
      */
@@ -352,7 +353,7 @@ export default {
         ranking = await RunService.getRankingForAQuest(range)
         this.range = "quest"
       }
-      
+
       if (ranking && ranking.data) {
         if (ranking.data.users) {
           this.ranking = ranking.data.users

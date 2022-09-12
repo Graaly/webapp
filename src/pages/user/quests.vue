@@ -11,35 +11,35 @@
         <div v-if="tab === 'created' && $route.params.id === $store.state.user.id">
           <div v-if="quests.built && quests.built.rejected && quests.built.rejected.length > 0">
             <!--====================== MY QUESTS REJECTED =================================-->
-          
+
             <div class="subtitle4 q-pa-md">{{ $t('label.YourRejectedQuests') }}</div>
 
             <questsList format="big" color="red" :quests="quests.built.rejected"></questsList>
-          
+
           </div>
           <div v-if="quests.built && quests.built.tovalidate && quests.built.tovalidate.length > 0">
             <!--====================== MY QUESTS TO VALIDATE =================================-->
-          
+
             <div class="subtitle4 q-pa-md">{{ $t('label.YourUnderValidationQuests') }}</div>
 
             <questsList format="big" color="red" :quests="quests.built.tovalidate"></questsList>
-          
+
           </div>
           <div v-if="quests.built && quests.built.draft">
             <!--====================== MY QUESTS DRAFT =================================-->
-          
+
             <div class="subtitle4 q-pa-md">{{ $t('label.YourDraftQuests') }}</div>
 
             <questsList format="big" color="red" :add="true" :quests="quests.built.draft"></questsList>
-          
+
           </div>
           <div v-if="quests.built && quests.built.published && quests.built.published.length > 0">
             <!--====================== MY QUESTS PUBLISHED =================================-->
-          
+
             <div class="subtitle4 q-pa-md">{{ $t('label.YourPublishedQuests') }}</div>
 
             <questsList format="big" color="red" :quests="quests.built.published"></questsList>
-          
+
           </div>
         </div>
         <div v-if="tab === 'played' && quests.played && quests.played.length === 0" class="centered">
@@ -49,9 +49,9 @@
           {{ $t('label.NoQuestCreated') }}
         </div>
       </div>
-     
+
       <!------------------ HEADER COMPONENT ------------------------>
-      
+
       <div class="q-py-sm q-px-md dark-banner opaque-banner fixed-top">
         <q-btn flat icon="arrow_back" @click="backToTheMap()" />
         <div class="row q-pa-sm">
@@ -88,7 +88,8 @@ export default {
       skip: 0,
       limit: 12,
       tab: 'played',
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL
     }
   },
   mounted() {

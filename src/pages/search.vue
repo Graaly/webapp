@@ -31,16 +31,16 @@
           {{ $t('label.NoPlayerForThisSearch') }}
         </div>
       </div>
-      
+
       <!------------------ HEADER COMPONENT ------------------------>
-      
+
       <q-scroll-observer @scroll="onScroll" />
       <div class="q-py-sm q-px-md dark-banner opaque-banner fixed-top">
         <q-btn flat icon="arrow_back" @click="backToTheMap()" />
         <div class="row q-pa-sm">
           <div class="col-4" @click="selectType('quest')" :class="{'box-unselected': (type !== 'quest')}">
             <div v-if="scrollInfo.position < 20" class="search-box-top search-quest-box-top">
-              <img src="statics/images/icon/key-big.svg" /> 
+              <img src="statics/images/icon/key-big.svg" />
             </div>
             <div class="search-box-bottom search-quest-box-bottom subtitle6 centered">
               {{ $t('label.EscapeGame') }}
@@ -48,7 +48,7 @@
           </div>
           <div class="col-4" @click="selectType('designer')" :class="{'box-unselected': (type !== 'designer')}">
             <div v-if="scrollInfo.position < 20" class="search-box-top search-creator-box-top">
-              <img src="statics/images/icon/puzzle-big.svg" /> 
+              <img src="statics/images/icon/puzzle-big.svg" />
             </div>
             <div class="search-box-bottom search-creator-box-bottom subtitle6 centered">
               {{ $t('label.Designers') }}
@@ -56,7 +56,7 @@
           </div>
           <div class="col-4" @click="selectType('player')" :class="{'box-unselected': (type !== 'player')}">
             <div v-if="scrollInfo.position < 20" class="search-box-top search-user-box-top">
-              <img src="statics/images/icon/user-big.svg" /> 
+              <img src="statics/images/icon/user-big.svg" />
             </div>
             <div class="search-box-bottom search-user-box-bottom subtitle6 centered">
               {{ $t('label.Players') }}
@@ -93,11 +93,11 @@
         </div>
       </div>
     </div>
-    
+
     <!------------------ GEOLOCATION COMPONENT ------------------------>
-      
+
     <geolocation ref="geolocation-component" @success="onLocationSuccess($event)" @error="onLocationError()" />
-    
+
   </div>
 </template>
 
@@ -133,7 +133,8 @@ export default {
       },
       scrollInfo: {},
       findQuestWhenLocationIsKnown: true,
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL
     }
   },
   mounted() {

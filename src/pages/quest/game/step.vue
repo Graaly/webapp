@@ -78,7 +78,7 @@
           <p v-if="!inventory.items || inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
           <div class="inventory-items">
             <div v-for="(item, key) in inventory.items" :key="key" class="inventory-item">
-              <img :src="((item.picture.indexOf('statics/') !== -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" @click="zoomOrUse(item)" />
+              <img :src="((item.picture.indexOf('statics/') !== -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : uploadUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" @click="zoomOrUse(item)" />
               <div v-if="item.titles && item.titles[lang] && item.titles[lang] !== ''">{{ item.titles[lang] }}</div>
               <div v-if="!(item.titles && item.titles[lang] && item.titles[lang] !== '')">{{ item.title }}</div>
               <q-btn-group>
@@ -233,7 +233,7 @@
     <!--====================== HINT =================================-->
 
     <div class="mobile-fit over-map" :class="'font-' + info.quest.customization.font" v-if="hint.isOpened">
-      <story step="hint" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? info.quest.customization.color : 'primary'" :data="{hint: hint.label, character: (info.quest.customization && info.quest.customization.character && info.quest.customization.character !== '') ? (info.quest.customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + info.quest.customization.character : info.quest.customization.character) : '3'}" @next="askForHint()"></story>
+      <story step="hint" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? info.quest.customization.color : 'primary'" :data="{hint: hint.label, character: (info.quest.customization && info.quest.customization.character && info.quest.customization.character !== '') ? (info.quest.customization.character.indexOf('blob:') === -1 ? uploadUrl + '/upload/quest/' + info.quest.customization.character : info.quest.customization.character) : '3'}" @next="askForHint()"></story>
     </div>
 
     <!--====================== STORY =================================-->
@@ -470,6 +470,7 @@ export default {
         //cameraStreamEnabled: false,
         isHybrid: window.cordova,
         serverUrl: process.env.SERVER_URL,
+        uploadUrl: process.env.UPLOAD_URL,
         nbTry: 0,
         controlsAreDisplayed: false,
         lang: this.$route.params.lang,
@@ -541,11 +542,11 @@ export default {
         this.reloadPageInAWhile()
         return
       }
-      
+
       this.isMultiplayer = this.info.quest.playersNumber && this.info.quest.playersNumber > 1
-            
+
       this.initOfflineMode()
-      
+
       // Start audio
       this.getAudioSound()
 
@@ -661,13 +662,13 @@ export default {
     async moveToStep(forceStepId) {
       // keeping stepId info is required when network is interrupted & quest is played in online mode
       this.navigatingToStepId = forceStepId
-      
+
       utils.clearAllRunningProcesses()
       this.resetData()
       this.$q.loading.show()
-      
+
       // hack if language not set
-      if (this.lang == "undefined") {
+      if (this.lang === "undefined") {
         this.lang = this.$t('label.shortLang')
       }
 
@@ -744,7 +745,7 @@ export default {
       if (!this.offline.active || (this.run.currentChapter === 0 && !this.offline.force)) {
         // List all run for this quest for current user
         var runs = await RunService.listForAQuest(this.questId)
-        
+
         // check if run is accessable from server
         if (runs && runs.data) {
           for (var i = 0; i < runs.data.length; i++) {
@@ -860,13 +861,13 @@ export default {
      */
     async getStep (forceStepId, extra) {
       let stepId, response
-      
+
       if (this.warnings.questDataMissing || this.warnings.runDataMissing) {
         return false
       }
-      
+
       this.warnings.stepDataMissing = false
-      
+
       // --- load step Id ---
       if (typeof forceStepId !== 'undefined' && forceStepId !== null) {
         stepId = forceStepId
@@ -1224,12 +1225,11 @@ export default {
         // compute minutes remaining based on start & duration
         const timeSpent = utils.getDurationFromNow(this.run.dateCreated)
         const remainingDuration = this.info.quest.duration - timeSpent.m
-        if (remainingDuration > 0) {
-          this.countDownTime.enabled = true
-          this.countDownTime.remainingMinutes = remainingDuration
-          this.countDownTime.remaining = remainingDuration / this.info.quest.duration
-          setTimeout(this.startCountDown, 60000)
-        } else {
+        this.countDownTime.enabled = true
+        this.countDownTime.remainingMinutes = remainingDuration
+        this.countDownTime.remaining = remainingDuration / this.info.quest.duration
+        setTimeout(this.startCountDown, 60000)
+        if (remainingDuration <= 0) {
           if (this.info.quest.countDownTime.stopGame) {
             return this.$router.push('/quest/' + this.questId + '/end')
           }
@@ -1417,7 +1417,7 @@ export default {
       } else if (picture && picture.indexOf('blob:') !== -1) {
         return picture
       } else if (picture) {
-        return this.serverUrl + '/upload/quest/' + picture
+        return this.uploadUrl + '/upload/quest/' + picture
       } else {
         return ''
       }
@@ -1429,7 +1429,7 @@ export default {
       if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo.indexOf('blob:') !== -1) {
         return this.info.quest.customization.logo
       } else {
-        return this.serverUrl + '/upload/quest/' + this.info.quest.customization.logo
+        return this.uploadUrl + '/upload/quest/' + this.info.quest.customization.logo
       }
     },
     /*
@@ -1458,7 +1458,7 @@ export default {
         if (this.info.quest.customization.audio[finalLang].indexOf('blob:') !== -1) {
           this.info.audio = this.info.quest.customization.audio[finalLang]
         } else {
-          this.info.audio = this.serverUrl + '/upload/quest/' + this.info.quest.customization.audio[finalLang]
+          this.info.audio = this.uploadUrl + '/upload/quest/' + this.info.quest.customization.audio[finalLang]
         }
       } else {
         this.info.audio = null
@@ -1813,7 +1813,7 @@ export default {
     zoomItem(item) {
       this.inventory.detail.zoom = 1
       this.inventory.detail.isOpened = true
-      this.inventory.detail.url = ((item.picture.indexOf('statics/') !== -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
+      this.inventory.detail.url = ((item.picture.indexOf('statics/') !== -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.uploadUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
       if (item.titles && item.titles[this.lang] && item.titles[this.lang] !== '') {
         this.inventory.detail.title = item.titles[this.lang]
       } else {

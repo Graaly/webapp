@@ -265,6 +265,7 @@ export default {
       teamPlayId: "",
       isHybrid: window.cordova,
       serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL,
       submitting: false,
       version: process.env.VERSION
     }

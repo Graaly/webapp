@@ -17,15 +17,15 @@
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn 
+        <q-btn
           :color="(!color || color === 'primary' || color === '') ? 'primary' : ''"
           :style="(!color || color === 'primary' || color === '') ? '' : 'background-color: ' + color"
-          :label="$t('snapshot.share')" 
+          :label="$t('snapshot.share')"
           @click="shareWithFriend" />
-        <q-btn 
+        <q-btn
           :color="(!color || color === 'primary' || color === '') ? 'primary' : ''"
           :style="(!color || color === 'primary' || color === '') ? '' : 'background-color: ' + color"
-          :label="$t('snapshot.save')" 
+          :label="$t('snapshot.save')"
           @click="saveAndDownload" />
       </q-card-actions>
     </q-card>
@@ -133,7 +133,9 @@ export default {
     },
     /* Old Function ... */
     async saveSnapshotOnServer(blob, filename) {
+      console.log(this.quest.customization.saveSelfieOnServer)
       if (this.quest.customization && this.quest.customization.saveSelfieOnServer) {
+        console.log("save to server")
         try {
           let formData = new FormData()
           formData.append("image", blob, filename)

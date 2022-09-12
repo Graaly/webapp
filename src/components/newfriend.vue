@@ -10,14 +10,14 @@
           <div class="centered" v-if="loadingContacts === null">
             <q-btn @click="this.getContacts" :label="$t('label.LoadContactsFromPhone')" />
           </div>
-          
+
           <div v-if="validatedContacts && validatedContacts.length > 0">
             <q-list highlight>
               <q-item v-for="contact in validatedContacts" :key="contact._id">
                 <q-item-section avatar>
                   <q-avatar>
                     <img v-if="contact.picture && contact.picture !== '' && contact.picture.indexOf('http') !== -1" :src="contact.picture" />
-                    <img v-if="contact.picture && contact.picture !== '' && contact.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + contact.picture" />
+                    <img v-if="contact.picture && contact.picture !== '' && contact.picture.indexOf('http') === -1" :src="uploadUrl + '/upload/profile/' + contact.picture" />
                     <img v-if="!contact.picture || contact.picture === ''" src="statics/icons/game/profile-small.png" />
                   </q-avatar>
                 </q-item-section>
@@ -28,7 +28,7 @@
               </q-item>
               <q-item>
                 <q-item-section avatar>
-                  
+
                 </q-item-section>
                 <q-item-section>
                   <q-item-label><a @click="newFriendMode = 'addFriend'">{{ $t('label.AddFriendManually') }}</a></q-item-label>
@@ -38,10 +38,10 @@
           </div>
         </div>
         <!-- ========================================== ADD FRIEND MANUALLY ====================================== -->
-        
+
         <div v-if="newFriendMode === 'addFriend' || (loadingContacts === false && (!validatedContacts || validatedContacts.length === 0))">
           <form @submit.prevent="formSubmit()" class="q-pt-md">
-          
+
             {{ $t('label.FindWithEmail') }}
             <div class="row q-pb-md">
               <div class="col-8">
@@ -88,6 +88,7 @@ export default {
       phoneContacts: "",
       validatedContacts: null,
       serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL,
       submitting: false,
       loadingContacts: null,
       console: '',
@@ -201,7 +202,7 @@ export default {
     async hideContactsAlreadyfriends() {
       let response = await UserService.listFriends()
       var friends = response.data
-      
+
       for (var i = this.validatedContacts.length - 1; i >= 0; i--) {
         for (var j = 0; j < friends.length; j++) {
           if (this.validatedContacts.length > i && this.validatedContacts[i]._id === friends[j].friendId) {

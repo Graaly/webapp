@@ -5,14 +5,14 @@
       <!------------------ NEW RELEASE BUTTON ---------->
       <div class="settings-bar background-dark" :class="{'desktop-only': chapters.showNewStepOverview}">
         <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/profile/me'}" class="float-right no-underline close-btn q-pa-sm"><q-icon name="close" class="subtitle1" /></router-link>
-        
+
         <div v-if="readOnly && quest.status === 'rejected'" class="centered bg-secondary text-white q-pa-md" @click="createNewVersion()">
           {{ $t('label.YourQuestHasNotBeenPublished') }}
         </div>
         <div v-if="(readOnly || this.isAdmin) && (quest.status === 'published' || quest.status === 'unpublished' || quest.status === 'rejected')" class="centered bg-secondary text-white q-pa-md" @click="createNewVersion()">
           {{ $t('label.ClickHereToCreateANewQuestVersion') }}
         </div>
-        
+
         <div class="q-pa-md full-width">
           <span v-if="tabs.progress > 0">
             <span v-if="form.fields.title[languages.current]">
@@ -27,9 +27,9 @@
           <span v-else>{{ $t('label.NewQuest') }}</span>
         </div>
       </div>
-      
+
       <!------------------ TABS ------------------------>
-      
+
       <q-tabs v-model="tabs.selected" class="bg-accent text-white hide-img two-lines" :class="{'desktop-only': chapters.showNewStepOverview}">
         <q-tab :disable="isReadOnly()" name="settings" :icon="getTabIcon(1)" :label="quest.type === 'quest' ? $t('label.Intro') + ' (' + languages.current + ')' : $t('label.YourRoom')" default />
         <q-tab :disable="tabs.progress < 1 || isReadOnly()" name="steps" :icon="getTabIcon(2)" :label="$t('label.Steps') + ' (' + languages.current + ')'" v-if="quest.type === 'quest'" />
@@ -40,11 +40,11 @@
       </q-tabs>
 
       <q-separator />
-        
+
       <!------------------ SETTINGS TAB ------------------------>
-        
+
       <div v-if="tabs.selected === 'settings'" class="q-pa-md arial" :class="{'desktop-only': chapters.showNewStepOverview}">
-        
+
         <div v-if="!this.quest.languages || this.quest.languages.length === 0">
           <q-item>
             <q-item-section side top>
@@ -53,15 +53,15 @@
             <q-item-section>
               <q-item-label class="big-label">{{ $t('label.SelectedLanguage') }}</q-item-label>
               <div v-for="language in form.languages" :key="language.code">
-                <q-btn 
-                  :disabled="readOnly" 
-                  class="glossy full-width q-mt-sm" 
-                  color="primary" 
+                <q-btn
+                  :disabled="readOnly"
+                  class="glossy full-width q-mt-sm"
+                  color="primary"
                   @click="selectLanguage(language.value)">{{ language.label }}</q-btn>
               </div>
             </q-item-section>
           </q-item>
-          
+
           <div class="centered q-mt-md"><strong>{{ $t('label.Or') }}</strong></div>
           <q-item>
             <q-item-section side top>
@@ -80,15 +80,15 @@
               </q-card>
             </q-item-section>
           </q-item>
-          
+
         </div>
-      
+
         <form @submit.prevent="submitSettings()" v-if="this.quest.languages.length > 0">
-          
+
           <q-chip v-if="this.quest.access === 'private'" color="primary" text-color="white" icon="lock">
             {{ $t('label.PrivateQuest') }}
           </q-chip>
-          
+
           <q-chip v-if="this.quest.access === 'public'" color="primary" text-color="white" icon="public">
             {{ $t('label.PublicQuest') }}
           </q-chip>
@@ -96,13 +96,13 @@
           <q-chip v-if="this.quest.isPremium" color="secondary" text-color="white" icon="star">
             {{ $t('label.PremiumQuest') }}
           </q-chip>
-          
+
           <q-select outlined :readonly="readOnly" emit-value map-options v-model="languages.current" :label="$t('label.Language')" :options="form.languages" :dense="true" @input="changeLanguage">
             <template v-slot:prepend>
               <q-icon name="language" />
             </template>
           </q-select>
-          
+
           <div class="outline q-pa-md q-my-sm">
             <q-input
               :readonly="readOnly"
@@ -117,20 +117,20 @@
               :error-message="$t('label.PleaseEnterATitle')"
               />
           </div>
-          
+
           <div class="outline q-pa-md q-my-sm" v-if="quest.type === 'quest'">
-            {{ $t('label.QuestType') }} 
+            {{ $t('label.QuestType') }}
             <q-icon name="help" @click.native="showHelpPopup('helpQuestType')" />
             <div class="q-gutter-md">
-              <q-radio 
-                :disable="readOnly || editor.initMode === 'advanced'" 
-                v-model="form.fields.editorMode" val="simple" 
-                :label="$t('label.basicEditor')" 
+              <q-radio
+                :disable="readOnly || editor.initMode === 'advanced'"
+                v-model="form.fields.editorMode" val="simple"
+                :label="$t('label.basicEditor')"
                 @input="changeEditorMode" />
-              <q-radio 
-                :disable="readOnly || editor.initMode === 'advanced'" 
-                v-model="form.fields.editorMode" val="advanced" 
-                :label="$t('label.advancedEditor')" 
+              <q-radio
+                :disable="readOnly || editor.initMode === 'advanced'"
+                v-model="form.fields.editorMode" val="advanced"
+                :label="$t('label.advancedEditor')"
                 @input="changeEditorMode" />
             </div>
             <div v-if="this.quest.type === 'quest' && form.fields.editorMode === 'advanced' && this.quest.isPremium">
@@ -150,24 +150,24 @@
               </q-select>
             </div>
           </div>
-          
+
           <div class="outline q-pa-md q-my-sm">
             <q-select
-              :readonly="readOnly" 
-              :label="$t('label.Difficulty')" 
-              v-model="form.fields.level" 
-              :options="form.levels" 
+              :readonly="readOnly"
+              :label="$t('label.Difficulty')"
+              v-model="form.fields.level"
+              :options="form.levels"
               emit-value map-options />
           </div>
-          
-          <div class="outline q-pa-md q-my-sm">          
+
+          <div class="outline q-pa-md q-my-sm">
             <q-select
-              :readonly="readOnly" 
-              :label="$t('label.Duration')" 
-              v-model="form.fields.duration" 
-              :options="form.durations" 
+              :readonly="readOnly"
+              :label="$t('label.Duration')"
+              v-model="form.fields.duration"
+              :options="form.durations"
               emit-value map-options />
-              
+
             <q-toggle
               :readonly="readOnly"
               :label="$t('label.ShowCountDown')"
@@ -179,9 +179,9 @@
               v-model="form.fields.countDownTime.stopGame"
               />
           </div>
-          
+
           <div class="outline q-pa-md q-my-sm">
-            {{ $t('label.StartingPointOfTheQuest') }} 
+            {{ $t('label.StartingPointOfTheQuest') }}
             <div v-if="!isIOs">
               <div class="location-gps" style="display: none">
                 <input :readonly="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" step="any" />
@@ -190,7 +190,7 @@
                 <input :readonly="readOnly" type="text" v-model="form.fields.town" />
                 <input :readonly="readOnly" type="text" v-model="form.fields.country" />
               </div>
-              
+
               <div v-if="!readOnly" class="location-address">
                 <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
                   <gmap-autocomplete v-if="tabs.selected === 'settings'" id="startingplace" :placeholder="$t('label.StartingPointOfTheQuest')" :value="form.fields.startingPlace" class="col q-input-target text-left" @place_changed="setLocation" @input="value = $event.target.value"></gmap-autocomplete>
@@ -216,7 +216,7 @@
               </table>
             </div>
           </div>
-    
+
           <div class="outline q-pa-md q-my-sm" v-if="this.quest.type === 'room'">
             <q-input
               :disable="readOnly"
@@ -231,7 +231,7 @@
               class="full-width"
             />
           </div>
-          
+
           <q-list bordered class="rounded-borders">
             <q-expansion-item
               expand-separator
@@ -416,7 +416,7 @@
                 </div>
                 <div v-if="form.fields.picture !== null">
                   <p>{{ $t('label.Picture') }} :</p>
-                  <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.picture[languages.current]" />
+                  <img class="full-width limit-size-desktop" :src="uploadUrl + '/upload/quest/' + form.fields.picture[languages.current]" />
                 </div>
                 <div v-if="!isIOs">
                   <q-btn class="full-width" v-if="!readOnly" @click="$refs['picturefile'].click()">{{ $t('label.ModifyThePicture') }}</q-btn>
@@ -428,7 +428,7 @@
                 </div>
                 <div v-if="form.fields.thumb !== null">
                   <p>{{ $t('label.SmallPicture') }} :</p>
-                  <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.thumb[languages.current]" />
+                  <img class="full-width limit-size-desktop" :src="uploadUrl + '/upload/quest/' + form.fields.thumb[languages.current]" />
                 </div>
                 <div v-if="!isIOs">
                   <q-btn class="full-width" v-if="!readOnly" @click="$refs['thumbfile'].click()">{{ $t('label.ModifyThePicture') }}</q-btn>
@@ -452,15 +452,15 @@
                   <div>{{ $t('label.Snapshots') }}:</div>
                   <div class="row">
                     <div class="col-4 centered" v-if="form.fields.snapshots.length > 0">
-                      <img style="width: 100%" :src="serverUrl + '/upload/quest/' + questId + '/snapshot/' + form.fields.snapshots[0]" />
+                      <img style="width: 100%" :src="uploadUrl + '/upload/quest/' + questId + '/snapshot/' + form.fields.snapshots[0]" />
                       <q-btn @click="removeSnapshot(0)" icon="delete"></q-btn>
                     </div>
                     <div class="col-4 centered" v-if="form.fields.snapshots.length > 1">
-                      <img style="width: 100%" :src="serverUrl + '/upload/quest/' + questId + '/snapshot/' + form.fields.snapshots[1]" />
+                      <img style="width: 100%" :src="uploadUrl + '/upload/quest/' + questId + '/snapshot/' + form.fields.snapshots[1]" />
                       <q-btn @click="removeSnapshot(1)" icon="delete"></q-btn>
                     </div>
                     <div class="col-4 centered" v-if="form.fields.snapshots.length > 2">
-                      <img style="width: 100%" :src="serverUrl + '/upload/quest/' + questId + '/snapshot/' + form.fields.snapshots[2]" />
+                      <img style="width: 100%" :src="uploadUrl + '/upload/quest/' + questId + '/snapshot/' + form.fields.snapshots[2]" />
                       <q-btn @click="removeSnapshot(2)" icon="delete"></q-btn>
                     </div>
                   </div>
@@ -539,7 +539,7 @@
                 <div v-if="this.quest.isPremium && this.quest.type === 'quest'">
                   <div v-if="form.fields.customization && form.fields.customization.logo && form.fields.customization.logo !== ''">
                     <p>{{ $t('label.YourLogo') }} :</p>
-                    <img class="limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.customization.logo" />
+                    <img class="limit-size-desktop" :src="uploadUrl + '/upload/quest/' + form.fields.customization.logo" />
                     <div class="centered"><a class="dark" @click="removeLogo">{{$t('label.Remove')}}</a></div>
                   </div>
                   <div v-if="!isIOs && !readOnly">
@@ -557,7 +557,7 @@
                 </div>
                 <div v-if="form.fields.customization && form.fields.customization.character && form.fields.customization.character !== ''">
                   <p>{{ $t('label.YourCharacter') }} :</p>
-                  <img class="full-width limit-size-desktop" style="max-width: 400px" :src="serverUrl + '/upload/quest/' + form.fields.customization.character" />
+                  <img class="full-width limit-size-desktop" style="max-width: 400px" :src="uploadUrl + '/upload/quest/' + form.fields.customization.character" />
                   <div class="centered"><a class="dark" @click="removeCharacter">{{ $t('label.Remove') }}</a></div>
                 </div>
                 <div v-if="!isIOs && !readOnly">
@@ -574,7 +574,7 @@
                 </div>
                 <div v-if="form.fields.customization && form.fields.customization.characterOnMap && form.fields.customization.characterOnMap !== ''">
                   <p>{{ $t('label.YourCharacterOnMap') }} :</p>
-                  <img class="full-width limit-size-desktop" style="max-width: 200px" :src="serverUrl + '/upload/quest/' + form.fields.customization.characterOnMap" />
+                  <img class="full-width limit-size-desktop" style="max-width: 200px" :src="uploadUrl + '/upload/quest/' + form.fields.customization.characterOnMap" />
                   <div class="centered"><a class="dark" @click="removeCharacterOnMap">{{ $t('label.Remove') }}</a></div>
                 </div>
                 <div v-if="!isIOs && !readOnly">
@@ -643,7 +643,7 @@
               <div class="q-pa-md">
                 <div v-if="form.fields.rewardPicture && form.fields.rewardPicture !== '' && !form.fields.customization.removeScoring">
                   <p>{{ $t('label.Reward') }} :</p>
-                  <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.rewardPicture" style="background-color: #f00" />
+                  <img class="full-width limit-size-desktop" :src="uploadUrl + '/upload/quest/' + form.fields.rewardPicture" style="background-color: #f00" />
                   <div>{{ $t('label.RewardPictureWarning')}}</div>
                   <div class="centered"><a class="dark" @click="removeReward">{{ $t('label.Remove') }}</a></div>
                 </div>
@@ -688,7 +688,7 @@
           <div>
             {{ $t('label.Version') }}: {{ quest.version }}
           </div>
-          
+
           <!--<div v-if="!this.quest.isPremium">
             <q-btn-group class="full-width q-mt-lg">
               <q-btn color="secondary" @click="openPremiumBox()" :label="$t('label.MovePremium')" />
@@ -696,20 +696,20 @@
             </q-btn-group>
           </div>-->
           <div class="centered">
-            <q-btn 
-              v-if="!readOnly" 
-              @click="submitSettings" 
-              color="primary" 
-              class="glossy large-button q-mt-lg" 
+            <q-btn
+              v-if="!readOnly"
+              @click="submitSettings"
+              color="primary"
+              class="glossy large-button q-mt-lg"
               test-id="btn-save-settings">{{ $t('label.Save') }}</q-btn>
           </div>
         </form>
-        
+
         <p class="centered q-pa-md" v-if="quest.status !== 'published'">
           <q-btn flat color="negative" size="md" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
         </p>
       </div>
-      
+
       <!------------------ STEPS TAB ------------------------>
         
       <div v-if="tabs.selected === 'steps'" class="q-pa-md arial scroll-on-desktop-80" :class="{'desktop-only': chapters.showNewStepOverview}">
@@ -720,13 +720,13 @@
           {{ $t('label.OverQuotaMessage') }}
           <q-btn color="primary" class="glossy large-btn" @click="showMedia()">{{ $t('label.RemoveFiles') }}</q-btn>
         </div>
-        
+
         <div v-if="form.fields.editorMode === 'simple' && chapters.items && chapters.items.length > 0">
           <p v-if="!readOnly && (!chapters.items || chapters.items.length < 1 || !chapters.items[0].steps || chapters.items[0].steps.length < 1)">{{ $t('label.AddYourSteps') }}</p>
           <ul class="list-group" v-sortable="{ onUpdate: onStepListUpdate, handle: '.handle' }">
-            <li class="list-group-item" v-for="step in chapters.items[0].steps" :key="step._id">
+            <li class="list-group-item step-hover" v-for="step in chapters.items[0].steps" :key="step._id">
               <q-icon v-if="!readOnly" class="handle" name="reorder" />
-              <div>
+              <div style="line-height: 3rem; padding: 4px">
                 <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
                 <span style="margin-top: 4px" @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
                 <q-btn v-if="!readOnly" class="float-right" @click="removeStep(step.stepId)"><q-icon name="delete" /></q-btn>
@@ -734,7 +734,7 @@
               </div>
             </li>
           </ul>
-          <p v-if="!readOnly" class="centered">
+          <p v-if="!readOnly" class="centered q-mt-md">
             <q-btn color="primary" class="glossy large-button" @click="addStep()" test-id="btn-add-step">{{ $t('label.AddAStep') }}</q-btn>
           </p>
           <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items[0] && chapters.items[0].steps && chapters.items[0].steps.length > 1">
@@ -745,7 +745,7 @@
             <q-linear-progress rounded style="height: 15px" :value="getPercentStorageUsage()" color="secondary" class="q-mt-sm" />
           </div>
         </div>
-        
+
         <div v-if="form.fields.editorMode === 'advanced'">
           <p v-if="!readOnly && (!chapters.items || chapters.items.length < 2)">{{ $t('label.AddYourChapters') }}</p>
           <!--<p class="centered" v-show="chapters.items && chapters.items.length > 6">
@@ -756,7 +756,7 @@
             <li class="step-list list-group-item align-top" v-for="chapter in chapters.items" :key="chapter._id">
               <q-icon v-if="!readOnly" class="handle" style="font-size: 1.3rem;" name="reorder" />
               <div>
-                <p class="bigger">
+                <p class="bigger" style="margin-bottom: 8px;">
                   {{ chapter.title[languages.current] || chapter.title[quest.mainLanguage] }}
                   <q-icon v-if="!readOnly" name="add_box" class="float-right q-mt-sm q-ml-md size-1" @click.native="addStep(chapter.chapterId)" />
                   <q-icon v-if="!readOnly" name="delete" class="float-right q-mt-sm q-ml-md a-bit-bigger" @click.native="removeChapter(chapter.chapterId)" />
@@ -766,7 +766,7 @@
                 <div v-if="!chapter.steps || chapter.steps.length === 0">
                   {{ $t('label.ClickOnButtonToAddStep') }}
                 </div>
-                <div v-for="step in chapter.steps" :key="step._id" style="height: 34px; overflow: hidden;display: flex;width: 100%;">
+                <div v-for="step in chapter.steps" :key="step._id" style="height: 34px; overflow: hidden;display: flex;width: 100%;" class="step-hover">
                   <div class="step-text">
                     <q-icon color="grey" class="q-mr-sm" :class="{'q-ml-md': (step.level === 2)}" :name="getIconFromStepType(step.type)">
                     </q-icon>
@@ -811,7 +811,7 @@
               </div>
             </li>
           </ul>
-        
+
           <p v-if="!readOnly" class="centered">
             <q-btn color="primary" class="glossy large-button" @click="addChapter()">{{ $t('label.AddASChapter') }}</q-btn>
           </p>
@@ -823,11 +823,11 @@
             <q-linear-progress rounded style="height: 15px" :value="getPercentStorageUsage()" color="secondary" class="q-mt-sm" />
           </div>
         </div>
-              
+
       </div>
-      
+
       <!------------------ PUBLISHING TAB ------------------------>
-        
+
       <div v-if="tabs.selected === 'publish'" class="q-pa-md arial" :class="{'desktop-only': chapters.showNewStepOverview}">
         <div v-if="quest.status === 'old'">
           <q-banner class="q-mb-md bg-warning">
@@ -862,7 +862,7 @@
           <p class="centered q-pa-md" v-if="quest.type === 'room'">
             <q-btn color="primary" class="glossy large-button" icon="play_arrow" @click="testQuest()">{{ $t('label.SeeYourQuestPage') }}</q-btn>
           </p>
-          
+
           <q-item v-if="quest.access === 'private'">
             <q-item-section side top>
               <q-icon name="people" class="left-icon" />
@@ -878,7 +878,7 @@
                 type="text"
                 :label="$t('label.InvitePeople')"
                 v-model="invitee.new.email"
-                bottom-slots  
+                bottom-slots
                 :error="!invitee.new.isExisting"
                 :error-message="$t('label.UserIsNotAGraalyUser')"
                 >
@@ -891,7 +891,7 @@
               </q-input>
             </q-item-section>
           </q-item>
-          
+
           <q-item>
             <q-item-section side top>
               <q-icon name="visibility" class="left-icon" />
@@ -905,7 +905,7 @@
               <q-item-label caption v-if="quest.access === 'private'">{{ $t('label.ActivateTheLanguageVisiblePrivate') }}</q-item-label>
             </q-item-section>
           </q-item>
-          
+
           <q-item>
             <q-item-section side top>
               <q-icon name="edit" class="left-icon" />
@@ -933,7 +933,7 @@
               </q-input>
             </q-item-section>
           </q-item>
-          
+
           <q-item>
             <q-item-section side top>
               <q-icon name="select_all" class="left-icon" />
@@ -942,17 +942,17 @@
               <q-item-label class="big-label">{{ $t('label.MarkersFile') }}</q-item-label>
               <div v-if="quest.type === 'quest'" class="q-pt-md">
                 <div v-html="$t('label.MarkersToStartQuest')" />
-                <img :src="serverUrl + '/upload/quest/' + questId + '_qrcode.png'" />
+                <img :src="uploadUrl + '/upload/quest/' + questId + '_qrcode.png'" />
               </div>
-              <div v-if="quest.type === 'room'" class="q-pt-md" v-html="$t('label.SaveQuestResultsMarker', {url1: serverUrl + '/upload/quest/' + questId + '_score1_qrcode.png', url2: serverUrl + '/upload/quest/' + questId + '_score2_qrcode.png', url3: serverUrl + '/upload/quest/' + questId + '_score3_qrcode.png'})" />
+              <div v-if="quest.type === 'room'" class="q-pt-md" v-html="$t('label.SaveQuestResultsMarker', {url1: uploadUrl + '/upload/quest/' + questId + '_score1_qrcode.png', url2: uploadUrl + '/upload/quest/' + questId + '_score2_qrcode.png', url3: uploadUrl + '/upload/quest/' + questId + '_score3_qrcode.png'})" />
             </q-item-section>
           </q-item>
-          
+
           <q-item>
             <q-item-section side top>
               <q-icon name="file_download" class="left-icon" />
             </q-item-section>
-            <q-item-section> 
+            <q-item-section>
               <q-item-label class="big-label">{{ $t('label.Downloads') }}</q-item-label>
               <div v-if="quest.type === 'quest'">
                 <!-- QR Codes for webapp mode -->
@@ -962,10 +962,10 @@
                 <!-- Texts for translation webapp mode -->
                 <div v-if="!isHybrid"><q-btn color="primary" flat @click="downloadTexts()">{{ $t('label.ExportTexts') }}</q-btn></div>
               </div>
-              
+
             </q-item-section>
           </q-item>
-          
+
           <q-item v-if="quest.type !== 'room'">
             <q-item-section side top>
               <q-icon name="file_copy" class="left-icon" />
@@ -975,7 +975,7 @@
               <q-btn color="primary" class="glossy large-button q-ma-sm" @click="duplicateQuest()">{{ $t('label.DuplicateThisQuest') }}</q-btn>
             </q-item-section>
           </q-item>
-          
+
           <q-item v-if="quest.status !== 'published'">
             <q-item-section side top>
               <q-icon name="delete" class="left-icon" />
@@ -994,19 +994,19 @@
               {{ $t('label.YouNeedToUnpublishYourQuestToRemoveIt') }}
             </q-item-section>
           </q-item>
-          
+
         </div>
-        
+
       </div>
-      
+
       <!------------------ PAYMENTS TAB ------------------------>
-        
+
       <div v-if="tabs.selected === 'payments' && isEdition" class="q-pa-md arial" :class="{'desktop-only': chapters.showNewStepOverview}">
         <q-list class="shadow-2 rounded-borders">
           <q-item v-for="payment in payments" :key="payment._id">
             <q-item-section avatar>
               <q-avatar rounded>
-                <img :src="serverUrl + '/upload/tiers/' + payment.qrCode + '.png'">
+                <img :src="uploadUrl + '/upload/tiers/' + payment.qrCode + '.png'">
               </q-avatar>
             </q-item-section>
             <q-item-section>
@@ -1044,9 +1044,9 @@
           <q-btn class="glossy large-button" flat color="primary" @click="printQRCode"><span>{{ $t('label.PrintQRCodePages') }}</span></q-btn>
         </div>
       </div>
-        
+
       <!------------------ REVIEWS TAB ------------------------>
-        
+
       <div v-if="tabs.selected === 'reviews' && isEdition" class="q-pa-md arial" :class="{'desktop-only': chapters.showNewStepOverview}">
         <q-item>
           <q-item-section side top>
@@ -1118,7 +1118,7 @@
           dense-toggle
           expand-separator
           :label="$t('label.NumberOfPlayersBySex')"
-        >    
+        >
           <q-list class="shadow-2 rounded-borders">
             <q-item v-for="statistic in statistics.statistics.sexRepartition" :key="statistic._id">
               <q-item-section>{{ $t('label.' + statistic._id) }}{{ $t('label.colons') }}{{ statistic.nb }}</q-item-section>
@@ -1136,13 +1136,13 @@
             <!--<q-infinite-scroll :handler="getReviews">-->
               <q-list highlight>
                 <q-item v-for="review in reviews" :key="review._id">
-                  
+
                   <q-item-section avatar>
                     <q-avatar>
                       <img :src="getAvatar(review.userId.picture)" />
                     </q-avatar>
                   </q-item-section>
-                    
+
                   <q-item-section>
                     <q-item-label>
                       {{ review.userId.name }}
@@ -1160,11 +1160,11 @@
             <!--</q-infinite-scroll>-->
           </q-item-section>
         </q-item>
-        
+
       </div>
-    
+
     <!------------------ RESULTS TAB ------------------------>
-        
+
       <div v-if="tabs.selected === 'results' && isEdition && quest.access === 'private'" class="q-pa-md arial" :class="{'desktop-only': chapters.showNewStepOverview}">
         <div v-if="quest.status === 'published'">
           <div v-if="ranking && ranking.items && ranking.items.length > 0">
@@ -1173,7 +1173,7 @@
                 <q-item-section top avatar>
                   <q-avatar>
                     <img v-if="rank.userData.picture && rank.userData.picture !== '' && rank.userData.picture.indexOf('http') !== -1" :src="rank.userData.picture" />
-                    <img v-if="rank.userData.picture && rank.userData.picture !== '' && rank.userData.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.userData.picture" />
+                    <img v-if="rank.userData.picture && rank.userData.picture !== '' && rank.userData.picture.indexOf('http') === -1" :src="uploadUrl + '/upload/profile/' + rank.userData.picture" />
                     <img v-if="!rank.userData.picture || rank.userData.picture === ''" src="statics/profiles/noprofile.png" />
                   </q-avatar>
                 </q-item-section>
@@ -1202,7 +1202,7 @@
                 <q-item-section avatar>
                   <q-avatar color="primary" text-color="white">
                     {{ index + 1 }}
-                  </q-avatar>                  
+                  </q-avatar>
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>{{ rank.userData.name }}</q-item-label>
@@ -1211,7 +1211,7 @@
                 <q-item-section side top avatar>
                   <q-avatar>
                     <img v-if="rank.userData.picture && rank.userData.picture !== '' && rank.userData.picture.indexOf('http') !== -1" :src="rank.userData.picture" />
-                    <img v-if="rank.userData.picture && rank.userData.picture !== '' && rank.userData.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.userData.picture" />
+                    <img v-if="rank.userData.picture && rank.userData.picture !== '' && rank.userData.picture.indexOf('http') === -1" :src="uploadUrl + '/upload/profile/' + rank.userData.picture" />
                     <img v-if="!rank.userData.picture || rank.userData.picture === ''" src="statics/profiles/noprofile.png" />
                   </q-avatar>
                 </q-item-section>
@@ -1222,18 +1222,18 @@
             {{ $t('label.NoPlayerForThisQuest') }}
           </div>
         </div>
-        
+
       </div>
-      
+
       <!------------------ MEDIA LIST AREA ------------------------>
-      
+
       <transition name="slideInBottom">
         <div class="bg-white hint panel-bottom q-pa-md" v-show="media.isOpened">
           <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.QuestMedia') }}</div>
           <q-list v-for="(item, index) in media.items" :key="item.id">
             <q-item clickable v-ripple>
               <q-item-section thumbnail @click="zoomMedia(index)">
-                <img :src="serverUrl + '/upload/quest/' + questId + item.type + item.file">
+                <img :src="uploadUrl + '/upload/quest/' + questId + item.type + item.file">
               </q-item-section>
               <q-item-section>{{ item.size }} Ko</q-item-section>
               <q-item-section side><q-btn icon="delete" @click="removeMedia(item._id)"></q-btn></q-item-section>
@@ -1246,12 +1246,12 @@
         </div>
       </transition>
       <q-dialog v-model="media.detail.isOpened">
-        <img v-if="media.items.length > 0" style="width: 100%" :src="serverUrl + '/upload/quest/' + questId + media.items[media.detail.index].type + media.items[media.detail.index].file">
+        <img v-if="media.items.length > 0" style="width: 100%" :src="uploadUrl + '/upload/quest/' + questId + media.items[media.detail.index].type + media.items[media.detail.index].file">
         <q-btn class="q-mb-xl glossy large-button" color="primary" @click="unzoomMedia()">{{ $t('label.Close') }}</q-btn>
       </q-dialog>
-      
+
       <!------------------ PREMIUM POPIN ------------------------>
-      
+
       <q-dialog v-model="premium.isOpened">
         <div class="q-pa-md">
           <img src="statics/icons/game/premium-header.png" style="width: 100%" />
@@ -1267,14 +1267,14 @@
           </div>
         </div>
       </q-dialog>
-      
+
       <!--====================== STORY =================================-->
-      
+
       <div class="over-map mobile-fit" :class="'font-' + form.fields.customization.font" v-if="story.step !== null && story.step !== 'end'">
         <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
       </div>
     </div>
-    
+
     <!--<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">-->
     <div class="col-auto">
       <div v-if="!chapters.showNewStepPageSettings && !chapters.showNewStepOverview && !chapters.showNewStepPage" class="desktop-only background-dark arial full-page-div full-height">
@@ -1284,33 +1284,18 @@
       <div v-if="chapters.showNewStepPage" class="bg-white arial full-page-div">
       <!--<q-dialog persistent v-model="chapters.showNewStepPage" maximized>-->
         <div class="scroll">
-      
+
           <!------------------ STEP TYPE SELECTION ------------------------>
-          
+
           <a class="float-right no-underline close-btn" color="grey" @click="closeStepTypePage"><q-icon name="close" class="medium-icon" /></a>
           <div class="text-h4 q-pa-md">{{ $t('label.ChooseTheStepType') }}</div>
-        
+
           <div>
             <div class="text-subtitle1 q-pa-md">{{ $t('label.Transition') }}</div>
             <q-list>
               <q-expansion-item color="primary" popup
                 group="steptype"
-                v-for="stepType in filteredStepTypes('transition')" :key="stepType.code" 
-                :icon="'fas fa-' + stepType.icon"
-                :label="$t('stepType.' + stepType.title)"
-              >
-                <div class="centered q-pa-sm">
-                  <div>{{ $t('stepType.' + stepType.description) }}</div>
-                  <q-btn color="primary" class="glossy large-button" @click.native="selectStepType(stepType)" :test-id="'btn-select-step-type-' + stepType.code">{{ $t('label.UseThisGame') }}</q-btn>
-                </div>
-              </q-expansion-item>
-            </q-list> 
-            
-            <div class="text-subtitle1 q-pa-md">{{ $t('label.Quest') }}</div>
-            <q-list>
-              <q-expansion-item color="primary" popup
-                group="steptype"
-                v-for="stepType in filteredStepTypes('enigma')" :key="stepType.code" 
+                v-for="stepType in filteredStepTypes('transition')" :key="stepType.code"
                 :icon="'fas fa-' + stepType.icon"
                 :label="$t('stepType.' + stepType.title)"
               >
@@ -1320,41 +1305,56 @@
                 </div>
               </q-expansion-item>
             </q-list>
-            
+
+            <div class="text-subtitle1 q-pa-md">{{ $t('label.Quest') }}</div>
+            <q-list>
+              <q-expansion-item color="primary" popup
+                group="steptype"
+                v-for="stepType in filteredStepTypes('enigma')" :key="stepType.code"
+                :icon="'fas fa-' + stepType.icon"
+                :label="$t('stepType.' + stepType.title)"
+              >
+                <div class="centered q-pa-sm">
+                  <div>{{ $t('stepType.' + stepType.description) }}</div>
+                  <q-btn color="primary" class="glossy large-button" @click.native="selectStepType(stepType)" :test-id="'btn-select-step-type-' + stepType.code">{{ $t('label.UseThisGame') }}</q-btn>
+                </div>
+              </q-expansion-item>
+            </q-list>
+
             <div class="q-pa-md centered">
               <q-btn color="primary" class="glossy normal-button" @click="closeStepTypePage()">{{ $t('label.Close') }}</q-btn>
             </div>
           </div>
         </div>
-        
+
       </div>
       <div v-if="chapters.showNewStepPageSettings" class="bg-white arial full-page-div scroll-on-desktop-100">
       <!--Removed by EMA, too much issues with scroll <q-dialog maximized persistent v-model="chapters.showNewStepPageSettings" class="bg-white arial">-->
-        
+
         <!------------------ STEP SETTINGS SELECTION ------------------------>
-        
+
         <stepSettings :quest="quest" :stepId="stepId" :lang="languages.current" :options="{type: chapters.newStep.type, chapterId: chapters.newStep.chapterId, previousStepId: chapters.newStep.previousStepId, mode: form.fields.editorMode}" @change="trackStepChanges" @close="closeStepSettingsPage" @openPremiumBox="openPremiumBox"></stepSettings>
-       
+
       <!--</q-dialog>-->
       </div>
-      
+
       <div v-if="chapters.showNewStepOverview" style="background: none; background-color: transparent;" class="fullscreen-mobile">
-      
+
         <!------------------ STEP SIMULATION ------------------------>
 
-        <stepPlay 
-          :step="chapters.newStep.overviewData" 
-          runId="0" 
+        <stepPlay
+          :step="chapters.newStep.overviewData"
+          runId="0"
           :customization="quest.customization ? quest.customization : {color: 'primary'}"
           :inventory="inventory"
-          :itemUsed="selectedItem" 
-          :reload="chapters.reloadStepPlay" 
+          :itemUsed="selectedItem"
+          :reload="chapters.reloadStepPlay"
           :lang="languages.current"
           :quest="quest"
           :offline="false"
-          @played="trackStepPlayed" 
-          @success="trackStepSuccess" 
-          @fail="trackStepFail" 
+          @played="trackStepPlayed"
+          @success="trackStepSuccess"
+          @fail="trackStepFail"
           @pass="trackStepPass"
           @msg="trackMessage"
           @closeAllPanels="closeAllPanels"
@@ -1370,52 +1370,52 @@
                 style="padding-top: 0 !important;"
                 v-if="quest.customization.logo && quest.customization.logo !== ''" >
                 <q-avatar size="60px">
-                  <img :src="serverUrl + '/upload/quest/' + quest.customization.logo">
+                  <img :src="uploadUrl + '/upload/quest/' + quest.customization.logo">
                 </q-avatar>
               </q-btn>
             </div>
             <div class="col centered q-py-sm">
-              <q-btn 
-                flat 
-                size="lg" 
-                :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
-                icon="work" 
+              <q-btn
+                flat
+                size="lg"
+                :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''"
+                icon="work"
                 v-if="!quest.customization || !quest.customization.hideInventory"
-                :class="{'flashing': inventory.suggest, 'bg-secondary': (inventory.isOpened && !quest.customization.color), 'bg-primary': (!inventory.isOpened && !quest.customization.color)}" 
+                :class="{'flashing': inventory.suggest, 'bg-secondary': (inventory.isOpened && !quest.customization.color), 'bg-primary': (!inventory.isOpened && !quest.customization.color)}"
                 @click="openInventory()"
                 test-id="btn-inventory"
               />
             </div>
             <div class="col centered q-py-sm">
-              <q-btn 
+              <q-btn
                 flat
-                size="lg" 
-                :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
-                icon="lightbulb" 
-                :class="{'flashing': hint.suggest, 'bg-secondary': (hint.isOpened && !quest.customization.color), 'bg-primary': (!hint.isOpened && !quest.customization.color)}" 
-                @click="askForHint()" 
-                v-show="isHintAvailable()" 
+                size="lg"
+                :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''"
+                icon="lightbulb"
+                :class="{'flashing': hint.suggest, 'bg-secondary': (hint.isOpened && !quest.customization.color), 'bg-primary': (!hint.isOpened && !quest.customization.color)}"
+                @click="askForHint()"
+                v-show="isHintAvailable()"
               />
             </div>
             <div v-if="!readOnly" class="col centered q-py-sm">
-              <q-btn 
-                flat 
-                size="lg" 
-                :style="quest.customization.color ? 'background-color: ' + quest.customization.color : ''" 
-                :class="{'bg-primary': !quest.customization.color}" 
-                icon="arrow_back" 
-                @click="stepId = -1; modifyStep(chapters.newStep.overviewData)" 
+              <q-btn
+                flat
+                size="lg"
+                :style="quest.customization.color ? 'background-color: ' + quest.customization.color : ''"
+                :class="{'bg-primary': !quest.customization.color}"
+                icon="arrow_back"
+                @click="stepId = -1; modifyStep(chapters.newStep.overviewData)"
               />
             </div>
             <div class="col centered q-py-sm">
-              <q-btn 
-                flat 
-                size="lg" 
+              <q-btn
+                flat
+                size="lg"
                 :style="quest.customization.color ? 'background-color: ' + quest.customization.color : ''"
-                icon="arrow_forward" 
-                :class="{'flashing': canMoveNextStep, 'bg-primary': !quest.customization.color}" 
-                v-show="canMoveNextStep || canPass" 
-                @click="closeOverview" 
+                icon="arrow_forward"
+                :class="{'flashing': canMoveNextStep, 'bg-primary': !quest.customization.color}"
+                v-show="canMoveNextStep || canPass"
+                @click="closeOverview"
                  test-id="btn-next-step"
               />
             </div>
@@ -1427,9 +1427,9 @@
           <span v-if="chapters.newStep.overviewData.options.displayGoodAnswers">&nbsp;{{ $t('label.Score')}} {{ score.nbGoodAnwers }}/{{ score.nbQuestions }}</span>
         </div>
       </div>
-      
+
       <!------------------ INVENTORY PAGE AREA ------------------------>
-      
+
       <q-dialog maximized v-model="inventory.isOpened">
         <div class="bg-graaly-blue-dark text-white inventory panel-bottom">
           <div class="q-pa-md">
@@ -1443,7 +1443,7 @@
             <p v-if="!inventory.items || inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
             <div class="inventory-items">
               <div v-for="(item, key) in inventory.items" :key="key" class="inventory-item" @click="selectItem(item)">
-                <img :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
+                <img :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : uploadUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
                 <p v-if="item.titles && item.titles[languages.current] && item.titles[languages.current] !== ''">{{ item.titles[languages.current] }}</p>
                 <p v-if="!(item.titles && item.titles[languages.current] && item.titles[languages.current] !== '')">{{ item.title }}</p>
               </div>
@@ -1473,7 +1473,7 @@
           </div>
         </div>
       </q-dialog>
-    <!--  
+    <!--
       <q-dialog maximized v-model="inventory.isOpened">
         <div class="inventory panel-bottom q-pa-md">
           <a class="float-right no-underline close-btn" color="grey" @click="inventory.isOpened = false"><q-icon name="close" class="medium-icon" /></a>
@@ -1485,8 +1485,8 @@
           <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
           <div class="inventory-items">
             <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
-              <img v-if="item.pictures && item.pictures[languages.current] && item.pictures[languages.current] !== ''" :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.pictures[languages.current] : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.pictures[languages.current])" />
-              <img v-if="!(item.pictures && item.pictures[languages.current] && item.pictures[languages.current] !== '')" :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
+              <img v-if="item.pictures && item.pictures[languages.current] && item.pictures[languages.current] !== ''" :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.pictures[languages.current] : uploadUrl + '/upload/quest/' + questId + '/step/new-item/' + item.pictures[languages.current])" />
+              <img v-if="!(item.pictures && item.pictures[languages.current] && item.pictures[languages.current] !== '')" :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : uploadUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
               <p v-if="item.titles && item.titles[languages.current] && item.titles[languages.current] !== ''">{{ item.titles[languages.current] }}</p>
               <p v-if="!(item.titles && item.titles[languages.current] && item.titles[languages.current] !== '')">{{ item.title }}</p>
             </div>
@@ -1494,9 +1494,9 @@
         </div>
       </q-dialog>
     -->
-      
+
       <!------------------ HINT PAGE AREA ------------------------>
-      
+
       <q-dialog maximized v-model="hint.isOpened">
         <div class="hint panel-bottom q-pa-md">
           <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Hint') }}</div>
@@ -1508,9 +1508,9 @@
         </div>
       </q-dialog>
     </div>
-    
+
   </div>
-  
+
 </template>
 
 <script>
@@ -1763,7 +1763,8 @@ export default {
       itemUsed: null,
       isIOs: utils.isIOS(),
       serverUrl: process.env.SERVER_URL,
-      pictureUploadURL: this.serverUrl + '/quest/picture/upload',
+      uploadUrl: process.env.UPLOAD_URL,
+      //pictureUploadURL: this.serverUrl + '/quest/picture/upload', // MPA 2022-08-18 seems not used
       titleMaxLength: 50,
       isHybrid: false,
       isAdmin: false,
@@ -1796,18 +1797,18 @@ export default {
   },
   async mounted() {
     utils.clearAllRunningProcesses()
-    
+
     if (this.$route.params.questId && this.$route.params.questId !== '') {
       if (typeof window.cordova !== 'undefined') {
         this.isHybrid = true
       }
-      
+
       this.loadQuestData()
     } else {
       // if quest Id is not set, redirect to quest creation page
       this.$router.push('/quest/create/welcome')
     }
-    
+
     // check user access rights
     if (this.$store.state.user.isAdmin) {
       this.isAdmin = true
@@ -1823,13 +1824,13 @@ export default {
      */
     async loadQuestData() {
       this.questId = this.$route.params.questId
-      
+
       // fill quest settings form
       let quest = await QuestService.getLastById(this.questId, 'all')
-      
+
       if (quest) {
         this.quest = quest.data
-        
+
         // if not draft => read only
         if (this.quest.status !== 'draft' && !this.isAdmin) {
           this.readOnly = true
@@ -1843,7 +1844,7 @@ export default {
             this.languages.available.push({label: this.$t('language.' + this.quest.languages[i].lang), value: this.quest.languages[i].lang})
           }
         }
-        
+
         // if empty, autofill description with main language value
         if (!this.quest.description[this.languages.current] || this.quest.description[this.languages.current] === '') {
           this.quest.description[this.languages.current] = this.quest.description[this.quest.mainLanguage]
@@ -1852,7 +1853,7 @@ export default {
         if (!this.quest.picture[this.languages.current] || this.quest.picture[this.languages.current] === '') {
           this.quest.picture[this.languages.current] = this.quest.picture[this.quest.mainLanguage]
         }
-        
+
         //this.form.fields = this.quest // removed EMA on 15112019 because issue with iOS
         this.form.fields.questId = this.quest.questId
         if (this.quest.title && Object.keys(this.quest.title).length > 0) {
@@ -1880,12 +1881,12 @@ export default {
         this.form.fields.forcePlayerToHaveAccount = this.quest.forcePlayerToHaveAccount || false
         this.form.fields.shareUserDataWithCreator = this.quest.shareUserDataWithCreator || false
         this.form.fields.playersNumber = this.quest.playersNumber
-      
+
         this.form.fields.startingPlace = this.form.fields.location.address || ""
         this.form.fields.zipcode = (this.form.fields.location && this.form.fields.location.zipcode) ? this.form.fields.location.zipcode : ""
         this.form.fields.town = (this.form.fields.location && this.form.fields.location.town) ? this.form.fields.location.town : ""
         this.form.fields.country = (this.form.fields.location && this.form.fields.location.country) ? this.form.fields.location.country : ""
-        
+
         //countdown
         if (this.quest.countDownTime) {
           // using Object.assign() here to ensure that default properties are always defined
@@ -1902,7 +1903,7 @@ export default {
           if (this.quest.premiumPrice.androidId) {
             this.form.fields.priceForPlayer = this.quest.premiumPrice.androidId
           }
-            
+
           if (!this.quest.premiumPrice.active) {
             this.showPaymentBox = false
           } else {
@@ -1915,34 +1916,34 @@ export default {
             this.showTierPaymentBox = true
           }
         }
-        
+
         // adapt data from DB to match form data structure
         if (this.form.fields.location.hasOwnProperty('coordinates') && this.form.fields.location.coordinates.length === 2) {
           let coordinates = this.form.fields.location.coordinates
           this.form.fields.location = { lng: coordinates[0], lat: coordinates[1] }
         }
-        
+
         // define tabs status
         this.tabs.progress = this.quest.creationStep
         // creation in progress => get creator back to the tab where he was
         if (this.tabs.progress <= 3) {
           this.tabs.selected = this.tabs.list[Math.min(this.tabs.progress, 2)]
         }
-        
+
         await this.refreshStepsList()
-        
+
         await this.listEditors()
-        
+
         await this.listInvitees()
-        
+
         await this.listReviews()
-        
+
         await this.getStatistics()
-        
+
         if (this.quest.access && this.quest.access === 'private') {
           this.getPrivateRanking()
         }
-        
+
         this.getReadableStorageUsage()
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1957,7 +1958,7 @@ export default {
         // if user is in an organization
         if (this.$store.state.user && this.$store.state.user.organizationId) {
           const canThisQuestBePremium = await QuestService.CheckIfCanBeMovedPremium(this.questId)
-          
+
           if (canThisQuestBePremium && canThisQuestBePremium.data && canThisQuestBePremium.data.canBePremium) {
             const movePremiumStatus = await QuestService.MoveToPremium(this.questId)
 
@@ -1978,7 +1979,7 @@ export default {
         // if user is in an organization
         if (this.$store.state.user && this.$store.state.user.organizationId) {
           const canThisQuestBePremium = await QuestService.CheckIfCanBeMovedPremium(this.questId)
-          
+
           if (canThisQuestBePremium && canThisQuestBePremium.data && canThisQuestBePremium.data.canBePremium) {
             this.premium.canMovePremium = true
           }
@@ -2042,9 +2043,9 @@ export default {
       var response = await StepService.listForAQuest(this.questId, this.quest.version, 'all')
       if (response && response.data) {
         this.chapters.items = response.data.chapters
-        
+
         const steps = response.data.steps
-        
+
         if (this.form.fields.editorMode === 'simple') {
           if (this.chapters.items && this.chapters.items.length > 0) {
             // editor simple mode
@@ -2058,7 +2059,7 @@ export default {
             var stepsWithNoParent = []
             var stepsOfChapter = []
             var parent = []
-       
+
             // Get the steps of current chapter & check if chapter has and end step
             for (var i = 0; i < steps.length; i++) {
               if (steps[i].chapterId.toString() === this.chapters.items[j].chapterId.toString()) {
@@ -2073,13 +2074,13 @@ export default {
                 stepsOfChapter.push(steps[i])
               }
             }
-            
+
             // create unsorted list of steps
             var unsorted = []
             for (i = 0; i < stepsOfChapter.length; i++) {
               unsorted.push(stepsOfChapter[i].stepId.toString())
             }
-            
+
             // create sorted list of steps
             var sorted = []
             //until all the steps are treated
@@ -2134,7 +2135,7 @@ export default {
                       // treat the position of the new item
                       if (sorted.length >= maxPosition) {
                         sorted.splice(maxPosition + 1, 0, stepId)
-                      } else {                  
+                      } else {
                         sorted.push(stepId)
                       }
                       unsorted.splice(unsorted.indexOf(stepId), 1)
@@ -2142,7 +2143,7 @@ export default {
                   }
                 }
             }
-            
+
             // apply sort && add extra formating properties
             for (i = 0; i < sorted.length; i++) {
               for (k = 0; k < stepsOfChapter.length; k++) {
@@ -2174,11 +2175,11 @@ export default {
                 this.chapters.items[j].steps.push(stepsOfChapter[k])
               }
             }
-            
+
             /*
             // first step : find the lower level steps
             for (i = 0; i < stepsOfChapter.length; i++) {
-              // if no parent (stepDone), 
+              // if no parent (stepDone),
               if ((stepsOfChapter[i].conditions && stepsOfChapter[i].conditions.length > 0) || stepsOfChapter[i].type === 'locate-marker') {
                 if (stepsOfChapter[i].type !== 'locate-marker') {
                   for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
@@ -2198,17 +2199,17 @@ export default {
                   }
                 }
                 if (noStepDone || stepsOfChapter[i].type === 'locate-marker') {
-                  order.push({key: orderIndex.toString(), value: stepsOfChapter[i].stepId}) 
+                  order.push({key: orderIndex.toString(), value: stepsOfChapter[i].stepId})
                   orderIndex++
                 }
               } else {
                 if (order.length === 0) {
                   order.push({key: "0", value: stepsOfChapter[i].stepId})
                 } else {
-                  order.push({key: orderIndex.toString(), value: stepsOfChapter[i].stepId}) 
+                  order.push({key: orderIndex.toString(), value: stepsOfChapter[i].stepId})
                   orderIndex++
                 }
-                
+
                 stepsWithNoCondition.push(stepsOfChapter[i].title[this.languages.current])
               }
             }
@@ -2227,11 +2228,11 @@ export default {
               }
               inc++
             }
-            
+
             order.sort(function(a, b) {
               return a.key < b.key ? -1 : a.key > b.key ? 1 : 0
             })
-            
+
             // order steps
             for (i = 0; i < order.length; i++) {
               for (k = 0; k < stepsOfChapter.length; k++) {
@@ -2241,7 +2242,7 @@ export default {
               }
             }
             */
-            
+
             // Checks
             this.chapters.items[j].warnings = []
             if (!hasEndOfChapterStep) {
@@ -2261,7 +2262,7 @@ export default {
         if (steps && steps.length > 0 && this.tabs.progress < 2) {
           this.tabs.progress = 2
         }
-        
+
         // update property this.quest.hasLocateMarkerSteps
         let found = false
         for (let i = 0; i < steps.length; i++) {
@@ -2313,13 +2314,13 @@ export default {
       this.$q.dialog({
         title: this.$t('label.IssuesInYouQuest'),
         message: message
-      })      
+      })
     },
     showStepWarnings (warning) {
       this.$q.dialog({
         title: this.$t('label.IssuesInYourStep'),
         message: this.$t('label.' + warning)
-      })      
+      })
     },
     /*
      * Submit settings changes
@@ -2336,8 +2337,8 @@ export default {
           'languages': [this.form.fields.mainLanguage],
           'version': this.quest.version,
           'type': this.quest.type,
-          'location': { 
-            type: 'Point', 
+          'location': {
+            type: 'Point',
             coordinates: [this.form.fields.location.lng, this.form.fields.location.lat],
             town: this.form.fields.town,
             country: this.form.fields.country,
@@ -2345,7 +2346,7 @@ export default {
             address: this.form.fields.startingPlace
           }
         }
-        
+
         if (!this.form.fields.premiumPrice) {
           this.form.fields.premiumPrice = {}
         }
@@ -2355,17 +2356,17 @@ export default {
         if (this.showTierPaymentBox) {
           this.form.fields.premiumPrice.tier = true
         }
-        
+
         let quest = Object.assign({}, this.form.fields, commonProperties)
         if (!quest.questId) {
           quest.questId = this.questId
         }
-        
+
         // save to DB (or update, if property '_id' is defined)
         this.$q.loading.show()
         let res = await QuestService.save(quest)
         this.$q.loading.hide()
-        
+
         if (res && res.data) {
           // apply playernumber changes
           this.quest.playersNumber = this.form.fields.playersNumber
@@ -2425,7 +2426,7 @@ export default {
       }
       this.$q.loading.hide()
     },
-    
+
     /*
      * Upload a new thumb for the quest
      */
@@ -2507,7 +2508,7 @@ export default {
     async removeLogo() {
       this.form.fields.customization.logo = null
     },
-    
+
     /*
      * Upload a music
      */
@@ -2540,7 +2541,7 @@ export default {
     async removeAudio() {
       this.form.fields.customization.audio[this.languages.current] = ''
     },
-    
+
     /*
      * Upload a custo character for the quest
      */
@@ -2605,7 +2606,7 @@ export default {
     async startStory() {
       // count the number of quests built, to start tutorial only for the first quest
       const questCreatedNb = await QuestService.countForUser(this.$store.state.user._id)
-      
+
       if (questCreatedNb.data && questCreatedNb.data < 2) {
         this.story.active = true
         if (this.story.step === null && this.tabs.selected === 'settings') {
@@ -2760,7 +2761,7 @@ export default {
               await QuestService.publish(this.questId, lang)
               //TODO: manage if publishing failed
               this.$q.loading.hide()
-              this.quest.status = 'published'            
+              this.quest.status = 'published'
             } else {
               var _this = this
               this.$q.dialog({
@@ -2793,7 +2794,7 @@ export default {
           this.$q.loading.show()
           await QuestService.unpublish(this.questId, lang)
           this.$q.loading.hide()
-          
+
           this.quest.status = 'unpublished'
           this.tabs.progress = 2
         }
@@ -2870,7 +2871,7 @@ export default {
             }
             Notification(this.$t('label.HereAreTheTesters', {nameList: testers.join(', ')}), 'info')
           }
-        }        
+        }
       } else {
         Notification(this.$t('label.YouNeedAtLeastXEditorsToTest', {nb: this.quest.playersNumber}), 'error')
         return false
@@ -2882,7 +2883,7 @@ export default {
      */
     async removeQuest() {
       var _this = this; // workaround for closure scope quirks
-      
+
       this.$q.dialog({
         dark: true,
         message: this.$t('label.AreYouSureYouWantToRemoveThisQuest'),
@@ -2899,11 +2900,11 @@ export default {
      */
     async duplicateQuest() {
       const response = await QuestService.clone(this.questId, this.quest.version)
-      
+
       if (response && response.data && response.data.newId) {
         const questId = response.data.newId
         var _this = this
-        
+
         this.$q.dialog({
           dark: true,
           message: this.$t('label.DoYouWantToOpenClonedQuest'),
@@ -2958,7 +2959,7 @@ export default {
      */
     async removeChapter(chapterId) {
       var _this = this; // workaround for closure scope quirks
-      
+
       // check that there are no steps in this chapter
       for (var i = 0; i < this.chapters.items.length; i++) {
         if (this.chapters.items[i].chapterId.toString() === chapterId) {
@@ -2968,7 +2969,7 @@ export default {
           }
         }
       }
-      
+
       this.$q.dialog({
         dark: true,
         message: this.$t('label.DoYouWantToRemoveThisChapter'),
@@ -2991,7 +2992,7 @@ export default {
     async modifyChapter(chapterId) {
       var _this = this; // workaround for closure scope quirks
       var chapterData = {name: '', position: 0}
-      
+
       // Get chapter position and title
       for (var i = 0; i < this.chapters.items.length; i++) {
         if (this.chapters.items[i].chapterId.toString() === chapterId) {
@@ -2999,7 +3000,7 @@ export default {
           chapterData.position = i
         }
       }
-      
+
       this.$q.dialog({
         dark: true,
         message: this.$t('label.ModifyTheChapter'),
@@ -3011,9 +3012,9 @@ export default {
       }).onOk(async (data) => {
         var title = {}
         title[_this.languages.current] = data
-        
+
         await StepService.modifyChapter({questId: _this.questId, version: _this.quest.version, chapterId: chapterId, title: title})
-        
+
         _this.chapters.items[chapterData.position].title[_this.languages.current] = data
       }).onCancel(() => {})
     },
@@ -3022,7 +3023,7 @@ export default {
      */
     async addChapter() {
       var _this = this; // workaround for closure scope quirks
-      
+
       this.$q.dialog({
         dark: true,
         message: this.$t('label.NewChapter'),
@@ -3034,9 +3035,9 @@ export default {
       }).onOk(async (data) => {
         var title = {}
         title[_this.languages.current] = data
-        
+
         await StepService.modifyChapter({questId: _this.questId, version: _this.quest.version, chapterId: '0', title: title})
-        
+
         await this.refreshStepsList()
       }).onCancel(() => {})
     },
@@ -3049,7 +3050,7 @@ export default {
       if (step && step.stepId) {
         var _this = this
         // add timer else the watcher does not work every time
-        setTimeout(function() { 
+        setTimeout(function() {
           _this.stepId = step.stepId
           _this.chapters.newStep.type = _this.getStepTypeInformations(step.type)
           _this.chapters.newStep.chapterId = step.chapterId
@@ -3078,7 +3079,7 @@ export default {
         this.chapters.newStep.scrollPosition = document.documentElement.scrollTop
       }
       this.closeAllPanels()
-      
+
       // Load step data for selected language
       const response = await StepService.getById(this.stepId, this.quest.version, this.languages.current)
       if (response && response.data) {
@@ -3146,7 +3147,7 @@ export default {
       this.tabs.selected = 'steps'
       // refresh quest size
       await this.refreshMediaSize()
-    }, 
+    },
     /*
      * add a step
      */
@@ -3220,7 +3221,7 @@ export default {
     */
     async selectLanguage(selLang) {
       this.languages.current = selLang
-      
+
       // check if quest is already available for this lang
       let questConfiguredForThisLanguage = false
       if (this.quest.languages) {
@@ -3230,15 +3231,15 @@ export default {
           }
         }
       }
-      
+
       if (!questConfiguredForThisLanguage) {
         // raises blocking exception if any problem occurs
         await QuestService.addLanguage(this.questId, selLang)
       }
-      
+
       // refresh quest data
       await this.loadQuestData()
-      
+
       // if quest title is empty, autofill it with a default value
       if (!this.quest.title[selLang] || this.quest.title[selLang] === '') {
         if (selLang === this.quest.mainLanguage) {
@@ -3249,7 +3250,7 @@ export default {
           this.quest.title[selLang] = this.quest.title[this.quest.mainLanguage]
         }
       }
-      
+
       if (this.story.active) {
         // start configuration story
         this.story.step = 18
@@ -3268,11 +3269,11 @@ export default {
           }
         }
       }
-      
+
       if (!questConfiguredForThisLanguage) {
         // ask the user if he want to create the language
         var _this = this;
-      
+
         this.$q.dialog({
           dark: true,
           message: this.$t('label.AreYouSureToAddThisNewLanguage'),
@@ -3281,10 +3282,10 @@ export default {
           }).onOk(async () => {
             // raises blocking exception if any problem occurs
             await QuestService.addLanguage(_this.questId, language)
-            
+
             // refresh quest data
             await this.loadQuestData()
-        
+
             // if quest title is empty, autofill it with a default value
             if (!this.quest.title[language] || this.quest.title[language] === '') {
               if (language === this.quest.mainLanguage) {
@@ -3294,14 +3295,14 @@ export default {
                 // copy value from main language
                 this.quest.title[language] = this.quest.title[this.quest.mainLanguage]
               }
-            }            
+            }
           }).onCancel(async () => {
             _this.languages.current = _this.quest.languages[0].lang
           })
       } else {
         // refresh quest data
         await this.loadQuestData()
-            
+
         // if quest title is empty, autofill it with a default value
         if (!this.quest.title[language] || this.quest.title[language] === '') {
           if (language === this.quest.mainLanguage) {
@@ -3386,7 +3387,7 @@ export default {
       this.chapters.reloadStepPlay = false // reset the overview
       this.chapters.newStep.type = {}
       this.chapters.showNewStepPage = false
-    }, 
+    },
     /*
      * Filter step types based on main category code
      */
@@ -3406,7 +3407,7 @@ export default {
       this.chapters.showNewStepPageSettings = true
       // move to top
       this.moveToTop()
-      
+
       if (this.countSteps() === 0 && this.story.active) {
         this.story.step = 20
       }
@@ -3434,7 +3435,7 @@ export default {
       }
       this.chapters.showNewStepOverview = true
       this.stepId = step.id
-      
+
       const response = await StepService.getById(this.stepId, this.quest.version, this.languages.current)
       if (response && response.data) {
         this.chapters.newStep.overviewData = response.data
@@ -3443,16 +3444,16 @@ export default {
         // add timer else the watcher is not working in stepPlay
         var _this = this
         setTimeout(function() { _this.chapters.reloadStepPlay = true }, 300)
-        
+
         if (this.story.active && this.countSteps() === 0) {
           this.story.step = 21
         }
-        
+
         // refresh quest media size
         await this.refreshMediaSize()
-        
+
         await this.refreshStepsList()
-        
+
         // load inventory for steps use-item
         if (this.chapters.newStep.overviewData.type === 'use-item') {
           await this.fillInventory()
@@ -3487,7 +3488,7 @@ export default {
       this.hideHint()
     },
     /*
-     * Track message sent 
+     * Track message sent
      */
     async trackMessage (message) {
       if (message === 'suggestInventory') {
@@ -3616,7 +3617,7 @@ export default {
       } else {
         this.warnings.inventoryMissing = true
       }
-      
+
       this.$q.loading.hide()
     },
     /*
@@ -3644,9 +3645,9 @@ export default {
       if (this.chapters.newStep.overviewData.type !== 'use-item') {
         this.inventory.detail.isOpened = true
         if (item.pictures && item.pictures[this.languages.current] && item.pictures[this.languages.current] !== '') {
-          this.inventory.detail.url = ((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
+          this.inventory.detail.url = ((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.uploadUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
         } else {
-          this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
+          this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.uploadUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
         }
         if (item.titles && item.titles[this.languages.current] && item.titles[this.languages.current] !== '') {
           this.inventory.detail.title = item.titles[this.languages.current]
@@ -3703,9 +3704,9 @@ export default {
      * Check if a hint is available for the step
      */
     isHintAvailable() {
-      return ((this.chapters.newStep.overviewData && 
+      return ((this.chapters.newStep.overviewData &&
         this.chapters.newStep.overviewData.hasOwnProperty("hint") &&
-        this.chapters.newStep.overviewData.hint !== '' && 
+        this.chapters.newStep.overviewData.hint !== '' &&
         this.chapters.newStep.overviewData.hint.length > 0))
     },
     /*
@@ -3721,11 +3722,11 @@ export default {
         _this.form.fields.location.lng = position.coords.longitude
         //_this.$v.form.fields.location.lat.$touch()
         //_this.$v.form.fields.location.lng.$touch()
-      }, 
-      this.getLocationError, 
-      { 
-        timeout: 5000, 
-        maximumAge: 10000 
+      },
+      this.getLocationError,
+      {
+        timeout: 5000,
+        maximumAge: 10000
       });
     },
     /*
@@ -3757,7 +3758,7 @@ export default {
     async showMedia() {
       // load quest medias
       await this.loadMedia()
-      
+
       // open the panel
       this.media.isOpened = true
     },
@@ -3767,7 +3768,7 @@ export default {
     async loadMedia() {
       // load quest medias
       let media = await QuestService.listMedia(this.questId, this.quest.version)
-      
+
       if (media && media.data) {
         this.media.items = media.data
       }
@@ -3778,7 +3779,7 @@ export default {
     async refreshMediaSize() {
       // load quest media size
       let media = await QuestService.getSize(this.questId, this.quest.version)
-      
+
       if (media && media.data) {
         this.quest.size = media.data.size
       }
@@ -3789,11 +3790,11 @@ export default {
     async removeMedia(id) {
       // Remove the media from the server
       let removeStatus = await QuestService.removeMedia(this.questId, this.quest.version, id)
-      
+
       if (!removeStatus) {
         this.$q.dialog({
           message: this.$t("label.TechnicalIssue")
-        })   
+        })
       } else {
         // refresh media list
         await this.loadMedia()
@@ -3832,13 +3833,13 @@ export default {
      */
     downloadMarkers() {
       let quasarThis = this
-      
+
       // see https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-file/#create-a-temporary-file
       window.requestFileSystem(window.TEMPORARY, 5 * 1024 * 1024 /* reserved size in bytes */, (fs) => {
         let req = new XMLHttpRequest()
         req.open("GET", "statics/markers/all.pdf", true)
         req.responseType = "blob"
-        
+
         req.onload = function(ev) {
           if (this.status !== 200) {
             Notification(quasarThis.$t('label.TechnicalIssue'), 'error')
@@ -3846,7 +3847,7 @@ export default {
             return
           }
           let blob = new Blob([this.response], { type: 'application/pdf' })
-          
+
           // cordova.file.externalDataDirectory <= maybe for persistent storage
           fs.root.getFile("all.pdf", { create: true, exclusive: false }, function (fileEntry) {
             // Create a FileWriter object for our FileEntry (log.txt).
@@ -3854,9 +3855,9 @@ export default {
               fileWriter.onwriteend = (ev) => {
                 cordova.plugins.fileOpener2.open(
                   ev.target.localURL, // You can also use a Cordova-style file uri: cdvfile://localhost/persistent/Download/starwars.pdf
-                  'application/pdf', 
-                  { 
-                    error: (err) => { 
+                  'application/pdf',
+                  {
+                    error: (err) => {
                       console.error('Could not open PDF markers file', err);
                     },
                     success: () => {}
@@ -3867,7 +3868,7 @@ export default {
               fileWriter.onerror = (err) => {
                 console.error("Failed file write: ", err);
               }
-              
+
               fileWriter.write(blob)
             });
           }, (err) => {
@@ -3875,7 +3876,7 @@ export default {
             console.error('Could not create PDF markers file on device system', err)
           })
         }
-        
+
         req.send()
       }, (err) => {
         Notification(quasarThis.$t('label.TechnicalIssue'), 'error')
@@ -3886,9 +3887,26 @@ export default {
      * download texts of the game
      */
     async downloadTexts() {
-      //const fileData = 
-      await StepService.generateTextsExportFile(this.questId, this.quest.version, this.languages.current)
-      window.open(this.serverUrl + '/upload/quest/' + this.questId + '/texts_fr.csv', "_self")
+      try {
+        const response = await StepService.generateTextsExportFile(this.questId, this.quest.version, this.languages.current)
+        
+        if (!response.hasOwnProperty('data') || !response.data.hasOwnProperty('result')) {
+          throw new Error('Could not retrieve texts from server')
+        }
+        
+        // adapted from https://stackoverflow.com/a/14966131/488666
+        let csvContent = "data:text/csv;charset=utf-8," + response.data.result
+        let encodedUri = encodeURI(csvContent);
+        let link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "texts_" + this.languages.current + ".csv");
+        document.body.appendChild(link); // Required for FF
+
+        link.click(); // This will download the data file
+      } catch (err) {
+        console.error(err)
+        Notification(this.$t('label.TechnicalIssue'), 'error')
+      }
     },
     /*
      * Create a new QR Code for a player that paied
@@ -3923,7 +3941,7 @@ export default {
       }
     },
     downloadQRCode(qrCode) {
-      utils.openExternalLink(this.serverUrl + '/upload/tiers/' + qrCode + '.png')
+      utils.openExternalLink(this.uploadUrl + '/upload/tiers/' + qrCode + '.png')
     },
     async removeCode(code) {
       this.$q.dialog({
@@ -3954,14 +3972,14 @@ export default {
     /*
      * Get avatar URL given file name (may be already an URL)
      * TODO: maybe needed at other places => move to utils
-     * @param    {String}    filename     
+     * @param    {String}    filename
      */
     getAvatar (filename) {
       if (filename) {
         if (filename.indexOf('http') !== -1) {
           return filename
         } else {
-          return this.serverUrl + '/upload/profile/' + filename
+          return this.uploadUrl + '/upload/profile/' + filename
         }
       } else {
         return 'statics/profiles/noprofile.png'
@@ -3974,7 +3992,7 @@ export default {
     getTabIcon(number) {
       let creationTodoIcon = this.tabs.icons[number - 1] // icons array indexes start at 0
       let creationDoneIcon = 'check_circle'
-      
+
       if (this.isEdition || this.quest.type !== 'quest') {
         return 'img:'
       } else {
@@ -3987,17 +4005,22 @@ export default {
     trackCallBackFunction() {
       return false
     },
-    
+
     async selectSample(sample) {
-      // Remove quest created 
-      await QuestService.remove(this.questId, this.quest.version)
-      
-      // create new quest with sample
-      const response = await QuestService.createFromSample(sample, 1, this.quest.access, this.quest.isPremium)
-      
-      if (response && response.data && response.data.newId) {
-        const questId = response.data.newId
-        this.$router.push('/quest/settings/' + questId)
+      try {
+        // Remove quest created
+        await QuestService.remove(this.questId, this.quest.version)
+
+        // create new quest with sample
+        const response = await QuestService.createFromSample(sample, 1, this.quest.access, this.quest.isPremium)
+
+        if (response && response.data && response.data.newId) {
+          const questId = response.data.newId
+          this.$router.push('/quest/settings/' + questId)
+        }
+      } catch (err) {
+        console.error(err)
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
     },
     /*
@@ -4036,4 +4059,12 @@ export default {
 
 <style>
 .review-text { color: black; font-size: 0.8rem; white-space: pre-line; }
+.step-hover{
+  padding: 0;
+  transition: 500ms;
+  border-bottom: 1px solid transparent;
+}
+.step-hover:hover{
+  border-bottom: 1px solid #d60b52;
+}
 </style>

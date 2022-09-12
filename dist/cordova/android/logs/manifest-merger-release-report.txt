@@ -33,10 +33,12 @@ INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src
 	android:name
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:43:131-179
 manifest
+
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-60:12
 INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-60:12
 INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-60:12
 INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-60:12
+
 MERGED from [com.journeyapps:zxing-android-embedded:3.3.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\aaff7e270234101193bafbd58085fcbf\jetified-zxing-android-embedded-3.3.0\AndroidManifest.xml:17:1-55:12
 MERGED from [com.facebook.android:facebook-android-sdk:4.25.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\e4f6ad75dc96d0a92130469fd611d848\jetified-facebook-android-sdk-4.25.0\AndroidManifest.xml:21:1-50:12
 MERGED from [androidx.appcompat:appcompat:1.0.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\5a88197cc409e98036d796508dba5496\appcompat-1.0.0\AndroidManifest.xml:17:1-22:12
@@ -76,17 +78,17 @@ INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src
 INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-60:12
 INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-60:12
 	package
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:103-123
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:102-122
 		INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml
 		INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml
 	android:versionName
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:74-102
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:74-101
 		INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml
 		INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml
 	android:hardwareAccelerated
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:11-45
 	xmlns:android
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:124-182
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:123-181
 	android:versionCode
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:46-73
 		INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml
@@ -182,7 +184,9 @@ ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\ma
 	android:name
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:21:20-74
 application
+
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:3-54:17
+
 MERGED from [com.journeyapps:zxing-android-embedded:3.3.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\aaff7e270234101193bafbd58085fcbf\jetified-zxing-android-embedded-3.3.0\AndroidManifest.xml:45:5-53:19
 MERGED from [com.journeyapps:zxing-android-embedded:3.3.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\aaff7e270234101193bafbd58085fcbf\jetified-zxing-android-embedded-3.3.0\AndroidManifest.xml:45:5-53:19
 MERGED from [com.facebook.android:facebook-android-sdk:4.25.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\e4f6ad75dc96d0a92130469fd611d848\jetified-facebook-android-sdk-4.25.0\AndroidManifest.xml:28:5-48:19
@@ -210,6 +214,7 @@ MERGED from [com.android.billingclient:billing:3.0.3] C:\Users\ericm\.gradle\cac
 activity#graaly.app.MainActivity
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:23:5-34:16
 	android:screenOrientation
+
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:23:253-289
 	android:label
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:23:156-193
@@ -219,12 +224,15 @@ ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\ma
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:23:353-395
 	android:exported
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:23:132-155
+
 	android:configChanges
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:23:15-131
 	android:theme
+
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:23:290-352
 	android:name
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:23:225-252
+
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:24:7-27:23
 	android:label
@@ -261,6 +269,7 @@ ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\ma
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:32:45-67
 activity#com.facebook.FacebookActivity
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:35:5-205
+
 MERGED from [com.facebook.android:facebook-android-sdk:4.25.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\e4f6ad75dc96d0a92130469fd611d848\jetified-facebook-android-sdk-4.25.0\AndroidManifest.xml:29:9-32:66
 MERGED from [com.facebook.android:facebook-android-sdk:4.25.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\e4f6ad75dc96d0a92130469fd611d848\jetified-facebook-android-sdk-4.25.0\AndroidManifest.xml:29:9-32:66
 	android:label
@@ -268,10 +277,11 @@ MERGED from [com.facebook.android:facebook-android-sdk:4.25.0] C:\Users\ericm\.g
 	android:exported
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:35:99-122
 	android:configChanges
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:35:15-98
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:34:15-98
 	android:theme
 		ADDED from [com.facebook.android:facebook-android-sdk:4.25.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\e4f6ad75dc96d0a92130469fd611d848\jetified-facebook-android-sdk-4.25.0\AndroidManifest.xml:32:13-63
 	android:name
+
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:35:159-203
 activity#com.cordovaplugincamerapreview.CameraActivity
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:36:5-180
@@ -283,6 +293,7 @@ ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\ma
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:36:137-178
 	android:name
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:36:39-99
+
 meta-data#com.facebook.sdk.ApplicationId
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:46:5-97
 	android:value
@@ -304,11 +315,13 @@ ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\ma
 receiver#nl.xservices.plugins.ShareChooserPendingIntent
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:49:5-53:16
 	android:enabled
+
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:49:15-37
 	android:exported
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:49:38-61
 	android:name
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:49:62-123
+
 intent-filter#action:name:android.intent.action.SEND
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:50:7-52:23
 action#android.intent.action.SEND
@@ -316,13 +329,16 @@ ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\ma
 	android:name
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:51:17-58
 uses-feature#android.hardware.camera
+
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:55:3-57
 MERGED from [com.journeyapps:zxing-android-embedded:3.3.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\aaff7e270234101193bafbd58085fcbf\jetified-zxing-android-embedded-3.3.0\AndroidManifest.xml:24:5-26:36
 MERGED from [com.journeyapps:zxing-android-embedded:3.3.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\aaff7e270234101193bafbd58085fcbf\jetified-zxing-android-embedded-3.3.0\AndroidManifest.xml:24:5-26:36
 	android:name
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:55:17-55
 uses-feature#android.hardware.camera.autofocus
+
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:56:3-92
+
 MERGED from [com.journeyapps:zxing-android-embedded:3.3.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\aaff7e270234101193bafbd58085fcbf\jetified-zxing-android-embedded-3.3.0\AndroidManifest.xml:32:5-34:36
 MERGED from [com.journeyapps:zxing-android-embedded:3.3.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\aaff7e270234101193bafbd58085fcbf\jetified-zxing-android-embedded-3.3.0\AndroidManifest.xml:32:5-34:36
 	android:required
@@ -340,7 +356,9 @@ ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\ma
 	android:name
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:58:17-58
 uses-feature#android.hardware.camera.front
+
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:59:3-63
+
 MERGED from [com.journeyapps:zxing-android-embedded:3.3.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\aaff7e270234101193bafbd58085fcbf\jetified-zxing-android-embedded-3.3.0\AndroidManifest.xml:27:5-29:36
 MERGED from [com.journeyapps:zxing-android-embedded:3.3.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\aaff7e270234101193bafbd58085fcbf\jetified-zxing-android-embedded-3.3.0\AndroidManifest.xml:27:5-29:36
 	android:name

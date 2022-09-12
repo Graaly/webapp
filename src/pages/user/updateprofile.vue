@@ -37,7 +37,7 @@
         </div>
       </div>
       <form class="q-mt-lg q-pa-md q-ma-md background-lighter rounded" @submit.prevent="submitProfileChanges()">
-        
+
         <q-input
           dark
           v-model="profile.form.name"
@@ -48,7 +48,7 @@
           :error="$v.profile.form.name.$error"
           :error-message="$t('label.PleaseEnterYourName')"
           />
-          
+
         <q-input
           dark
           v-model="profile.form.email"
@@ -59,7 +59,7 @@
           :error="$v.profile.form.email.$error"
           :error-message="$t('label.PleaseEnterAValidEmailAddress')"
           />
-          
+
         <q-input
           dark
           v-if="displayPassword"
@@ -71,7 +71,7 @@
           :error="$v.profile.form.password.$error"
           :error-message="!$v.profile.form.password.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.profile.form.password.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
           />
-        
+
         <q-input
           dark
           v-model="profile.form.description"
@@ -80,7 +80,7 @@
           type="textarea"
           :min-rows="3"
           />
-        
+
         <q-select
           dark
           :label="$t('label.YourCountry')"
@@ -96,7 +96,7 @@
             <q-btn round dense flat icon="help" @click="helpFields" />
           </template>
         </q-select>
-          
+
         <q-input
           dark
           v-model="profile.form.zipCode"
@@ -110,35 +110,35 @@
             <q-btn round dense flat icon="help" @click="helpFields" />
           </template>
         </q-input>
-          
-        <q-select 
+
+        <q-select
           dark
-          :label="$t('label.YourLanguage')" 
-          v-model="profile.form.language" 
-          :options="languages" 
-          emit-value 
-          map-options 
+          :label="$t('label.YourLanguage')"
+          v-model="profile.form.language"
+          :options="languages"
+          emit-value
+          map-options
           @input="changeLanguage" />
-        
-        <q-select 
+
+        <q-select
           dark
-          :label="$t('label.YourSex')" 
-          v-model="profile.form.sex" 
-          :options="sexes" 
-          emit-value 
+          :label="$t('label.YourSex')"
+          v-model="profile.form.sex"
+          :options="sexes"
+          emit-value
           map-options
           bottom-slots>
           <template v-slot:after>
             <q-btn round dense flat icon="help" @click="helpFields" />
           </template>
         </q-select>
-        
-        <q-select 
+
+        <q-select
           dark
-          :label="$t('label.YourAge')" 
-          v-model="profile.form.age" 
-          :options="ages" 
-          emit-value map-options 
+          :label="$t('label.YourAge')"
+          v-model="profile.form.age"
+          :options="ages"
+          emit-value map-options
           @blur="$v.profile.form.age.$touch"
           bottom-slots
           :error="$v.profile.form.age.$error"
@@ -147,67 +147,67 @@
             <q-btn round dense flat icon="help" @click="helpFields" />
           </template>
           </q-select>
-        
-        <q-input 
+
+        <q-input
           dark
-          v-model="profile.form.phone" 
-          :label="$t('label.YourPhoneNumber')" 
+          v-model="profile.form.phone"
+          :label="$t('label.YourPhoneNumber')"
           :placeholder="$t('label.phoneExample')">
           <template v-slot:after>
             <q-btn round dense flat icon="help" @click="helpFields" />
           </template>
         </q-input>
-        
+
         <div class="q-pt-md centered">
-          <q-btn 
-            color="primary" 
-            class="glossy large-btn" 
+          <q-btn
+            color="primary"
+            class="glossy large-btn"
             @click="submitProfileChanges()"
             :label="$t('label.Save')" />
-          <q-btn 
+          <q-btn
              v-if="$store.state.user.name === ''"
-            color="primary" 
+            color="primary"
             class="q-pt-md"
-            flat 
+            flat
             @click="backToMap()"
             :label="$t('label.MaybeLater')" />
         </div>
       </form>
-      
+
       <form class="q-mt-lg q-pa-md q-ma-md background-lighter rounded" v-if="!displayPassword" @submit.prevent="submitProfileChanges()">
         <div class="centered">{{ $t('label.ChangeYourPassword') }}</div>
-        
-        <q-input 
+
+        <q-input
           dark
-          type="password" 
-          v-model="profile.form.oldPassword" 
+          type="password"
+          v-model="profile.form.oldPassword"
           :label="$t('label.CurrentPassword')"
           @blur="$v.profile.form.oldPassword.$touch"
           bottom-slots
           :error="$v.profile.form.oldPassword.$error"
-          :error-message="!$v.profile.form.oldPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.profile.form.oldPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"          
+          :error-message="!$v.profile.form.oldPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.profile.form.oldPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
           />
-        
-        <q-input 
+
+        <q-input
           dark
-          type="password" 
-          v-model="profile.form.newPassword" 
+          type="password"
+          v-model="profile.form.newPassword"
           :label="$t('label.NewPassword')"
           @blur="$v.profile.form.newPassword.$touch"
           bottom-slots
           :error="$v.profile.form.newPassword.$error"
-          :error-message="!$v.profile.form.newPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.profile.form.newPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"                    
+          :error-message="!$v.profile.form.newPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.profile.form.newPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
           />
-        
+
         <div class="q-pt-md centered">
-          <q-btn 
-            color="primary" 
-            class="glossy large-btn" 
+          <q-btn
+            color="primary"
+            class="glossy large-btn"
             @click="submitChangePassword()"
             :label="$t('label.Save')" />
         </div>
       </form>
-      
+
       <div class="q-mt-lg q-pa-md q-ma-md background-lighter rounded">
         <div class="centered">{{ $t('label.RemoveYourAccount') }}</div>
         <p class="subtitle6">{{ $t('label.RemoveYourAccountDesc') }}</p>
@@ -222,9 +222,9 @@
       </div>
     </div>
     <!--<gmap-autocomplete id="destination" :placeholder="$t('label.Address')" class="col q-input-target text-left" @input="value = $event.target.value" />-->
-        
+
     <!------------------ REWARDS POPUP ------------------------>
-    
+
     <q-dialog v-model="showHelpPopup">
       <q-card>
         <q-card-section class="popup-header centered">
@@ -233,7 +233,7 @@
         </q-card-section>
 
         <q-separator />
-        
+
         <q-card-section class="subtitle5">
           <!--{{ $t('label.AllTheseDataAreOptional') }} -->
           <ul>
@@ -265,12 +265,12 @@ export default {
     return {
       profile: {
         form: {
-          name: "--", 
+          name: "--",
           description: "",
-          picture: "", 
+          picture: "",
           phone: "",
-          zipCode: "", 
-          country: "", 
+          zipCode: "",
+          country: "",
           language: "en",
           sex: "",
           age: "",
@@ -286,7 +286,8 @@ export default {
       languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
       displayPassword: false,
       showHelpPopup: false,
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL
     }
   },
   mounted() {
@@ -315,7 +316,7 @@ export default {
       if (this.profile.form.picture && this.profile.form.picture.indexOf('http') !== -1) {
         return this.profile.form.picture
       } else if (this.profile.form.picture) {
-        return this.serverUrl + '/upload/profile/' + this.profile.form.picture
+        return this.uploadUrl + '/upload/profile/' + this.profile.form.picture
       } else {
         return 'statics/images/icon/profile-small.png'
       }
@@ -348,7 +349,7 @@ export default {
         this.$q.loading.show()
         let modificationStatus = await AuthService.modifyAccount(modifications)
         this.$q.loading.hide()
-        
+
         if (modificationStatus.status >= 300 && modificationStatus.data && modificationStatus.data.message) {
           Notification(this.$t('label.' + modificationStatus.data.message), 'warning')
         } else {
@@ -388,7 +389,7 @@ export default {
         this.$q.loading.show()
         let modificationStatus = await AuthService.modifyAccount(modifications)
         this.$q.loading.hide()
-          
+
         if (modificationStatus.status >= 300 && modificationStatus.data && modificationStatus.data.message) {
           Notification(this.$t('label.' + modificationStatus.data.message), 'warning')
         } else {
@@ -409,13 +410,13 @@ export default {
     /*
      * Change interface language dynamically
      */
-    changeLanguage() {        
+    changeLanguage() {
       this.$i18n.locale = this.profile.form.language
     },
     /*
      * Show help message
      */
-    helpFields() {        
+    helpFields() {
       this.showHelpPopup = true
     },
     /*
@@ -456,7 +457,7 @@ export default {
      */
     async removeAccount() {
       var _this = this; // workaround for closure scope quirks
-      
+
       this.$q.dialog({
         dark: true,
         message: this.$t('label.AreYouSureYouWantToRemoveYourAccount'),

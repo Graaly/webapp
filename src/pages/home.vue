@@ -224,7 +224,7 @@
               <q-list v-for="(item, index) in success.ranking" :key="index">
                 <q-item-label header>{{ item.city }}</q-item-label>
                 <q-item style="flex-wrap: wrap">
-                  <img v-for="(reward, index2) in item.rewards" :class="{'reward': true, 'disabled': !reward.won}" :key="index2" :src="serverUrl + '/upload/quest/' + reward.image" />
+                  <img v-for="(reward, index2) in item.rewards" :class="{'reward': true, 'disabled': !reward.won}" :key="index2" :src="uploadUrl + '/upload/quest/' + reward.image" />
                 </q-item>
               </q-list>
               {{ $t("label.PlayAllQuestsInACityToWin") }}
@@ -321,6 +321,7 @@ export default {
       searchText: '',
       questList: [],
       serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL,
       //showSuccess: false,
       //showProfile: false,
       showSearch: false,
@@ -846,7 +847,7 @@ export default {
       if (user.picture && user.picture.indexOf('http') !== -1) {
         return user.picture
       } else if (user.picture) {
-        return this.serverUrl + '/upload/profile/' + user.picture
+        return this.uploadUrl + '/upload/profile/' + user.picture
       } else {
         return 'statics/images/icon/profile-small.png'
       }
@@ -856,6 +857,7 @@ export default {
 </script>
 
 <style>
+
 .q-item-label > p { padding: 0; margin: 0; }
 
 .no-internet-connection {

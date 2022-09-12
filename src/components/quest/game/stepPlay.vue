@@ -26,25 +26,25 @@
     </div>
     <div v-if="!showNonHybridQRReader" :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'" :style="'color: ' + customization.fontColor">
       <!------------------ QUEST TIMER ------------------------>
-      <div v-if="timer && timer.remaining > 0">
+      <div v-if="timer && timer.enabled">
         <q-linear-progress
           size="25px"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
-          :value="timer.remaining"
-          :color="(timer.remaining < 0.1 ? 'negative' : ( timer.remaining < 0.25 ? 'warning' : 'positive'))"
+          :value="Math.abs(timer.remaining)"
+          :color="(timer.remaining < 0 ? 'negative' : ( timer.remaining < 0.25 ? 'warning' : 'positive'))"
           v-if="!isIOs"
         >
           <div class="absolute-full flex flex-center">
-            <q-badge color="white" text-color="black" :label="parseInt(timer.remainingMinutes, 10) + ' ' + $t('label.minutes')" />
+            <q-badge color="white" text-color="black" :label="parseInt(Math.abs(timer.remainingMinutes), 10) + ' ' + $t('label.minutes')" />
           </div>
         </q-linear-progress>
         <div
           style="height: 25px; position: relative;"
-          :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
-          class="bg-positive text-white centered"
+          :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar', 'bg-positive': timer.remaining > 0.25,  'bg-warning': (timer.remaining <= 0.25 && timer.remaining > 0), 'bg-negative': timer.remaining <= 0 }"
+          class="text-white centered"
           v-if="isIOs"
           >
-          <strong>{{ parseInt(timer.remainingMinutes, 10) + ' ' + $t('label.minutes') }}</strong>
+          <strong>{{ parseInt(Math.abs(timer.remainingMinutes), 10) + ' ' + $t('label.minutes') }}</strong>
         </div>
       </div>
       <!------------------ STEP TIMER ------------------------>
@@ -138,10 +138,10 @@
         </div>
         <div class="video" v-if="step.videoStream && step.videoStream[lang]">
           <video v-if="!step.options || !step.options.rotateVideo" class="full-width" controls controlsList="nodownload" autoplay>
-            <source :src="(step.videoStream && step.videoStream[lang] && step.videoStream[lang].indexOf('blob:') !== -1) ? step.videoStream[lang] : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream[lang]" type="video/mp4" />
+            <source :src="(step.videoStream && step.videoStream[lang] && step.videoStream[lang].indexOf('blob:') !== -1) ? step.videoStream[lang] : uploadUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream[lang]" type="video/mp4" />
           </video>
           <video v-if="step.options && step.options.rotateVideo" controls controlsList="nodownload" autoplay style="position: absolute;transform: rotate(90deg);transform-origin: bottom left;width: 100vh;height: 100vw;margin-top: -100vw;object-fit: cover;z-index: 4;visibility: visible;">
-            <source :src="(step.videoStream && step.videoStream[lang] && step.videoStream[lang].indexOf('blob:') !== -1) ? step.videoStream[lang] : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream[lang]" type="video/mp4" />
+            <source :src="(step.videoStream && step.videoStream[lang] && step.videoStream[lang].indexOf('blob:') !== -1) ? step.videoStream[lang] : uploadUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream[lang]" type="video/mp4" />
           </video>
         </div>
       </div>
@@ -208,9 +208,9 @@
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
         <div class="item">
-          <img 
-            style="width: 80%" 
-            :src="((step.options.picture.indexOf('statics/') > -1 || step.options.picture.indexOf('blob:') !== -1) ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" 
+          <img
+            style="width: 80%"
+            :src="((step.options.picture.indexOf('statics/') > -1 || step.options.picture.indexOf('blob:') !== -1) ? step.options.picture : uploadUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)"
             @click="openInventory(step.options)"
             />
           <p v-if="step.options.title != '' && step.options.title != ' '"><span>{{ step.options.title }}</span></p>
@@ -245,8 +245,8 @@
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
             <img style="vertical-align:bottom" v-if="step.options.character.length < 3" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
-            <img style="vertical-align:bottom;" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
-            <img style="vertical-align:bottom;" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + customization.character : customization.character" />
+            <img style="vertical-align:bottom;" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : uploadUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
+            <img style="vertical-align:bottom;" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? uploadUrl + '/upload/quest/' + customization.character : customization.character" />
           </div>
           <div v-if="step.options && step.options.characterBarColor && step.options.characterBarColor !== ''" class="full-width" :class="(step.options && step.options.characterBarColor) ? '' : 'bg-black'" :style="'height: 68px; ' + ((step.options && step.options.characterBarColor && step.options.characterBarColor !== '') ? 'background-color: ' + step.options.characterBarColor : '')">
           </div>
@@ -272,7 +272,7 @@
           <div class="answers-images" v-if="answerType === 'image'">
             <div class="images-block">
               <div v-for="(option, key) in step.options.items" :key="key" :class="option.class" @click="chooseSelectValue(key)" :test-id="'answer-image-' + key">
-                <img :src="option.imagePath.indexOf('blob:') !== -1 ? option.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/choose-image/' + option.imagePath" :class="option.class" />
+                <img :src="option.imagePath.indexOf('blob:') !== -1 ? option.imagePath : uploadUrl + '/upload/quest/' + step.questId + '/step/choose-image/' + option.imagePath" :class="option.class" />
                 <q-btn v-if="option.class !== null" round :class="option.class" :icon="option.icon" disable />
               </div>
             </div>
@@ -391,12 +391,12 @@
             </tr>
             <tr>
               <td v-for="(code, index) in playerCode" :key="index">
-                <img v-if="step.options.images[code]" :id="'image-code-' + index" @click="enlargeThePicture(index)" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
+                <img v-if="step.options.images[code]" :id="'image-code-' + index" @click="enlargeThePicture(index)" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : uploadUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
               </td>
             </tr>
             <tr v-show="rightAnswer">
               <td v-for="(code, index) in rightAnswer" :key="index" class="right">
-                <img v-if="step.options.images[code]" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
+                <img v-if="step.options.images[code]" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : uploadUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
               </td>
             </tr>
             <tr>
@@ -548,7 +548,7 @@
               @click="selectMemoryCard(key)"
               :style="((step.options && step.options.memoryCardColor && step.options.memoryCardColor !== '') ? 'background: ' + step.options.memoryCardColor : '')"
             >
-              <img style="display: block; position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;" v-if="item.imagePath" :src="item.imagePath.indexOf('blob:') !== -1 ? item.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
+              <img style="display: block; position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;" v-if="item.imagePath" :src="item.imagePath.indexOf('blob:') !== -1 ? item.imagePath : uploadUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
             </div>
           </div>
         </div>
@@ -658,9 +658,9 @@
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
         <q-btn round :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color">
           <q-avatar>
-          <!--<img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />-->
-          <img v-if="itemUsed && itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== ''" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
-          <img v-if="itemUsed && !(itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== '')" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
+          <!--<img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : uploadUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />-->
+          <img v-if="itemUsed && itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== ''" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : uploadUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
+          <img v-if="itemUsed && !(itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== '')" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : uploadUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
           </q-avatar>
         </q-btn>
         {{ $t('label.TouchWhereYouUseThisItem') }}
@@ -1110,6 +1110,7 @@ export default {
         takingSnapshot: false,
         cameraUsed: "environment",
         serverUrl: process.env.SERVER_URL,
+        uploadUrl: process.env.UPLOAD_URL,
         nbTry: 0,
         score: 0,
         reward: 0,
@@ -1407,7 +1408,7 @@ export default {
         if (backgroundImage.indexOf('blob:') !== -1) {
           return backgroundImage
         } else {
-          return this.serverUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
+          return this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
         }
       }
       return ""
@@ -1604,20 +1605,20 @@ export default {
             this.geolocation.mode = 'compass'
           }
           if (this.customization && this.customization.characterOnMap && this.customization.characterOnMap !== "") {
-            this.geolocation.playerPosition.marker = this.customization.characterOnMap.indexOf('blob:') !== -1 ? this.customization.characterOnMap : this.serverUrl + '/upload/quest/' + this.customization.characterOnMap
+            this.geolocation.playerPosition.marker = this.customization.characterOnMap.indexOf('blob:') !== -1 ? this.customization.characterOnMap : this.uploadUrl + '/upload/quest/' + this.customization.characterOnMap
           }
         }
         if (this.step.id === 'gpssensor') {
           if (this.step.visibles && this.step.visibles.length > 0) {
             this.geolocation.mode = 'map'
             for (var i = 0; i < this.step.visibles.length; i++) {
-              this.geolocation.destinationPosition.push({marker: (this.step.visibles[i].marker.indexOf('blob:') !== -1 || this.step.visibles[i].marker === '') ? this.step.visibles[i].marker : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/geolocation/' + this.step.visibles[i].marker, coords: this.step.visibles[i].coords})
+              this.geolocation.destinationPosition.push({marker: (this.step.visibles[i].marker.indexOf('blob:') !== -1 || this.step.visibles[i].marker === '') ? this.step.visibles[i].marker : this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/geolocation/' + this.step.visibles[i].marker, coords: this.step.visibles[i].coords})
             }
           } else {
             this.geolocation.mode = 'sensor'
           }
           if (this.customization && this.customization.characterOnMap && this.customization.characterOnMap !== "") {
-            this.geolocation.playerPosition.marker = this.customization.characterOnMap.indexOf('blob:') !== -1 ? this.customization.characterOnMap : this.serverUrl + '/upload/quest/' + this.customization.characterOnMap
+            this.geolocation.playerPosition.marker = this.customization.characterOnMap.indexOf('blob:') !== -1 ? this.customization.characterOnMap : this.uploadUrl + '/upload/quest/' + this.customization.characterOnMap
           }
         }
 
@@ -1795,7 +1796,7 @@ export default {
             if (this.step.options.picture && this.step.options.picture.indexOf('blob:') !== -1) {
               itemImage = this.step.options.picture
             } else {
-              itemImage = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/locate-item-ar/' + this.step.options.picture
+              itemImage = this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/locate-item-ar/' + this.step.options.picture
             }
 
             this.$refs['item-image'].src = itemImage
@@ -1818,6 +1819,7 @@ export default {
             material.transparent = true
             object = new THREE.Mesh(geometry, material)
             object.position.y = 0
+            object.position.z = 1.5 // should be same as camera
           }
 
           object.name = "targetObject"
@@ -1829,7 +1831,7 @@ export default {
           this.geolocation.target.camera.up = new THREE.Vector3(0, 0, 1)
           this.geolocation.target.camera.lookAt(new THREE.Vector3(0, 1, 0))
           // handheld device will be nearly 1.50m above ground
-          this.geolocation.target.camera.position.z = 1.5
+          this.geolocation.target.camera.position.z = 1.5 // should be same as 2D image height
 
           // animate & render
           this.animateTargetCanvas()
@@ -2519,7 +2521,7 @@ export default {
               this.step.backgroundImage[this.lang] = this.step.options.altFile
               this.hideAllFindItemLocation()
             }
-            
+
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             const remainingTrial = this.isTimeUp ? 0 : (this.step.nbTrial - this.nbTry - 1)
@@ -2533,7 +2535,7 @@ export default {
                 }
               } else {
                 checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: false, isTimeUp: this.isTimeUp}, true)
-                
+
                 // show locations to click even if user fail
                 if (this.step.options && this.step.options.altFile) {
                   this.step.backgroundImage[this.lang] = this.step.options.altFile
@@ -2996,7 +2998,7 @@ export default {
         if (this.step.options.images[this.playerCode[key]].imagePath && this.step.options.images[this.playerCode[key]].imagePath.indexOf('blob:') !== -1) {
           document.getElementById('image-code-' + key).src = this.step.options.images[this.playerCode[key]].imagePath
         } else {
-          document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + this.step.options.images[this.playerCode[key]].imagePath
+          document.getElementById('image-code-' + key).src = this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + this.step.options.images[this.playerCode[key]].imagePath
         }
       }
     },
@@ -3298,7 +3300,7 @@ export default {
         
         // set the marker
         if (this.step.options.locator && this.step.options.locator !== "") {
-          this.geolocation.destinationPosition.marker = this.step.options.locator.indexOf('blob:') !== -1 ? this.step.options.locator : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/geolocation/' + this.step.options.locator
+          this.geolocation.destinationPosition.marker = this.step.options.locator.indexOf('blob:') !== -1 ? this.step.options.locator : this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/geolocation/' + this.step.options.locator
         }
 
         // compute distance between two coordinates
@@ -3494,9 +3496,9 @@ export default {
       utils.setInterval(function() {
         if (cross.src === crossPicture && self.step.answers && self.step.answers.item) {
           if (itemUsed.pictures && itemUsed.pictures[self.lang] && itemUsed.pictures[self.lang] !== '') {
-            cross.src = ((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + itemUsed.picture)
+            cross.src = ((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : self.uploadUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + itemUsed.picture)
           } else {
-            cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.step.answers.item : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.step.answers.item)
+            cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.step.answers.item : self.uploadUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.step.answers.item)
           }
           cross.style.borderRadius = '50%'
         } else {
@@ -3842,9 +3844,9 @@ export default {
       if (languagePicture && languagePicture.indexOf('blob:') !== -1) {
         picture = languagePicture
       } else if (languagePicture && languagePicture.indexOf('upload/') === -1) {
-        picture = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + languagePicture
+        picture = this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + languagePicture
       } else {
-        picture = this.serverUrl + languagePicture
+        picture = this.uploadUrl + languagePicture
       }
 
       // ensure that puzzle image is loaded before doing the remaining tasks
@@ -4343,7 +4345,7 @@ export default {
             gltfLoader.load(offlineObject, resolve, progress, reject)
           } else {
             if (isCustom) {
-              gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '.glb', resolve, progress, reject)
+              gltfLoader.load(this.uploadUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '.glb', resolve, progress, reject)
             } else {
               gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '.glb', resolve, progress, reject)
             }
@@ -4407,7 +4409,7 @@ export default {
         this.story.step = 6
         this.story.data = {
           readMore: utils.replaceBreakByBR(this.step.extraText),
-          character: (this.customization && this.customization.character && this.customization.character !== '') ? (this.customization.character.indexOf('blob:') === -1 ? this.serverUrl + '/upload/quest/' + this.customization.character : this.customization.character) : "2"
+          character: (this.customization && this.customization.character && this.customization.character !== '') ? (this.customization.character.indexOf('blob:') === -1 ? this.uploadUrl + '/upload/quest/' + this.customization.character : this.customization.character) : "2"
         }
       }
     },
@@ -4522,7 +4524,7 @@ export default {
       if (!this.step.options || !this.step.options.hideEnlargeMessage) {
         this.enlargePicture.show = true
         var pictureUrl = this.step.options.images[this.playerCode[index]].imagePath
-        this.enlargePicture.url = (pictureUrl && pictureUrl.indexOf('blob:') !== -1) ? pictureUrl : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + pictureUrl
+        this.enlargePicture.url = (pictureUrl && pictureUrl.indexOf('blob:') !== -1) ? pictureUrl : this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + pictureUrl
       }
     },
     /**
@@ -4942,7 +4944,7 @@ export default {
         if (this.step.audioStream[finalLang].indexOf('blob:') !== -1) {
           this.audio.file = this.step.audioStream[finalLang]
         } else {
-          this.audio.file = this.serverUrl + '/upload/quest/' + this.step.questId + '/audio/' + this.step.audioStream[finalLang]
+          this.audio.file = this.uploadUrl + '/upload/quest/' + this.step.questId + '/audio/' + this.step.audioStream[finalLang]
         }
       } else {
         this.audio.file = null

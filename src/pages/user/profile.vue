@@ -29,11 +29,11 @@
         {{ user.description }}
       </div>
       <div class="centered q-pa-md" v-if="$store.state.user.id !== userId">
-        <q-btn 
+        <q-btn
            v-if="!user.status || user.status !== 'friend'"
           class="glossy large-btn"
-          color="primary" 
-          :label="$t('label.Follow')" 
+          color="primary"
+          :label="$t('label.Follow')"
           @click="follow" />
         <div v-if="user.status && user.status === 'friend'" class="centered">
           <q-chip class="glossy" color="primary" text-color="white" icon-right="star">
@@ -52,70 +52,70 @@
       <!--<div v-if="$store.state.user.id === userId">
         <div v-if="quests.built.rejected && quests.built.rejected.length > 0">
           <!--====================== MY QUESTS REJECTED =================================--
-        
+
           <titleBar :title="{text: $t('label.YourRejectedQuests'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
 
           <questsList format="small" color="red" :quests="quests.built.rejected"></questsList>
-        
+
         </div>
         <div v-if="quests.built.tovalidate && quests.built.tovalidate.length > 0">
           <!--====================== MY QUESTS TO VALIDATE =================================--
-        
+
           <titleBar :title="{text: $t('label.YourUnderValidationQuests'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
 
           <questsList format="small" color="red" :quests="quests.built.tovalidate"></questsList>
-        
+
         </div>
         <div>
           <!--====================== MY QUESTS DRAFT =================================--
-        
+
           <titleBar :title="{text: $t('label.YourDraftQuests'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
 
           <questsList format="small" color="red" :add="true" :quests="quests.built.draft"></questsList>
-        
+
         </div>
         <div v-if="quests.built.published && quests.built.published.length > 0">
           <!--====================== MY QUESTS PUBLISHED =================================--
-        
+
           <titleBar :title="{text: $t('label.YourPublishedQuests'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
 
           <questsList format="small" color="red" :quests="quests.built.published"></questsList>
-        
+
         </div>
       </div>-->
       <div v-if="$store.state.user.id === userId">
         <!--====================== QUESTS CREATED BY CURRENT USER =================================-->
-        
+
         <titleBar :title="{text: $t('label.EscapeGames'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
 
         <questsList format="small" color="red" :add="true" :quests="quests.built"></questsList>
       </div>
       <div v-if="$store.state.user.id !== userId && quests && quests.built && quests.built.length > 0">
         <!--====================== QUESTS CREATED BY OTHER USER =================================-->
-        
+
         <titleBar :title="{text: $t('label.EscapeGames'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
 
         <questsList format="big" color="red" :quests="quests.built"></questsList>
       </div>
       <div v-if="badges === null || badges.length > 0">
         <!--====================== BADGES WON =================================-->
-        
+
         <titleBar :title="{text: $t('label.Badges'), type: 'badge'}" :link="{text: $t('label.SeeMore')}" @click="readMoreBadges"></titleBar>
 
         <badgesList format="scroll" :badges="badges"></badgesList>
       </div>
       <div v-if="quests.played === null || quests.played.length > 0">
         <!--====================== QUESTS PLAYED =================================-->
-        
+
         <titleBar :title="{text: $t('label.SolvedQuests'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPlayed"></titleBar>
 
         <questsList format="small" :quests="quests.played"></questsList>
       </div>
       <div v-if="friends.list === null || friends.list.length > 0 || $store.state.user.id === userId">
         <!--====================== FRIENDS =================================-->
-        
+
         <titleBar :title="{text: $t('label.YouFollowThem'), type: 'friend'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAllFriends"></titleBar>
-        
+
         <usersList format="scroll" :add="$store.state.user.id === userId ? true : false" :users="friends.list" @refresh="loadFriends"></usersList>
       </div>
       <div v-if="$store.state.user.id === userId">
@@ -167,7 +167,8 @@ export default {
         listCreatedQuestsMissing: false,
         listFriendsMissing: false
       },
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL
     }
   },
   mounted() {
@@ -209,11 +210,11 @@ export default {
           statistics: this.$store.state.user.statistics,
           level: this.$store.state.user.level
         }
-        
+
         if (this.user.name === '-') {
           this.updateProfile()
         }
-      
+
         /*/ check if user can change his email
         if (this.$store.state.user.provider && this.$store.state.user.provider.name !== 'graaly') {
           this.profile.userCanChangeEmail = false
@@ -302,7 +303,7 @@ export default {
     async loadFriends() {
       this.warnings.listFriendsMissing = false
       let response = await UserService.listFriends(this.userId, 0, 10)
-      
+
       if (response && response.data) {
         this.friends.list = response.data
       } else {
@@ -392,7 +393,7 @@ export default {
       if (this.user.picture && this.user.picture.indexOf('http') !== -1) {
         return this.user.picture
       } else if (this.user.picture) {
-        return this.serverUrl + '/upload/profile/' + this.user.picture
+        return this.uploadUrl + '/upload/profile/' + this.user.picture
       } else {
         return 'statics/images/icon/profile-small.png'
       }
@@ -439,7 +440,7 @@ console.log("CHECK OFFLINE 6")
     /*
      * Stop following a friend
      */
-    async removeFriend () {    
+    async removeFriend () {
       const friendId = this.userId
       this.$q.dialog({
         dark: true,

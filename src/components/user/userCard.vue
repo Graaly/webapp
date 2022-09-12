@@ -19,7 +19,8 @@ export default {
   props: ['user', 'size', 'showName'],
   data() {
     return {
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL
     }
   },
   methods: {
@@ -32,7 +33,7 @@ export default {
       } else if (picture && picture.indexOf('blob:') !== -1) {
         return picture
       } else if (picture) {
-        return this.serverUrl + '/upload/profile/' + picture
+        return this.uploadUrl + '/upload/profile/' + picture
       } else {
         return 'statics/images/icon/profile-small.png'
       }

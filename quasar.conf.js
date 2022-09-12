@@ -13,7 +13,7 @@ module.exports = function (ctx) {
       //'CustomDirectives',
       'DateFormatFilter',
       'RouterAuthentication',
-      'UniversalLinks', // enable to use deep links with Cordova plugin 
+      'UniversalLinks', // enable to use deep links with Cordova plugin
       'VueGoogleMaps',
       'VueI18n',
       'Vuelidate',
@@ -115,6 +115,8 @@ module.exports = function (ctx) {
         'QSpinnerPuff',
         'QSpinnerRadio',
         'QSpinnerOrbit',
+        'QTable',
+        'QTr', 'QTd', 'QTh',
         'QTab',
         'QTabs',
         'QTabPanel',
@@ -195,7 +197,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: "2.2.0"
+      version: "2.2.1"
       // id: 'org.cordova.quasar.app'
     },
     electron: {

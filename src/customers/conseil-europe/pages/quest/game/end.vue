@@ -3,14 +3,14 @@
     <!------------------ NO NETWORK AREA ------------------------>
     <div v-if="warnings.noNetwork">
       <div class="bg-primary">
-        <div class="centered q-pa-lg">    
+        <div class="centered q-pa-lg">
           <h2 class="text-center size-3 q-mt-xl q-mb-sm">{{ $t('label.YouHaveWin') }}</h2>
           {{ $t('label.ToSaveYouScoreYouNeedToConnect') }}
           <q-btn icon="refresh" class="q-mt-md" color="accent" @click="loadData" :label="$t('label.ConnectToComputeScore')" />
         </div>
       </div>
     </div>
-    
+
     <!------------------ TEXT IF NO SCORING ------------------>
         
     <div class="q-py-md" v-if="!warnings.noNetwork">
@@ -92,11 +92,11 @@
         </div>
         
         <!------------------ REWARD AREA ------------------------>
-        
-        <div class="q-pa-md q-mt-lg centered rounded background-lighter2" v-if="showReward && run && run.questData">      
+
+        <div class="q-pa-md q-mt-lg centered rounded background-lighter2" v-if="showReward && run && run.questData">
           <div class="subtitle4 q-pb-lg">{{ $t('label.YouWonAReward') }}</div>
           <div class="q-pt-md">
-            <img class="badge-alone" :src="serverUrl + '/upload/quest/' + run.questData.rewardPicture">
+            <img class="badge-alone" :src="uploadUrl + '/upload/quest/' + run.questData.rewardPicture">
             <div class="subtitle6">{{ $t('label.WonOtherRewardByPlayingOtherGamesInCity') }}</div>
           </div>
         </div>
@@ -104,9 +104,9 @@
     </div>
     
     <!--====================== WIN COINS ANIMATION =================================-->
-      
+
     <!--<div v-if="level.upgraded" class="fadein-message">+100 <q-icon color="white" name="fas fa-bolt" /></div>-->
-        
+
   </div>
 </template>
 
@@ -144,7 +144,7 @@ export default {
       level: {
         color: "white",
         upgraded: false
-      }, 
+      },
       run: {
         score: 0,
         stars: 1
@@ -179,7 +179,8 @@ export default {
         show: false
       },
       isHybrid: window.cordova,
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL
     }
   },
   async mounted () {
@@ -189,7 +190,7 @@ export default {
     if (this.isHybrid && cordova.platformId === 'android') {
       StatusBar.hide()
     }
-    
+
     // compute end date
     let date = new Date()
     this.endDate = Moment(date).format('DD/MM/YYYY, h:mm:ss')
@@ -236,17 +237,17 @@ export default {
         }
         // compute good answers
         await this.computeGoodAnswers()
-        
+
         // get user old score
         this.score.old = this.$store.state.user.points
         if (!this.score.old) {
           this.score.old = 0
         }
         this.initProgression()
-        
+
         // get offline run data
         const offlineRunData = await this.getOfflineRunData()
-        
+
         // end the run
         let endStatus = await RunService.endRun(this.run._id, offlineRunData, this.questId, this.quest.version, this.quest.mainLanguage)
         if (endStatus && endStatus.data) {
@@ -268,13 +269,13 @@ export default {
             this.unlockedQuest.show = true
             this.unlockedQuest.id = endStatus.data.unlockedQuest
           }
-          
+
           // remove offline data
           await this.removeOfflineData()
         } else {
           this.warnings.noNetwork = true
         }
-        
+
         // if run is not loaded, load it again
         if (!this.run._id) {
           runs = await RunService.listForAQuest(this.questId)
@@ -282,7 +283,7 @@ export default {
             this.run = runs.data[0]
           }
         }
-        
+
         if (!this.quest.customization || !this.quest.customization.removeScoring) {
           // get user new score
           //this.level.color = "secondary"
@@ -292,7 +293,7 @@ export default {
           this.$store.state.user.points = this.score.new
           utils.setTimeout(this.updateProgression, 3000)
         }
-        
+
         // get ranking without the user (status of run is still in-progress)
         await this.getRanking()
 
@@ -343,7 +344,7 @@ export default {
       // do not launch with discovery quest
       if (this.questId !== '5b7303ec4efbcd1f8cb101c6') {
         var scores = await RunService.listPlayersForThisQuest(this.questId)
-        
+
         if (scores && scores.data) {
           this.ranking.position = scores.data
         }
@@ -361,7 +362,7 @@ export default {
      */
     async showRanking() {
       this.ranking.show = true
-      
+
       // check if current user is in the ranking
       var isInRanking = false
       for (var i = 0; i < this.ranking.items.length; i++) {
@@ -369,14 +370,14 @@ export default {
           isInRanking = true
         }
       }
-      
+
       if (!isInRanking) {
         this.ranking.items.push({
-          id: this.$store.state.user._id, 
-          score: this.run.score, 
-          name: this.$store.state.user.name, 
-          picture: this.$store.state.user.picture, 
-          position: this.ranking.items.length + 1, 
+          id: this.$store.state.user._id,
+          score: this.run.score,
+          name: this.$store.state.user.name,
+          picture: this.$store.state.user.picture,
+          position: this.ranking.items.length + 1,
           isFriend: true,
           className: "selected"
         })
@@ -449,7 +450,7 @@ export default {
           this.friends = allFriends.data
           this.filteredFriends = this.friends
         }
-      } 
+      }
     },
     /*
      * Close the challenge friends modal
@@ -462,7 +463,7 @@ export default {
      */
     async challenge(friend) {
       await UserService.challengeFriend(friend.friendId, this.run._id)
-      
+
       for (var i = 0; i < this.filteredFriends.length; i++) {
         if (this.filteredFriends[i].friendId === friend.friendId) {
           this.filteredFriends[i].isChallenged = true
@@ -505,7 +506,7 @@ export default {
       if (this.author.picture && this.author.picture.indexOf('http') !== -1) {
         return this.author.picture
       } else if (this.author.picture) {
-        return this.serverUrl + '/upload/profile/' + this.author.picture
+        return this.uploadUrl + '/upload/profile/' + this.author.picture
       } else {
         return 'statics/images/icon/profile-small.png'
       }
@@ -544,12 +545,12 @@ export default {
         Notification(this.$t('label.PleaseRateTheQuest'), 'warning')
         return false
       }
-      
+
       this.$q.loading.show()
       await ReviewService.add(this.questId, this.run.version, this.run._id, this.comment, this.rating)
       // TODO: add error tracking
       this.$q.loading.hide()
-      
+
       this.reviewSent = true
       this.showReviewText = false
       Notification(this.$t('label.ReviewSent'), 'positive')
@@ -589,7 +590,7 @@ export default {
      */
     async removeOfflineData() {
       const success = await utils.removeDirectory(this.questId)
-      
+
       await this.removeQuestFromOfflineList(this.questId)
 
       return success
@@ -606,7 +607,7 @@ export default {
         const questFileContent = await utils.readFile('', 'quests.json')
 
         quests = JSON.parse(questFileContent)
-        
+
         // check if quest is already existing in file
         var questPosition = -1
         for (var i = 0; i < quests.list.length; i++) {
@@ -614,11 +615,11 @@ export default {
             questPosition = i
           }
         }
-        
+
         if (questPosition !== -1) {
           quests.list.splice(questPosition, 1)
         }
-        
+
         // save quests list
         await utils.writeInFile('', 'quests.json', JSON.stringify(quests), true)
       }

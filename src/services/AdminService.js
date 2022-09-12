@@ -38,10 +38,28 @@ export default {
     return Api().get("admin/limitations");
   },
   /*
+    * List the disabled quest (nquest.status = "disabled")
+    */
+  countQuestDisabled() {
+    return Api().get("admin/quests/countDisabled")
+  },
+  /*
+    * List the disabled quest (nquest.status = "disabled")
+    */
+  ListQuestDisabled(page, limit) {
+    return Api().get("admin/quests/disabled/" + page + "/" + limit)
+  },
+  /*
    * Validate a quest
    */
   publish(id) {
     return Api().get("admin/quests/publish/" + id);
+  },
+  /*
+   * get Mail by UserId
+   */
+  getUserMail(id) {
+    return Api().get("/user/" + id + "/profile/private");
   },
   /*
    * Add a town
@@ -68,5 +86,8 @@ export default {
         headers: { "Content-Type": "multipart/form-data" }
       })
       .catch(error => console.log(error.request));
+  },
+  deleteFolder(id) {
+    return Api().delete('/admin/delete/quest/' + id)
   }
 };
