@@ -8,6 +8,7 @@
         <div v-if="isIOs" class="centered">
           {{ parseInt(offline.progress * 100, 10)}} %
         </div>
+        <div class="text-primary centered">{{ $t('label.Loading2') }} : {{ loadingItem }}</div>
         <!--<a class="text-white" @click="cancelOfflineLoading()">{{ $t('label.Cancel') }}</a>-->
       </div>
       <div v-if="error.raised && error.nb < 2" @click="saveOfflineQuest(quest)">
@@ -45,6 +46,7 @@ export default {
         nb: 0,
         raised: false
       },
+      loadingItem: "",
       isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
       serverUrl: process.env.SERVER_URL,
       uploadUrl: process.env.UPLOAD_URL
@@ -116,6 +118,8 @@ export default {
       // cancel save if the duration is too long
       utils.setTimeout(async () => { await _this.cancelSavingTooLong(_this.quest.questId) }, 420000)
 
+      this.loadingItem = this.$t('label.Configuration')
+      
       // load data
       var stepsData = await StepService.listForAQuest(quest.questId, quest.version, this.lang)
       var steps = stepsData.data.steps
@@ -181,8 +185,11 @@ export default {
           // save steps
           if (stepsData && stepsData.data) {
             // compute progression steps for each step loading
-            var progressIncrement = Math.ceil(70 / steps.length) / 100
+            //var progressIncrement = Math.ceil(70 / steps.length) / 100
+            var progressIncrement = 0.7 / steps.length
             for (i = 0; i < steps.length; i++) {
+              this.loadingItem = this.$t('label.Step') + " " + (i + 1) + "/" + steps.length
+              
               if (this.error.raised) {
                 return false
               }
@@ -202,6 +209,7 @@ export default {
                 }
               }
               if (step.videoStream && step.videoStream[this.lang] && step.videoStream[this.lang] !== '') {
+                this.loadingItem = this.$t('label.Step') + " " + (i + 1) + "/" + steps.length + " (" + this.$t('label.Video') +  ")"
                 const videoStreamSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/video/', step.videoStream[this.lang])
                 if (!videoStreamSuccess) {
                   this.throwSaveError('Could not save video for quest ' + quest.questId + ' and step ' + step.stepId)
@@ -209,6 +217,7 @@ export default {
                 }
               }
               if (step.audioStream && step.audioStream[this.lang] && step.audioStream[this.lang] !== '') {
+                this.loadingItem = this.$t('label.Step') + " " + (i + 1) + "/" + steps.length + " (" + this.$t('label.Audio') +  ")"
                 const audioStreamSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/audio/', step.audioStream[this.lang])
                 if (!audioStreamSuccess) {
                   this.throwSaveError('Could not save audio for quest ' + quest.questId + ' and step ' + step.stepId)
@@ -306,6 +315,7 @@ export default {
                   }
                 }
                 if (step.options.is3D) {
+                  this.loadingItem = this.$t('label.Step') + " " + (i + 1) + "/" + steps.length + " (" + this.$t('label.3DObject') +  ")"
                   if (step.options.customModel) {
                     const customModelObjectSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/3dobject/', step.options.customModel + '.glb')
                     if (!customModelObjectSuccess) {
