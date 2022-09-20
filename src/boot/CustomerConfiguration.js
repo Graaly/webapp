@@ -13,6 +13,12 @@ import CustomerQuestPlayStep from '../customers/ouigo/pages/quest/game/step'
 import CustomerTeamPlay from '../customers/ouigo/pages/user/teamplay'
 */
 
+// ============== ICONICUBE =============
+/*
+import CustomerQuestPlayStep from '../customers/iconicube/pages/quest/game/step'
+import CustomerHome from '../customers/iconicube/pages/home'
+*/
+
 export default {
   // CONSEIL DE L'EUROPE
 /*
@@ -27,5 +33,11 @@ export default {
   QUEST_PLAY_HOME: CustomerQuestPlayHome,
   QUEST_PLAY_STEP: CustomerQuestPlayStep,
   TEAM_PLAY: CustomerTeamPlay
+*/
+
+  // ICONICUBE
+/*
+  QUEST_PLAY_STEP: CustomerQuestPlayStep,
+  HOME: CustomerHome
 */
 }

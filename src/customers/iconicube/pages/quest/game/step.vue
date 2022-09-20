@@ -63,15 +63,39 @@
       </stepPlay>
     </div>
 
-    <!------------------ SPECIFIC COE : STARS PAGE AREA ------------------------>
+    <!------------------ INVENTORY PAGE AREA ------------------------>
 
     <transition name="slideInBottom">
       <div v-show="inventory.isOpened" class="bg-graaly-blue-dark text-white inventory panel-bottom">
         <div class="q-pa-md">
-          <div class="subtitle-3" v-if="$t('label.shortLang') === 'fr'">Vous avez {{starCounter}} étoile(s)</div>
-          <div class="subtitle-3" v-if="$t('label.shortLang') === 'en'">You have {{starCounter}} star(s)</div>
-          <div class="centered">
-            <img style="margin-top: 50px; width: 90%; max-width: 1000px;" :src="'statics/customers/conseil-europe/images/stars/star' + starCounter + '.png'" />
+          <a class="float-right no-underline" color="grey" @click="inventory.isOpened = false"><q-icon name="close" class="subtitle3" /></a>
+          <div class="subtitle3 q-pb-lg">{{ $t('label.Inventory') }}</div>
+          <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
+            <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+          </div>
+          <!--<p class="subtitle5" v-if="inventory.items && inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type === 'use-item'">{{ $t('label.InventoryUsage') }}</p>-->
+          <!--<p class="subtitle5" v-if="inventory.items && inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type !== 'use-item'">{{ $t('label.InventoryZoom') }}</p>-->
+          <p v-if="!inventory.items || inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
+          <div class="inventory-items">
+            <div v-for="(item, key) in inventory.items" :key="key" class="inventory-item">
+              <img :src="((item.picture.indexOf('statics/') !== -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : uploadUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" @click="zoomOrUse(item)" />
+              <div v-if="item.titles && item.titles[lang] && item.titles[lang] !== ''">{{ item.titles[lang] }}</div>
+              <div v-if="!(item.titles && item.titles[lang] && item.titles[lang] !== '')">{{ item.title }}</div>
+              <q-btn-group>
+                <q-btn padding="xs" size="md" color="primary" icon="zoom_in" @click="zoomItem(item)" />
+                <q-btn padding="xs" size="md" v-if="step.type === 'use-item'" color="primary" icon="done" @click="useItem(item)" />
+                <q-btn padding="xs" size="md" v-if="inventory.items.length > 0 && info.quest.editorMode !== 'simple'" :color="inventory.selectedItems.indexOf(item.picture) === -1 ? 'primary' : 'secondary'" icon="merge_type" @click="selectItem(item)" />
+              </q-btn-group>
+            </div>
+          </div>
+          <div class="centered q-pt-md">
+            <q-btn 
+              v-if="inventory.selectedItems.length > 0"
+              :disabled="inventory.selectedItems.length === 1"
+              class="glossy normal-button" 
+              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+              @click="combineItems()"><div>{{ $t('label.CombineItems') }}</div></q-btn>
           </div>
         </div>
       </div>
@@ -87,7 +111,11 @@
         </div>
         <div class="q-pa-md">{{ inventory.detail.title }}</div>
         <!--<div class="q-pa-md text-grey">{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>-->
-        <q-btn class="glossy normal-button" color="primary" @click="closeInventoryDetail()"><div>{{ $t('label.Close') }}</div></q-btn>
+        <q-btn 
+          class="glossy normal-button" 
+          :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
+          :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+          @click="closeInventoryDetail()"><div>{{ $t('label.Close') }}</div></q-btn>
         <div>
           <q-btn-group outline>
             <q-btn flat :label="$t('label.Zoom')"/>
@@ -114,79 +142,89 @@
     <!------------------ INFO PAGE AREA ------------------------>
 
     <transition name="slideInBottom">
-      <div v-show="info.isOpened" class="bg-graaly-blue-dark text-white inventory panel-bottom">
-        <div class="q-pa-md">
-          <div class="subtitle-3" v-if="$t('label.shortLang') === 'fr'">Recommencer le  jeu dans une autre langue</div>
-          <div class="subtitle-3" v-if="$t('label.shortLang') === 'en'">Restart the game with other language</div>
-          <table border="0" width="100%">
-            <tr>
-              <td align="center" v-if="$t('label.shortLang') === 'en'" @click="changeLanguage('fr')"><img src="statics/customers/conseil-europe/images/flags/fr.png" /></td>
-              <td align="center" v-if="$t('label.shortLang') === 'fr'" @click="changeLanguage('en')"><img src="statics/customers/conseil-europe/images/flags/en.png" /></td>
-            </tr>
-          </table>
-          <div class="subtitle-3" v-if="$t('label.shortLang') === 'fr'">Comment jouer ?</div>
-          <div class="subtitle-3" v-if="$t('label.shortLang') === 'en'">How to play?</div>
-          <table border="0" width="100%">
-            <tr>
-              <td style="padding-right: 10px;">
-                <q-btn
-                  round
-                  size="lg"
-                  class="bg-primary"
-                  icon="arrow_forward"
-                />
-              </td>
-              <td>{{ $t('label.HelpStepMessageNextMessage') }}</td>
-            </tr>
-            <tr>
-              <td>
-                <q-btn
-                  round
-                  size="lg"
-                  :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-                  :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
-                  icon="arrow_back"
-                />
-              </td>
-              <td>{{ $t('label.HelpStepMessagePreviousMessage') }}</td>
-            </tr>
-            <tr>
-              <td>
-                <q-btn
-                  round
-                  size="lg"
-                  :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-                  :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
-                  icon="star"
-                />
-              </td>
-              <td v-if="$t('label.shortLang') === 'fr'">L'étoile vous permet de savoir le nombre d'étoiles gagnées</td>
-              <td v-if="$t('label.shortLang') === 'en'">The star gives you the number of stars won</td>
-            </tr>
-            <tr>
-              <td>
-                <q-btn
-                  round
-                  size="lg"
-                  :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-                  :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
-                  icon="lightbulb"
-                />
-              </td>
-              <td v-if="$t('label.shortLang') === 'fr'">L'ampoule vous permet d'obtenir des indices</td>
-              <td v-if="$t('label.shortLang') === 'en'">The lightbulb gives you hints</td>
-            </tr>
-          </table>
-          <div class="centered q-pt-lg">
-            <q-btn
-              v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2" class="glossy large-button"
+      <div class="reduce-window-size-desktop" v-show="info.isOpened">
+        <div class="centered bg-warning q-pa-sm" v-if="warnings.questDataMissing" @click="initData()">
+          <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+        </div>
+        <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) #000000 center center / cover no-repeat '">
+          <q-toolbar class="dark-banner text-white">
+            <q-toolbar-title v-if="info && info.quest && info.quest.availablePoints">
+              {{ $t('label.GoodAnswersNumber') }} {{ score.nbGoodAnwers }}/{{ score.nbQuestions }}
+            </q-toolbar-title>
+            <q-icon size="sm" class="q-mr-sm" v-if="info && info.audio !== '' && info.audio !== null && sound && sound.status === 'play'" @click="cutSound" name="volume_up"></q-icon>
+            <q-icon size="sm" class="q-mr-sm" v-if="info && info.audio !== '' && info.audio !== null && sound && sound.status === 'pause'" @click="cutSound" name="volume_off"></q-icon>
+            <q-icon size="sm" class="q-mr-sm" v-if="offline.active" name="cloud_off"></q-icon>
+            <q-icon size="sm" class="q-mr-sm" v-if="!offline.active" name="cloud_done"></q-icon>
+          </q-toolbar>
+          <!--<div class="fixed-top full-width q-pa-lg">-->
+          <div class="text-center dark-banner q-pb-xl q-pt-md fixed-bottom">
+            <p class="title">
+              {{ (info.quest && info.quest.title) ? info.quest.title : $t('label.NoTitle') }}
+            </p>
+            <p v-if="run && run.team && run.team.name">
+              {{ $t('label.Team') }} : {{ run.team.name }}
+            </p>
+            <p>
+              <q-btn
+              v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring"
+              class="glossy large-button"
               :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
               :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-              @click="restartGame">
-              <span>
-                {{ $t('label.RestartQuest') }}
-              </span>
-            </q-btn>
+              @click="backToMap">
+                <span>
+                  {{ $t('label.LeaveQuest') }}
+                </span>
+              </q-btn>
+            </p>
+            <p>
+              <q-btn
+                v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2" class="glossy large-button"
+                :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
+                :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+                @click="restartGame">
+                <span>
+                  {{ $t('label.RestartQuest') }}
+                </span>
+              </q-btn>
+            </p>
+            <p>
+              <q-btn
+              v-if="!offline.active" class="glossy large-button"
+              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+              @click="showFeedback">
+                <span>
+                  {{ $t('label.Feedback') }}
+                </span>
+              </q-btn>
+            </p>
+            <!--
+            <p class="q-pb-xl" v-if="(info.quest.customization && info.quest.customization.chatEnabled === true)">
+              <q-btn
+              v-if="!offline.active" class="glossy large-button"
+              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+              @click="openChat">
+                <span>
+                 Ask for help (Chat with GM)
+                </span>
+                <q-badge v-if=" this.$store.state.chatNotification > 0"  color="accent" rounded floating>{{ this.$store.state.chatNotification }}</q-badge>
+              </q-btn>
+            </p>
+            -->
+            <p class="q-pb-xl">
+              <q-btn
+              class="glossy large-button"
+              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+              @click="openInfo">
+                <span>
+                  {{ $t('label.BackToQuest') }}
+                </span>
+              </q-btn>
+            </p>
+            <p class="q-pb-lg">
+            </p>
           </div>
         </div>
       </div>
@@ -233,72 +271,49 @@
       </div>
     </q-dialog>
 
-    <!------------------ SPECIFIC COE : FOOTER AREA ------------------------>
+    <!------------------ FOOTER AREA ------------------------>
 
     <div v-show="footer.show" class="step-menu step-menu-fixed fixed-bottom">
       <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
       <div class="row white-buttons" :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''">
         <div class="col centered">
-          <div class="q-py-sm">
-            <q-btn
-              flat
-              size="lg"
-              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-              icon="settings"
-              :class="{'text-secondary': info.isOpened}"
-              @click="openInfo()"
-            >
-              <q-badge v-if="this.$store.state.chatNotification > 0" color="accent" rounded floating>{{ this.$store.state.chatNotification }}</q-badge>
-            </q-btn>
-          </div>
-        </div>
-        <div class="col centered q-py-sm">
           <q-btn
             flat
-            size="lg"
-            :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            icon="star"
-            :class="{'flashing': inventory.suggest, 'text-secondary': inventory.isOpened}"
-            @click="openInventory()"
-          />
-        </div>
-        <div class="col centered q-py-sm">
-          <q-btn
-            flat
-            size="lg"
-            :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            :class="{'flashing': hint.suggest, 'bg-secondary': (hint.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!hint.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}"
-            @click="askForHint()"
-            v-show="hint.show"
-          >
-            <q-avatar size="40px">
-              <img src="statics/customers/conseil-europe/images/lightbulb.png">
-              <q-badge v-if="this.step && this.step.hint" color="secondary" floating>{{ this.hint.remainingNumber }}</q-badge>
-            </q-avatar>
+            @click="openInfo()">
+              <img src="statics/customers/iconicube/bouton1.png" style="height: 60px" />
           </q-btn>
         </div>
-        <div class="col centered q-py-sm">
+        <div class="col centered">
           <q-btn
             flat
-            size="lg"
-            :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
-            :disable="$store.state.history.index === 0"
-            icon="arrow_back"
-            v-show="previousStepId !== ''"
-            @click="previousStep()"
-          />
+            v-if="!info.quest.customization || !info.quest.customization.hideInventory"
+            @click="openInventory()">
+            <img src="statics/customers/iconicube/bouton2.png" style="height: 60px" />
+          </q-btn>
         </div>
-        <div class="col centered q-py-sm">
+        <div class="col centered">
           <q-btn
             flat
-            size="lg"
-            :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            :class="{'flashing': next.suggest, 'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
-            icon="arrow_forward"
-            v-show="step.id && (next.enabled || next.canPass)"
+            v-show="hint.show"
+            @click="askForHint()">
+            <img src="statics/customers/iconicube/bouton3.png" style="height: 60px" />
+          </q-btn>
+        </div>
+        <div class="col centered">
+          <q-btn
+            flat
+            @click="previousStep()"
+            v-show="previousStepId !== ''">
+            <img src="statics/customers/iconicube/bouton4.png" style="height: 60px" />
+          </q-btn>
+        </div>
+        <div class="col centered">
+          <q-btn
+            flat
             @click="nextStep()"
-          />
+            v-show="step.id && (next.enabled || next.canPass)">
+            <img src="statics/customers/iconicube/bouton5.png" style="height: 60px" />
+          </q-btn>
         </div>
       </div>
     </div>
@@ -311,15 +326,10 @@
 </template>
 
 <script>
-// SPECIFIC COE
-import AuthService from 'services/AuthService'
-
 import RunService from 'services/RunService'
 import StepService from 'services/StepService'
 import QuestService from 'services/QuestService'
 import UserService from 'services/UserService'
-// SPECIFIC COE
-import chat from "components/chat";
 //import colorsForCode from 'data/colorsForCode.json'
 //import questItems from 'data/questItems.json'
 import stepPlay from 'components/quest/game/stepPlay'
@@ -345,7 +355,6 @@ export default {
   components: {
     stepPlay,
     story,
-    chat,
     Notify
   },
   data () {
@@ -467,9 +476,7 @@ export default {
         score: {
           nbGoodAnwers: 0,
           nbQuestions: 0
-        },
-
-        starCounter: 0
+        }
       }
     },
     resetData () {
@@ -566,9 +573,6 @@ export default {
       this.loadStepData = true
       
       this.refreshCurrentDate()
-
-      // SPECIFIC COE : get stars number
-      this.starCounter = this.getStarsNumber()
     },
     /*sendDataToGameMaster() {
       GMMS.Send(this.run.questId, {
@@ -682,9 +686,6 @@ export default {
       this.computeGoodAnswers()
       //reset hint
       this.hint.isFirst = true
-
-      // SPECIFIC COE
-      this.starCounter = this.getStarsNumber()
     },
     /*
      * Get the current run or create it
@@ -1511,7 +1512,7 @@ export default {
       }
     },
     /*
-     * SPECIFIC COE : Ask for a hint
+     * Ask for a hint
      */
     async askForHint() {
       if (!this.isHintAvailable()) {
@@ -1526,7 +1527,23 @@ export default {
         if (this.$store.state.user.bonus && this.$store.state.user.bonus.name && this.$store.state.user.bonus.name === 'infinitehint') {
           await this.getHint()
         } else {
-          await this.getHint()
+          if (this.info.quest.customization && this.info.quest.customization.doNotPreventUserForHint) {
+            await this.getHint()
+          } else {
+            if (this.hint.isFirst) {
+              this.$q.dialog({
+                dark: true,
+                message: this.$t('label.ConfirmHint'),
+                ok: this.$t('label.Ok'),
+                cancel: this.$t('label.Cancel')
+              }).onOk(async () => {
+                await this.getHint()
+                this.hint.isFirst = false
+              })
+            } else {
+              await this.getHint()
+            }
+          }
         }
       }
     },
@@ -1628,7 +1645,7 @@ export default {
       }
     },
     /*
-     * SPECIFIC COE : Open the info box
+     * Open the info box
      */
     async openInfo() {
       // if menu is disabled for the game
@@ -1637,11 +1654,11 @@ export default {
       }
       if (this.info.isOpened) {
         this.closeAllPanels()
-        //this.footer.show = true
+        this.footer.show = true
       } else {
         this.closeAllPanels()
         this.info.isOpened = true
-        //this.footer.show = false
+        this.footer.show = false
         //this.footer.tabSelected = 'info'
       }
     },
@@ -2732,17 +2749,6 @@ export default {
         document.addEventListener("deviceready", this.swithFullscreenMode, false)
       }
     },
-    // SPECIFIC COE
-    getStarsNumber() {
-      let counter = 0
-      let conditionsDone = this.run.conditionsDone
-      for (let i = 0; i < conditionsDone.length; i++) {
-        if (conditionsDone[i].indexOf("counterIncrement_") !== -1) {
-          counter++
-        }
-      }
-      return Math.min(counter, 12);
-    },
     reloadPageInAWhile() {
       let _this = this
       setTimeout(() => { _this.moveToStep(_this.navigatingToStepId) }, 15000)
@@ -2771,19 +2777,6 @@ export default {
         }
         this.score.nbQuestions = nbQuestions
         this.score.nbGoodAnwers = nbGoodAnwers
-      }
-    },
-    // SPECIFIC COE
-    async changeLanguage(lang) {
-      let modifications = {
-        language: lang
-      }
-      let modificationStatus = await AuthService.modifyAccount(modifications)
-      this.$i18n.locale = lang
-      if (lang === 'fr') {
-        this.$router.push('/quest/play/61767ce84a4f2c2276fed543')
-      } else {
-        this.$router.push('/quest/play/61f178fb16bdb825f1e99cb7')
       }
     }
     /*showNotif() {
@@ -2827,6 +2820,10 @@ export default {
     display: none
   }
 
+  audio, .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
+
+  /*.q-btn { margin-top: 1rem; }*/
+
   /* right/wrong styles */
 
   .right, .q-btn.right { color: #0a0; background-color: #cfc; box-shadow: 0px 0px 0.3rem 0.3rem #9f9; }
@@ -2852,62 +2849,4 @@ export default {
   .actions > div > .q-btn { flex-grow: 1; }
   .actions > div > .q-btn:not(:first-child) { flex-grow: 1; margin-left: 1rem; }
 
-  .choose .text {
-    background: transparent;
-    color: #fff;
-  }
-
-  .text-secondary {
-    color: #f6cf46 !important;
-  }
-  .bg-secondary {
-    background-color: #f6cf46 !important;
-  }
-  .bg-secondary.q-badge {
-    color: #263e7f !important;
-  }
-
-</style>
-<style>
-/* SPECIFIC COE */
-  .bg-primary {
-    background-color: rgb(86, 156, 210) !important;
-  }
-
-  .choose .text, .code .text, .write-text .text, .find-item .text, .puzzle .text {
-    background: transparent;
-    color: #fff;
-    margin: 15px 20px 0 20px;
-    padding: 0px;
-  }
-  .find-item {
-    background-color: #263e7f;
-  }
-  .fit .memory .card {
-    background-image: url(../../../../../statics/customers/conseil-europe/images/card-back.png);
-  }
-  .choose .images-block img {
-    border-radius: 0;
-  }
-  .bg-graaly-blue-dark {
-    background-color: #6aaee4;
-  }
-  .text {
-    border-radius: 0px !important;
-  }
-  .find-item {
-    height: 100%;
-  }
-  .q-notification__message {
-    font-family: Arial;
-    font-weight: normal;
-    font-size: 1.4em;
-  }
-  .code .q-btn, .write-text .q-btn {
-    background-color: #90C95e !important;
-    box-shadow: 0px 0.1rem 0.4rem 0.2rem rgb(255 255 255 / 10%) !important;
-  }
-  .q-loading svg {
-    background: url(/statics/customers/conseil-europe/images/spinner.gif) no-repeat;
-  }
 </style>

@@ -28,7 +28,7 @@
         </div>
         <div v-if="!questList.length" class="q-pa-md">{{ $t('label.YouAreOfflineNoQuestsAvailable') }}</div>
         <div v-if="questList.length">
-          <mainQuest :quest="questList[0]"></mainQuest>
+          <mainQuest :quest="questList"></mainQuest>
 
           <div class="centered bg-warning q-pa-sm" v-if="warnings.noNetwork">
             <q-spinner-radio class="on-left" /> {{ $t('label.WarningNoNetwork') }}
