@@ -1,6 +1,8 @@
 <template>
-  <div class="q-py-md q-px-lg fixed-top" style="z-index: 99;">
-    <icon-btn-square :color="color" icon="arrow_back" fill @click.native="back()"/>
+  <div class="back-bar" :style="relative ? '' : 'fixed-top q-py-lg q-px-lg'">
+    <div style="max-width: 400px; margin: 0 auto;">
+      <icon-btn-square :color="color" icon="arrow_back" fill @click.native="back()"/>
+    </div>
   </div>
 </template>
 
@@ -13,6 +15,10 @@ export default {
     color: {
       type: String,
       default: 'primary'
+    },
+    relative: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {
@@ -24,5 +30,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
+ .back-bar{
+   z-index: 99;
+   width: 110px;
 
+ }
 </style>

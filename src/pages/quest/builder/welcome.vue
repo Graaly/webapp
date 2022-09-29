@@ -69,7 +69,7 @@
                   @click.native="selectAccess('private')"
                   :title="$t('label.TryForFree')"
                   :color="userType === 'education' ? 'secondary' : 'accent'"
-                  icon="business_center"
+                  icon="play_arrow"
                 />
               </div>
               <div>
@@ -86,7 +86,7 @@
                   @click.native="selectAccess('public')"
                   :title="$t('label.TryForFree')"
                   :color="userType === 'education' ? 'secondary' : 'accent'"
-                  icon="business_center"
+                  icon="play_arrow"
                 />
               </div>
             </q-card-section>
@@ -102,9 +102,9 @@
                 <text-btn-square
                   class="q-mb-lg"
                   @click.native="selectAccess('private')"
-                  :title="$t('label.TryForFree')"
+                  :title="$t('label.BuyPrivateQuest')"
                   :color="userType === 'education' ? 'secondary' : 'accent'"
-                  icon="business_center"
+                  icon="attach_money"
                 />
               </div>
             </q-card-section>
@@ -145,9 +145,9 @@
                 v-if="userType === 'individual'"
                 class="q-mb-lg"
                 @click.native="buyPrivateQuest()"
-                :title="$t('label.AcceptAndBuyAPrivateQuest') + ' ' + privateQuest.price"
+                :title="$t('label.AcceptAndBuyAPrivateQuest') + ' - ' + privateQuest.price"
                 :color="userType === 'education' ? 'secondary' : 'accent'"
-                icon="done"
+                icon="attach_money"
               />
             </q-card-section>
           </q-card>
@@ -427,12 +427,12 @@ export default {
     /*
      * Open money winning explaination
      */
-    openMoneyPopup() {
+    /*openMoneyPopup() {
       this.$q.dialog({
         title: this.$t('label.HowToWinMoney'),
         message: this.$t('label.HowToWinMoneyExplaination')
       })
-    },
+    },*/
     /*
      * change user type (pro / individual)
      */

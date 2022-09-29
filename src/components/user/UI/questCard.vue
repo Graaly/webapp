@@ -22,7 +22,7 @@
         <p class="quest-price"> {{ getPrice() }} </p>
       </div>
       <div class="inter-bar" :class="direction === 'left' ? 'left' : 'right'"></div>
-      <creator-badge class="creator-badge" :class="direction === 'left' ? 'left' : 'right'" :color="bgColor"/>
+      <creator-badge class="creator-badge" :class="direction === 'left' ? 'left' : 'right'" :color="bgColor" :creator="creator"/>
       <div class="score-badge flex items-center justify-center"
            :class="direction === 'right' ? 'right' : 'left'"
            v-if="quest.availablePoints && quest.availablePoints.maxPts && (!quest.customization || !quest.customization.removeScoring)"
@@ -61,8 +61,8 @@
           {{ $t('label.' + (quest.type === 'quest' ? 'QuestDraftVersion' : 'PageDraftVersion')) }}
         </div>
         <!-- =========================== TITLE ========================== -->
-        <div class="text-h5">
-          &nbsp;<img v-if="language !== $store.state.user.language" class="image-and-text-aligned" :src="'statics/icons/game/flag-' + language + '.png'" />
+        <div class="text-h5" v-if="language !== $store.state.user.language">
+          &nbsp;<img class="image-and-text-aligned" :src="'statics/icons/game/flag-' + language + '.png'" />
         </div>
         <!-- =========================== PROPERTIES ========================== -->
         <div class="row q-pt-md text-subtitle1 properties-bar">
@@ -100,8 +100,8 @@
 
         <!-- =========================== LOCATION ========================== -->
 
-        <div v-if="quest.location && quest.location.address" class="text-subtitle1 q-mt-sm quest-location" @click="goToLocationWithMaps(quest.location.coordinates[0],quest.location.coordinates[1])">
-          <u> {{ quest.location.address }}</u>
+        <div v-if="quest.location && quest.location.address" class="text-subtitle1 q-mt-sm quest-location">
+           {{ quest.location.address }}
         </div>
 
         <!-- =========================== WARNING ========================== -->
@@ -115,7 +115,7 @@
 
         <!-- =========================== RANKING ========================== -->
 
-        <div class="text-subtitle1 q-mt-sm quest-ranking">
+        <div class="text-subtitle1 q-mt-sm quest-ranking" style="cursor: pointer">
           <a class="concertone" @click="$router.push('/user/ranking/ranking/' + quest.questId)">{{ $t('label.Ranking') }}</a>
         </div>
       </div>
@@ -127,6 +127,7 @@
 <script>
 import { colors } from 'quasar'
 import creatorBadge from "./creatorBadge";
+import UserService from "../../../services/UserService";
 
 export default {
   name: "questCard",
@@ -148,11 +149,16 @@ export default {
     info: {
       type: Boolean,
       default: false
+    },
+    isUserTooFar: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
     return {
       ratingValue: 0,
+      creator: null,
       serverUrl: process.env.SERVER_URL,
       uploadUrl: process.env.UPLOAD_URL
     }
@@ -161,6 +167,7 @@ export default {
     if (this.quest && this.quest.rating.value) {
       this.ratingValue = this.quest.rating.value
     }
+    this.getCreator()
   },
   computed: {
     bgColor() {
@@ -183,6 +190,10 @@ export default {
     }
   },
   methods: {
+    async getCreator() {
+      const res = await UserService.getFriend(this.quest.authorUserId)
+      this.creator = res.data
+    },
     getPrice () {
       if (this.quest.price === 0) {
         return 'GRATUIT'
@@ -296,8 +307,8 @@ export default {
     }
   }
   .section-down{
-    padding-top: 25px;
     //height: 100px;
+    padding-top:30px;
     background: var(--bg-darken);
     border-radius: 0 0 20px 20px;
     color: white;

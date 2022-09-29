@@ -8,7 +8,10 @@
       <div style="font-size: 12px; text-decoration: underline;" @click="readMoreBtn()">{{ $t('label.SeeMore') }}</div>
     </div>
     <div v-if="!creators" class="full-width">
-      <q-card class="q-pa-none" flat style="background: transparent; width: 100px; height: 120px; ">
+      <div v-if="search" class="text-center text-white" style="margin: 0 auto;">
+        {{ $t('label.SearchForStart') }}
+      </div>
+      <q-card v-else class="q-pa-none" flat style="background: transparent; width: 100px; height: 120px;">
         <div class="q-pa-sm">
           <q-skeleton size="80px" type="QAvatar" style="margin: 0 auto"/>
           <q-skeleton type="text" square />
@@ -34,7 +37,11 @@ export default {
       type: String,
       default: 'primary'
     },
-    title: Boolean
+    title: Boolean,
+    search: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {

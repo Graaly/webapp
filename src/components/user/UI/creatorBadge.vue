@@ -1,14 +1,14 @@
 <template>
-  <div class="badge" :style="cssVars">
-    <div class="info-games flex justify-center items-center">{{ creator ? creator.statistics.nbQuestsCreated : 0}}</div>
-    <div class="info-follows flex justify-center items-center">100</div>
+  <div class="badge" :style="cssVars" @click="openProfile(creator._id)">
+<!--    <div v-if="creator && creator.statistics.nbQuestsCreated > 0" class="info-games flex justify-center items-center">{{creator.statistics.nbQuestsCreated}}</div>-->
+    <!--<div class="info-follows flex justify-center items-center">100</div>-->
     <div v-if="list" class="title">{{ creator.name }}</div>
   </div>
 </template>
 
 <script>
 import {colors} from "quasar";
-
+// Todo: Supprimer la bulle creator statistics quand c'est 0
 export default {
   name: "creatorBadge",
   props: {
@@ -60,6 +60,9 @@ export default {
       } else {
         return 'statics/images/icon/profile-small.png'
       }
+    },
+    openProfile(id) {
+      this.$router.push('/profile/' + id)
     }
   }
 }

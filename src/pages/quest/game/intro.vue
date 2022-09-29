@@ -23,7 +23,6 @@
       />
     </div>
     <div class="quest">
-      <back-bar color="accent"/>
     <div id="teaser" v-if="!shop.showScanner && !multiplayer.showScanner" class="reduce-window-size-desktop q-px-md" :class="{'loaded': pageReady}">
 
       <!------------------ MAIN INFORMATION AREA ------------------------>
@@ -41,8 +40,9 @@
         </div>
       </div>
       <!-- =========================== PICTURE & AUTHOR ========================== -->
+      <back-bar color="primary" relative class="q-py-md"/>
       <quest-card v-if="quest && quest.status"
-                  class="q-mb-lg q-mt-xl"
+                  class="q-mb-lg"
                   :quest="quest"
                   :warning="warning"
                   :shop="shop"
@@ -50,7 +50,9 @@
                   color="primary"
                   direction="left"
                   v-on:showRewards="showRewards"
-                  info/>
+                  info
+                  :is-user-too-far="isUserTooFar"
+      />
 <!--      <div v-if="quest && quest.status" class="relative-position image-banner">
         <div class="effect-kenburns limit-size-desktop" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat ;'"></div>
 &lt;!&ndash;        <div class="q-py-sm q-px-md dark-banner fixed-top">
@@ -171,7 +173,7 @@
             </q-<btn-dropdown>-->
             <text-btn-square
               class="q-mb-lg"
-              v-if="isQuestOpen.status && quest.type === 'quest' && !(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && !isAdmin"
+              v-if="isQuestOpen.status && quest.type === 'quest' && !(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && !isAdmin"
               @click.native="playQuest(quest.questId, getLanguage())"
               color="secondary"
               :title="continueQuest ? $t('label.ContinueTheQuest') : isRunFinished ? $t('label.SolveAgainThisQuest') : $t('label.SolveThisQuest')"
@@ -213,7 +215,7 @@
             -->
             <text-btn-square
               class="q-mb-lg"
-              v-if="isQuestOpen.status && !isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)"
+              v-if="isQuestOpen.status && !isRunPlayable && !(isUserTooFar && !quest.allowRemotePlay)"
               @click.native="buyCoins()"
               color="accent"
               :title="$t('label.BuyCoinsToPlay')"
@@ -222,7 +224,7 @@
 <!--            <q-btn v-if="isQuestOpen.status && !isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary" class="glossy large-btn"><span>{{ $t('label.BuyCoinsToPlay') }}</span></q-btn>-->
             <text-btn-square
               class="q-mb-lg"
-              v-if="isQuestOpen.status && this.isUserTooFar && !quest.allowRemotePlay"
+              v-if="isQuestOpen.status && isUserTooFar && !quest.allowRemotePlay"
               disable
               color="accent"
               :title="$t('label.GetCloserToStartingPoint') + distance > 1000 ? (Math.round(distance / 1000)) + 'km' : distance + 'm'"
@@ -231,7 +233,7 @@
 <!--            <q-btn v-if="isQuestOpen.status && this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary" class="glossy large-btn"><span>{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</span></q-btn>-->
             <text-btn-square
               class="q-mb-lg"
-              v-if="isAdmin || (isQuestOpen.status && quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay))"
+              v-if="isAdmin || (isQuestOpen.status && quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(isUserTooFar && !quest.allowRemotePlay))"
               @click.native="playQuest(quest.questId, getLanguage())"
               color="primary"
               :title="$t('label.SolveThisQuest')"
@@ -336,7 +338,7 @@
           <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.QuestIsFarFromUser')" />
         </div>
       </div>-->
-      <div v-if="isOwner || isAdmin" class="q-pa-md subtitle5 centered text-white">
+      <div v-if="isOwner || isAdmin" class="subtitle5 centered text-white">
         <div class="q-mb-lg">
           <q-icon color="secondary" name="warning" />&nbsp;
           <span v-html="$t('label.YouAreQuestOwnerDesc')" />

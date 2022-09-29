@@ -143,18 +143,18 @@ export default [
         component: UserLogout,
         meta: { requiresAuth: true }
       },
-      {
-        path: 'user/:id/quests/:type',
-        name: 'quests',
-        component: UserQuests,
-        meta: { requiresAuth: true }
-      },
-      {
-        path: 'user/:id/friends',
-        name: 'friends',
-        component: UserFriends,
-        meta: { requiresAuth: true }
-      },
+      // {
+      //   path: 'user/:id/quests/:type',
+      //   name: 'quests',
+      //   component: UserQuests,
+      //   meta: { requiresAuth: true }
+      // },
+      // {
+      //   path: 'user/:id/friends',
+      //   name: 'friends',
+      //   component: UserFriends,
+      //   meta: { requiresAuth: true }
+      // },
       {
         path: 'user/:id/badges',
         name: 'badges',
@@ -167,12 +167,12 @@ export default [
         component: Search,
         meta: { requiresAuth: true }
       },*/
-      {
-        path: 'user/ranking/:type/:subtype',
-        name: 'ranking',
-        component: UserRanking,
-        meta: { requiresAuth: true }
-      },
+      // {
+      //   path: 'user/ranking/:type/:subtype',
+      //   name: 'ranking',
+      //   component: UserRanking,
+      //   meta: { requiresAuth: true }
+      // },
       /*{
         path: 'profile/:id',
         name: 'profile',
@@ -274,7 +274,25 @@ export default [
         name: 'scanCode',
         component: ScanCode,
         meta: { requiresAuth: false }
-      }
+      },
+      {
+        path: 'user/:id/quests/:type',
+        name: 'quests',
+        component: UserQuests,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'user/:id/friends',
+        name: 'friends',
+        component: UserFriends,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'user/ranking/:type/:subtype',
+        name: 'ranking',
+        component: UserRanking,
+        meta: { requiresAuth: true }
+      },
     ]
   },
   {

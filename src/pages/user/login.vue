@@ -1,5 +1,6 @@
 <template>
-  <div class="" :class="[showNonHybridQRReader && isHybrid ? 'bg-transparent' : 'background-login', showNonHybridQRReader ? '' : 'wrapper']">
+  <div class="background-login wrapper">
+<!--    <div class="" :class="[showNonHybridQRReader && isHybrid ? 'bg-transparent' : 'background-login', showNonHybridQRReader ? '' : 'wrapper']">-->
     <!--====================== TEST MENU =================================-->
 <!--    <div v-if="showNonHybridQRReader">
       &lt;!&ndash;====================== QR CODE READER ON WEBAPP =================================&ndash;&gt;
@@ -17,7 +18,7 @@
       />
     </div>-->
     <div class="login">
-      <div class="page-content" style="padding-bottom: 100px" v-if="!showNonHybridQRReader">
+      <div class="page-content" style="padding-bottom: 100px">
         <!--<div class="desktop-only centered q-pa-md warning bg-warning">
           {{ $t('label.OnDesktopDisplayMessage') }}
         </div>-->
@@ -282,13 +283,11 @@ import checkPasswordComplexity from 'boot/PasswordComplexity'
 import Notification from 'boot/NotifyHelper'
 import utils from 'src/includes/utils'
 
-import qrCodeStream from "../../components/qrCodeStream"
 import iconBtnSquare from "../../components/user/UI/iconBtnSquare"
 import textBtnSquare from "../../components/user/UI/textBtnSquare"
 
 export default {
   components: {
-    qrCodeStream,
     iconBtnSquare,
     textBtnSquare
   },
@@ -308,13 +307,13 @@ export default {
         privacy: false,
         privacyError: false
       },
-      showSocialLogin: {
-        facebook: false,
-        google: false
-      },
+      // showSocialLogin: {
+      //   facebook: false,
+      //   google: false
+      // },
       passwordForgottenPopup: false,
       teamPlayPopup: false,
-      showNonHybridQRReader: false,
+      //showNonHybridQRReader: false,
       teamPlayId: "",
       isHybrid: window.cordova,
       serverUrl: process.env.SERVER_URL,
@@ -451,11 +450,11 @@ export default {
     /*
      * manage google login
      */
-    googleLogin() {
+    /*googleLogin() {
       window.location = this.serverUrl + '/auth/google'
       localStorage.setItem('isLoggedIn', true)
-    },
-    fbLoginSuccess(userData) {
+    },*/
+    /*fbLoginSuccess(userData) {
       var _this = this
       facebookConnectPlugin.getAccessToken(function(token) {
         AuthService.checkFacebookToken(userData.authResponse.userID, token, function(err, response) {
@@ -469,7 +468,7 @@ export default {
           }
         });
       });
-    },
+    },*/
     defineRedirection() {
       let destination = '/home';
       if (this.$route && this.$route.query && this.$route.query.hasOwnProperty('redirect') && this.$route.query.redirect) {
@@ -480,7 +479,7 @@ export default {
     /*
      * manage facebook login
      */
-    facebookLogin() {
+    /*facebookLogin() {
       var _this = this
       // check if hybrid app and if cordova plugin is installed
       if (window.cordova && facebookConnectPlugin) {
@@ -494,7 +493,7 @@ export default {
         window.location = this.serverUrl + '/auth/facebook'
         localStorage.setItem('isLoggedIn', true)
       }
-    },
+    },*/
     /*
     * start the scanner for hybrid app
     */
@@ -536,7 +535,7 @@ export default {
      * Check if the quest code is valid
      * @param   {String}  code            QR Code value
      */
-    async checkCode(code) {
+    /*async checkCode(code) {
       code = utils.removeUnusedUrl(code)
       let checkStatus = await QuestService.checkLoginQRCode(code, this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
@@ -572,7 +571,7 @@ export default {
       } else {
         Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
       }
-    },
+    },*/
     /*
      * open the subscribe page
      */
@@ -629,7 +628,7 @@ export default {
   margin-bottom: 5vh;
 }
 .login-form{
-  max-width: 320px;
+  max-width: 400px;
   margin: 0 auto;
   .code-square{
     color: white;

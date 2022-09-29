@@ -1,22 +1,23 @@
 <template>
-  <div class="scroll background-dark">
-    <div id="teaser q-mb-lg q-pt-xl">
-      <div style="margin-top: 120px">
+  <div class="scroll background-friends">
+    <div id="teaser" class="friends">
+      <div style="margin-top: 80px">
         <q-infinite-scroll @load="loadFriends" :offset="250" v-if="tab === 'follow'">
-          <usersList format='list' :add="$store.state.user.id === $route.params.id ? true : false" :users="users" @refresh="reloadFriends"></usersList>
+<!--          <usersList format='list' :add="$store.state.user.id === $route.params.id ? true : false" :users="users" @refresh="reloadFriends"></usersList>-->
+          <user-list :users="users" color="accent"/>
         </q-infinite-scroll>
         <q-infinite-scroll @load="loadSuggestions" :offset="250" v-if="tab === 'suggestion' && user.position !== null">
-          <usersList format='list' :add="false" :users="suggestions"></usersList>
+<!--          <usersList format='list' :add="false" :users="suggestions"></usersList>-->
+          <user-list :users="suggestions" color="accent"/>
         </q-infinite-scroll>
-        <div v-if="tab === 'suggestion' && user.position === null">
+        <div v-if="tab === 'suggestion' && user.position === null" class="text-white">
           {{ $t('label.WeNeedYourPositionForThisFeature') }}
         </div>
       </div>
 
       <!------------------ HEADER COMPONENT ------------------------>
 
-      <div class="q-py-sm q-px-md dark-banner opaque-banner fixed-top">
-        <q-btn flat icon="arrow_back" @click="backToTheMap()" />
+      <div class="q-py-sm q-px-md friends-component fixed-top">
         <div v-if="$store.state.user.id === $route.params.id" class="row q-pa-sm">
           <div class="col-6" @click="selectTab('follow')" :class="{'tab-unselected': (tab !== 'follow')}">
             <div class="tab-button subtitle5 centered">
@@ -48,11 +49,13 @@
 import UserService from 'services/UserService'
 import usersList from 'components/user/usersList'
 import geolocation from 'components/geolocation'
+import userList from "../../components/user/userList";
 
 export default {
   components: {
     usersList,
-    geolocation
+    geolocation,
+    userList
   },
   data () {
     return {
@@ -64,7 +67,7 @@ export default {
       suggestionType: 'followers',
       skip: 0,
       limit: 12,
-      tab: 'follow',
+      tab: 'suggestion',
       serverUrl: process.env.SERVER_URL,
       uploadUrl: process.env.UPLOAD_URL
     }
@@ -160,3 +163,24 @@ export default {
   }
 }
 </script>
+
+<style scoped lang="scss">
+.background-friends {
+  background-image: url('../../statics/new/h-center-background-logo.jpg');
+  background-position: center 0px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.friends, .friends-component{
+  max-width: 420px;
+  margin: 0 auto;
+}
+.friends-component{
+  z-index: 5;
+  max-width: 450px;
+  right: 0;
+  left: 0;
+  background: linear-gradient(180deg, rgb(7,39,90) 65%, rgb(4,20,45) 100%);
+  border-radius: 0  0 20px 20px;
+}
+</style>

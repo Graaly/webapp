@@ -4,7 +4,10 @@
       v-on:QrCodeResult="checkCode"
       :color="'accent'"
     />
-    <back-bar color="accent" v-if="fromLogin"/>
+    <div style="max-width: 350px; margin: 0 auto;">
+      <back-bar color="accent" v-if="fromLogin"/>
+    </div>
+
   </div>
 </template>
 
@@ -40,6 +43,7 @@ export default {
      */
     async checkCode(code) {
       code = utils.removeUnusedUrl(code)
+      // From login page
       if (this.fromLogin) {
         let checkStatus = await QuestService.checkLoginQRCode(code, this.$t('label.shortLang'))
         if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
@@ -75,6 +79,7 @@ export default {
           Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
         }
       }
+      // From Other page
       else {
         let checkStatus = await QuestService.checkQRCode(code, this.$t('label.shortLang'))
         if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {

@@ -36,7 +36,12 @@
             <p v-if="currentQuest && currentQuest.displayPrice">
               {{ currentQuest.displayPrice }}
             </p>
-            <q-btn @click="playQuest(currentQuest ? currentQuest.questId : '')" color="primary" class="glossy normal-button">{{ $t('label.Play') }}</q-btn>
+            <text-btn-square
+              color="primary"
+              :title="$t('label.Play')"
+              icon="play_arrow"
+              @click.native="playQuest(currentQuest ? currentQuest.questId : '')"
+            />
           </div>
         </gmap-info-window>
       </gmap-map>
@@ -58,6 +63,7 @@
 import QuestService from 'services/QuestService'
 import backBar from "../../components/user/UI/backBar";
 import geolocation from 'components/geolocation'
+import textBtnSquare from "../../components/user/UI/textBtnSquare";
 
 import { gmapApi } from 'vue2-google-maps'
 
@@ -65,7 +71,7 @@ import utils from 'src/includes/utils'
 
 export default {
   components: {
-    geolocation, backBar
+    geolocation, backBar, textBtnSquare
   },
   data () {
     return {
@@ -85,7 +91,7 @@ export default {
           content: '',
           location: { lat: 0, lng: 0 },
           isOpen: false,
-          options: { pixelOffset: { width: 0, height: -47 } }
+          options: { pixelOffset: { width: 0, height: -47 } },
         },
         loaded: false
       },
@@ -359,6 +365,15 @@ export default {
 }
 </script>
 
-<style>
+<style scoped lang="scss">
+
+.infoWindow{
+  background: linear-gradient(180deg, rgb(7,39,90), rgb(4,20,45));
+  padding: 20px 20px 30px;
+  min-width: 200px;
+  max-width: 300px;
+  color: white;
+  font-weight: bold;
+}
 
 </style>

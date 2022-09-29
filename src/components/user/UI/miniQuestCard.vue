@@ -4,13 +4,14 @@
       <q-card-section class="q-pa-none" style="background:#fff; border-radius: 10px 0 0 10px">
         <div class="relative-position section-left">
           <div class="full-height flex">
-            <p class="quest-price self-end"> {{ getPrice() }} </p>
+            <p v-if="!noPrice" class="quest-price self-end"> {{ getPrice() }} </p>
           </div>
           <div class="inter-bar" :class="direction === 'left' ? 'left' : 'right'"></div>
         </div>
       </q-card-section>
       <q-card-section class="section-right">
         <q-rating
+          v-if="!noRating"
           class="quest-rating"
           v-model="ratingValue"
           size="1em"
@@ -50,14 +51,25 @@ export default {
     direction: {
       type: String,
       default: 'left'
+    },
+    noRating: {
+      type: Boolean,
+      default: false
+    },
+    noPrice: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
     return {
-      ratingValue: this.quest.rating.value ? this.quest.rating.value : 0,
+      ratingValue: this.quest.rating ? this.quest.rating.value ? this.quest.rating.value : 0 : 0,
       serverUrl: process.env.SERVER_URL,
       uploadUrl: process.env.UPLOAD_URL
     }
+  },
+  mounted() {
+
   },
   computed: {
     bgColor() {

@@ -96,6 +96,8 @@ export default {
       height: 30px;
       width: 30px;
       position: absolute;
+      left: -10px;
+      top: -10px
     }
   }
   .section-right {
@@ -104,6 +106,7 @@ export default {
     width: calc(100% - 80px);
     border-radius: 0 10px 10px 0px;
     color: white;
+    background: linear-gradient(-90deg, rgb(7,39,90) 65%, rgb(4,20,45) 100%);;
     .item-level{
       height: 40px;
       width: 40px;

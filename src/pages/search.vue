@@ -83,7 +83,7 @@
             <q-icon color="primary" name="search" />
           </template>
           <template v-slot:append>
-            <q-icon name="close" @click="search.text = ''; selectSubtype('around')" class="cursor-pointer" />
+            <q-icon name="close" @click="search.text = ''; selectSubtype('around'); results.players = null; results.designers = null" class="cursor-pointer" />
           </template>
 
           <template v-slot:hint class="flex justify-between">
@@ -127,12 +127,12 @@
         </div>
         <div v-if="type === 'designer'">
           <q-infinite-scroll @load="loadOtherUsers" :offset="250">
-            <creator-list :creators="results.designers"/>
+            <creator-list :creators="results.designers" search/>
           </q-infinite-scroll>
         </div>
         <div v-if="type === 'player'">
           <q-infinite-scroll @load="loadOtherUsers" :offset="250">
-            <user-list :users="results.players"/>
+            <user-list :users="results.players" search/>
           </q-infinite-scroll>
         </div>
         <div
@@ -223,7 +223,11 @@ export default {
      */
     async selectType(type) {
       this.type = type
-      this.subtype = 'none'
+      if (type === 'quest') {
+        this.subtype = 'around';
+      } else {
+        this.subtype = 'none'
+      }
       await this.find()
     },
     /*

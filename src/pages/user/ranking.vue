@@ -1,18 +1,18 @@
 <template>
-  <div class="scroll background-dark">
-    <div id="teaser q-mb-lg">
-      <div :style="'padding-top: ' + (tab === 'level' ? 200 : (tab === 'ranking' ? 160 : 110)) + 'px;'">
+  <div class="scroll ranking">
+    <div id="teaser" style="max-width: 400px; margin: 0 auto" class="q-pb-xl">
+      <div :style="'padding-top: ' + (tab === 'level' ? 160 : (tab === 'ranking' ? 130 : 100)) + 'px;'">
         <transition name="slideInTop">
-          <div v-if="tab === 'level'">
+          <div v-if="tab === 'level'" class="text-white">
             <div v-for="level in levels" :key="level.number" class="q-ma-md level-to-reach" :class="{'level-not-reached': ($store.state.user.points < level.minPoints)}" :style="'background-image: url(statics/images/icon/level' + level.number + '.svg)'">
-              <div class="grey-round-box" v-if="$store.state.user.points < level.minPoints">{{ $t('label.PointsToReachLevel', {score: level.minPoints}) }}</div>
-              <div class="grey-round-box" v-if="$store.state.user.points >= level.minPoints">{{ $t('label.LevelReached') }}</div>
+              <div class="" v-if="$store.state.user.points < level.minPoints">{{ $t('label.PointsToReachLevel', {score: level.minPoints}) }}</div>
+              <div class="" v-if="$store.state.user.points >= level.minPoints">{{ $t('label.LevelReached') }}</div>
             </div>
           </div>
         </transition>
         <transition name="slideInTop">
           <div v-if="tab === 'ranking'">
-            <div v-if="range !== 'quest' && ranking && ranking.length > 0" v-for="(user, index) in ranking" :key="index" class="q-pa-md rank-box">
+            <div v-if="range !== 'quest' && ranking && ranking.length > 0" v-for="(user, index) in ranking" :key="index" class="q-pa-md rank-box text-white">
               <div>
                 <userCard :user="user" size="medium" @click="openProfile"></userCard>
               </div>
@@ -39,7 +39,7 @@
             <div v-if="range === 'quest' && ranking && ranking.length > 0" class="subtitle3 q-pa-md">
               {{ ranking[0].questData.title.fr }}
             </div>
-            <div v-if="range === 'quest' && ranking && ranking.length > 0" v-for="(run, index) in ranking" :key="index" class="q-pa-md rank-box">
+            <div v-if="range === 'quest' && ranking && ranking.length > 0" v-for="(run, index) in ranking" :key="index" class="q-pa-md rank-box text-white">
               <div>
                 <!-- here we guess that is should be the first element : TODO : FIX ME-->
                 <userCard :user="run.userData" size="small" @click="openProfile(run.userId[0])"></userCard>
@@ -66,7 +66,7 @@
                 </div>
               </div>
             </div>
-            <div class="centered" v-if="ranking && ranking.length === 0">
+            <div class="centered text-white" v-if="ranking && ranking.length === 0">
               {{ $t('label.NoRanking') }}
             </div>
           </div>
@@ -75,7 +75,7 @@
           <div v-if="tab === 'news'">
             <q-infinite-scroll @load="loadNews">
               <q-list>
-                <q-item v-for="(item, index) in news.items" :key="item._id">
+                <q-item v-for="(item, index) in news.items" :key="item._id" class="text-white">
                   <q-item-section avatar class="q-pl-md">
                     <userCard :user="item.data" size="medium" @click="openProfile"></userCard>
                   </q-item-section>
@@ -107,7 +107,7 @@
                   </q-item-section>
                 </q-item>
                 <q-item v-if="news.items.length === 0">
-                  <q-item-label>{{ $t('label.NoNews') }}</q-item-label>
+                  <q-item-label class="text-white">{{ $t('label.NoNews') }}</q-item-label>
                 </q-item>
               </q-list>
               <div slot="message" class="row justify-center" style="margin-bottom: 50px;">
@@ -120,62 +120,64 @@
 
       <!------------------ HEADER COMPONENT ------------------------>
 
-      <div class="q-py-sm q-px-md dark-banner opaque-banner fixed-top">
-        <q-btn flat icon="arrow_back" @click="backToTheMap()" />
-        <div class="row q-pa-sm">
-          <div class="col-4" @click="selectTab('level')" :class="{'tab-unselected': (tab !== 'level')}">
-            <div class="tab-button subtitle5 centered">
-              {{ $t('label.Level') }}
-            </div>
-          </div>
-          <div class="col-4" @click="selectTab('ranking')" :class="{'tab-unselected': (tab !== 'ranking')}">
-            <div class="tab-button subtitle5 centered">
-              {{ $t('label.Ranking') }}
-            </div>
-          </div>
-          <div class="col-4" @click="selectTab('news')" :class="{'tab-unselected': (tab !== 'news')}">
-            <div class="tab-button subtitle5 centered">
-              {{ $t('label.News') }}
-            </div>
-          </div>
-        </div>
-        <div v-if="tab === 'level'">
-          <div class="relative-position progress-box">
-            <div class="progress-bar">
-              <div class="progress" :style="'width: ' + Math.floor(level.progress * 100) + '%'">
-              </div>
-              <div class="value">
-                {{ Math.floor(level.progress * 100) }}%
-              </div>
-            </div>
-            <div class="score subtitle6">
-              {{ $t('label.YouHaveReachAScore', {score: $store.state.user.points}) }}
-            </div>
-            <div class="rank-level">
-              <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" />
-            </div>
-          </div>
-        </div>
-        <div v-if="tab === 'ranking'">
+      <div class="q-py-sm q-px-md dark-banner header-ranking fixed-top">
+        <div style="max-width: 400px; margin: 0 auto">
+<!--          <BackBar color="primary" relative class="q-py-sm"/>-->
           <div class="row q-pa-sm">
-            <div class="col-3" @click="selectRange('world')" :class="{'tab-unselected': (range !== 'world')}">
-              <div class="tab-button subtitle6 centered">
-                {{ $t('label.World') }}
+            <div class="col-4" @click="selectTab('level')" :class="{'tab-unselected': (tab !== 'level')}">
+              <div class="tab-button subtitle5 centered">
+                {{ $t('label.Level') }}
               </div>
             </div>
-            <div class="col-3" @click="selectRange('country')" :class="{'tab-unselected': (range !== 'country')}">
-              <div class="tab-button subtitle6 centered">
-                {{ $t('label.MyCountry') }}
+            <div class="col-4" @click="selectTab('ranking')" :class="{'tab-unselected': (tab !== 'ranking')}">
+              <div class="tab-button subtitle5 centered">
+                {{ $t('label.Ranking') }}
               </div>
             </div>
-            <div class="col-3" @click="selectRange('city')" :class="{'tab-unselected': (range !== 'city')}">
-              <div class="tab-button subtitle6 centered">
-                {{ $t('label.MyCity') }}
+            <div class="col-4" @click="selectTab('news')" :class="{'tab-unselected': (tab !== 'news')}">
+              <div class="tab-button subtitle5 centered">
+                {{ $t('label.News') }}
               </div>
             </div>
-            <div class="col-3" @click="selectRange('friends')" :class="{'tab-unselected': (range !== 'friends')}">
-              <div class="tab-button subtitle6 centered">
-                {{ $t('label.Friends') }}
+          </div>
+          <div v-if="tab === 'level'">
+            <div class="relative-position progress-box">
+              <div class="progress-bar">
+                <div class="progress" :style="'width: ' + Math.floor(level.progress * 100) + '%'">
+                </div>
+                <div class="value">
+                  {{ Math.floor(level.progress * 100) }}%
+                </div>
+              </div>
+              <div class="score subtitle6">
+                {{ $t('label.YouHaveReachAScore', {score: $store.state.user.points}) }}
+              </div>
+              <div class="rank-level">
+                <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" />
+              </div>
+            </div>
+          </div>
+          <div v-if="tab === 'ranking'">
+            <div class="row q-pa-sm">
+              <div class="col-3" @click="selectRange('world')" :class="{'tab-unselected': (range !== 'world')}">
+                <div class="tab-button subtitle6 centered">
+                  {{ $t('label.World') }}
+                </div>
+              </div>
+              <div class="col-3" @click="selectRange('country')" :class="{'tab-unselected': (range !== 'country')}">
+                <div class="tab-button subtitle6 centered">
+                  {{ $t('label.MyCountry') }}
+                </div>
+              </div>
+              <div class="col-3" @click="selectRange('city')" :class="{'tab-unselected': (range !== 'city')}">
+                <div class="tab-button subtitle6 centered">
+                  {{ $t('label.MyCity') }}
+                </div>
+              </div>
+              <div class="col-3" @click="selectRange('friends')" :class="{'tab-unselected': (range !== 'friends')}">
+                <div class="tab-button subtitle6 centered">
+                  {{ $t('label.Friends') }}
+                </div>
               </div>
             </div>
           </div>
@@ -190,10 +192,12 @@ import UserService from 'services/UserService'
 import RunService from 'services/RunService'
 import userCard from 'components/user/userCard'
 import LevelCompute from 'boot/LevelCompute'
+import BackBar from "../../components/user/UI/backBar";
 
 export default {
   components: {
-    userCard
+    userCard,
+    BackBar
   },
   data () {
     return {
@@ -368,3 +372,25 @@ export default {
   }
 }
 </script>
+<style scoped lang="scss">
+.ranking {
+  background-image: url('../../statics/new/h-center-background.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.header-ranking{
+  background: linear-gradient(180deg, rgb(7,39,90), rgb(4,20,45));
+  box-shadow: 0px 5px 5px rgba(0,0,0,.5);
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+.level-to-reach{
+  background: #EC6707;
+  background-repeat: no-repeat;
+}
+.level-not-reached{
+  opacity: .5;
+}
+</style>

@@ -65,6 +65,7 @@ export default {
     width: 80px;
     height: 80px;
     margin: 0 auto;
+    border-radius: 50%;
     .badge-creator, .badge-level{
       position: absolute;
       width: 35px;

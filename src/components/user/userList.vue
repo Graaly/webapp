@@ -7,7 +7,10 @@
       </div>
     </div>
     <div v-if="!users" class="full-width">
-      <q-card v-if="!horizontal" class="full-width q-pa-none" flat style="background: transparent;border-radius: 10px">
+      <div v-if="search" class="text-center text-white" style="margin: 0 auto;">
+        {{ $t('label.SearchForStart') }}
+      </div>
+      <q-card v-else-if="!search && !horizontal" class="full-width q-pa-none" flat style="background: transparent;border-radius: 10px">
         <div class="row items-start no-wrap q-pa-sm">
           <q-skeleton size="56px" type="QAvatar"/>
           <div class="col q-pl-sm">
@@ -15,7 +18,6 @@
             <q-skeleton type="text" square height="12px" />
             <q-skeleton type="text" square height="12px" width="75%"/>
           </div>
-
         </div>
       </q-card>
       <q-card v-else class="q-pa-none" flat style="background: transparent; width: 100px; height: 120px; ">
@@ -29,8 +31,12 @@
         <q-btn round :color="color" icon="add" size="xl" @click="openFriendAddPopup()" />
     </div>
     <div v-else class="users-list" :class="horizontal ? 'horizontal-scroll-wrapper users-horizontal-scroll-wrapper' : ''">
-      <user-badge v-if="horizontal" v-for="(user, index) in users" :key="index" :user="user" :color="color" @click.native="openProfile(user._id)"/>
-      <user-card  v-else v-for="(user, index) in users" :key="index" :user="user" :color="color" @click.native="openProfile(user._id)"/>
+      <div v-if="horizontal">
+        <user-badge v-for="(user, index) in users" :key="index" :user="user" :color="color" @click.native="openProfile(user._id)"/>
+      </div>
+      <div v-else>
+        <user-card v-for="(user, index) in users" :key="index" :user="user" :color="color" @click.native="openProfile(user._id)"/>
+      </div>
     </div>
 
     <!------------------ ADD USER POPUP ------------------------>
@@ -72,7 +78,7 @@ import iconBtnSquare from "./UI/iconBtnSquare";
 import newfriend from "../newfriend";
 export default {
   name: "userList",
-  components: {userCard, userBadge, iconBtnSquare,newfriend},
+  components: {userCard, userBadge, iconBtnSquare, newfriend},
   props: {
     users: Array,
     title: String,
@@ -85,7 +91,11 @@ export default {
       type: String,
       default: 'primary'
     },
-    canAddFriend: Boolean
+    canAddFriend: Boolean,
+    search: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {

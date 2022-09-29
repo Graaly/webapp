@@ -98,9 +98,9 @@ export default {
           } else {
             item.userMail = 'No User'
           }
-          this.loading = false
         })
       })
+      this.loading = false
     },
     async validate(questId, version) {
       this.$router.push("/admin/validate/" + questId + "/version/" + version);

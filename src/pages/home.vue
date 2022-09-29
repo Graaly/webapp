@@ -22,25 +22,62 @@
       <!--====================== MAIN QUEST =================================-->
 
 <!--      <mainQuest v-if="!offline.active" :quest="bestQuest"></mainQuest>-->
-      <quest-card v-if="!offline.active" :quest="bestQuest" color="primary" direction="right" class="q-mb-lg"/>
+
+      <q-carousel
+        v-if="!offline.active && bestQuest"
+        v-model="slide"
+        transition-prev="slide-right"
+        transition-next="slide-left"
+        :control-color="slide % 2 ? 'secondary' : slide % 3 ? 'accent' : 'primary'"
+        swipeable
+        animated
+        navigation
+        infinite
+        :autoplay="autoplay"
+        @mouseenter="autoplay = false"
+        @mouseleave="autoplay = true"
+        class="bg-transparent q-pa-none q-mb-lg carousel"
+      >
+        <q-carousel-slide v-for="(quest, index) in bestQuest" :key="index" :name="index" class="column no-wrap flex-center q-pa-none">
+          <quest-card  :quest="quest" :color="index % 2 ? 'secondary' : index % 3 ? 'accent' : 'primary'" :direction="index % 2 ? 'right' : 'left'" class="q-mb-xl"/>
+        </q-carousel-slide>
+      </q-carousel>
+      <div v-else style="max-width: 100%" class="q-pb-lg">
+        <q-skeleton height="250px" square bordered />
+        <div class="row items-start no-wrap q-mt-sm">
+          <div class="col q-pl-sm">
+            <q-skeleton type="text" square width="30%" />
+            <q-skeleton type="text" square height="12px" />
+            <q-skeleton type="text" square height="12px" width="75%" />
+          </div>
+        </div>
+      </div>
       <!--====================== OFFLINE QUESTS =================================-->
 
       <div class="q-pt-lg" v-if="offline.active">
-        <div class="q-pa-md no-internet-connection">
+        <div class="q-pa-md no-internet-connection text-white">
           <q-icon name="cloud_off" />
           <p>{{ $t('label.NoInternetConnection') }}</p>
         </div>
-        <div v-if="!questList.length" class="q-pa-md">{{ $t('label.YouAreOfflineNoQuestsAvailable') }}</div>
+        <div v-if="!questList.length" class="q-pa-md text-white">{{ $t('label.YouAreOfflineNoQuestsAvailable') }}</div>
         <div v-if="questList.length">
-          <mainQuest :quest="questList[0]"></mainQuest>
+<!--          <mainQuest :quest="questList[0]"></mainQuest>-->
+          <quest-card  :quest="questList[0]" color="primary" direction="left" class="q-mb-xl"/>
 
-          <div class="centered bg-warning q-pa-sm" v-if="warnings.noNetwork">
+          <div class="centered bg-warning q-pa-sm text-white" v-if="warnings.noNetwork">
             <q-spinner-radio class="on-left" /> {{ $t('label.WarningNoNetwork') }}
           </div>
 
-          <titleBar :title="{text: $t('label.CachedQuests'), type: 'key'}"></titleBar>
+<!--          <titleBar :title="{text: $t('label.CachedQuests'), type: 'key'}"></titleBar>-->
+<!--          <questsList format="small" :quests="questList"></questsList>-->
 
-          <questsList format="small" :quests="questList"></questsList>
+          <quest-list
+            :quests="questList"
+            :title="$t('label.CachedQuests')"
+            icon="cloud_off"
+            color="#757575"
+          />
+
         </div>
       </div>
 
@@ -63,13 +100,20 @@
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
       </div>
-
       <!--====================== INVITATION QUEST =================================-->
 
       <div v-if="!offline.active && invitationQuests && invitationQuests.length > 0">
-        <titleBar :title="{text: $t('label.Invitations'), type: 'key'}"></titleBar>
 
-        <questsList :quests="invitationQuests"></questsList>
+<!--        <titleBar :title="{text: $t('label.Invitations'), type: 'key'}"></titleBar>-->
+<!--        <questsList :quests="invitationQuests"></questsList>-->
+
+        <quest-list
+          :quests="invitationQuests"
+          :title="$t('label.Invitations')"
+          icon="send_time_extension"
+          color="primary"
+        />
+
       </div>
 
        <!--====================== AROUND QUEST =================================-->
@@ -82,6 +126,7 @@
           readMore
           v-on:readMore="readMoreAroundYou"
           color="accent"
+          around
         />
 <!--        <titleBar :title="{text: $t('label.AroundYou'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAroundYou"></titleBar>
 
@@ -105,7 +150,6 @@
           :quests="onTopQuests"
           :title="$t('label.OnTopGames')"
           icon="grade"
-          v-on:readMore="readMoreAroundYou"
           color="secondary"
         />
       </div>
@@ -113,9 +157,14 @@
       <!--====================== EXTRA QUEST =================================-->
 
       <div v-if="!offline.active && extraQuests && extraQuests.items && extraQuests.items.length > 0">
-        <titleBar v-if="extraQuests.title && extraQuests.title[$t('label.shortLang')]" :title="{text: extraQuests.title[$t('label.shortLang')], type: 'key'}"></titleBar>
-
-        <questsList format="small" :quests="extraQuests.items"></questsList>
+<!--        <titleBar v-if="extraQuests.title && extraQuests.title[$t('label.shortLang')]" :title="{text: extraQuests.title[$t('label.shortLang')], type: 'key'}"></titleBar>-->
+<!--        <questsList format="small" :quests="extraQuests.items"></questsList>-->
+        <quest-list
+          :quests="extraQuests.items"
+          :title="$t('label.shortLang')"
+          icon="auto_awesome"
+          color="accent"
+        />
       </div>
 
       <!--====================== CREATE PROFILE BUTTON =================================-->
@@ -165,8 +214,13 @@
 
       <div v-if="!offline.active && (!friendQuests || friendQuests.length > 0)">
         <titleBar format="small" :title="{text: $t('label.FriendsQuests'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMoreFriendsGames"></titleBar>
-
         <questsList format="small" :quests="friendQuests"></questsList>
+        <quest-list
+          :quests="friendQuests"
+          :title="$t('label.FriendsQuests')"
+          icon="group"
+          color="secondary"
+        />
       </div>
 
       <!--====================== CREATORS =================================-->
@@ -198,11 +252,12 @@
         <div class="bg-accent subtitle2 q-pa-md full-width" style="bottom: 0px; position: absolute; line-height: 0.8em;">
           <div class="float-right"><img src="statics/images/icon/puzzle-big.svg" style="width: 32px" /></div>
           <span>{{ $t('label.StartCreation') }}</span>
-        </div>-->
+        </div>
+       </div>-->
+
       </div>
 
       <!--====================== MAP BUTTON =================================-->
-
 
       <text-btn-square
         v-if="!offline.active"
@@ -253,7 +308,7 @@
 
       <!--====================== RANKING PAGE =================================-->
 
-      <q-dialog maximized v-model="ranking.show" class="over-map">
+<!--      <q-dialog maximized v-model="ranking.show" class="over-map">
         <q-card>
           <q-card-section class="row items-center">
             <h1 class="size-3 q-pl-md">{{ $t('label.YourRanking') }}</h1>
@@ -309,11 +364,11 @@
             {{ $t("label.NoRankingYet") }}
           </q-card-section>
         </q-card>
-      </q-dialog>
+      </q-dialog>-->
 
       <!--====================== BOTTOM BAR =================================-->
 
-      <div class="fixed-bottom over-map" v-if="!offline.active">
+<!--      <div class="fixed-bottom over-map" v-if="!offline.active">
         <div v-if="offline.show">
           <offlineLoader
           :quest="offline.quest"
@@ -322,14 +377,13 @@
           @end="questLoadedInCache()">
           </offlineLoader>
         </div>
-      </div>
+      </div>-->
 
       <!--====================== SUGGEST A QUEST =================================-->
 
-      <q-dialog maximized v-model="suggestQuest.show" class="over-map bg-white">
+<!--      <q-dialog maximized v-model="suggestQuest.show" class="over-map bg-white">
         <suggest @close="suggestQuest.show = false"></suggest>
-      </q-dialog>
-    </div>
+      </q-dialog>-->
     </div>
   </div>
 </template>
@@ -455,6 +509,9 @@ export default {
         show: false
       },
       innerWidth: window.innerWidth,
+      //Carousel
+      slide: 0,
+      autoplay: true,
       createProfilDialog: false,
       //questsTab: "built",
       //profileTab: "news",
@@ -994,5 +1051,8 @@ export default {
   height: -moz-calc(100% - 180px);
   height: calc(100% - 180px);
   padding-bottom: 130px;
+}
+.carousel .q-carousel__navigation{
+  bottom: -40px;
 }
 </style>

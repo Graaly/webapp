@@ -13,6 +13,8 @@
         :key="quest._id" :quest="quest"
         :direction="index % 2 === 0 ? 'left' : 'right'"
         :color="color === 'allColors' ? allColors(index+1) : color"
+        :no-rating="noRating"
+        :no-price="noPrice"
         class="q-mb-sm"/>
       <div v-if="!quests" class="flex items-center justify-center full-height">
 
@@ -36,9 +38,11 @@
 
     <div v-if="title && quests && quests.length === 0">
       <div class="centered q-pa-md text-white">
-        {{ $t('label.NoQuestAroundYou') }}
+        <span v-if="around">{{ $t('label.NoQuestAroundYou') }}</span>
+        <span>{{ $t('label.NoQuestCreated') }}</span>
         <div>
-          <a class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
+          <a v-if="around" class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
+          <a class="small" @click="$router.push('/quest/create/welcome')">{{ $t('label.CreateYourQuest') }}</a>
         </div>
       </div>
     </div>
@@ -67,6 +71,18 @@ export default {
     color: {
       type: String,
       default: 'primary'
+    },
+    noRating: {
+      type: Boolean,
+      default: false
+    },
+    noPrice: {
+      type: Boolean,
+      default: false
+    },
+    around: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {

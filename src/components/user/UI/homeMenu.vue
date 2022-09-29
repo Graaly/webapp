@@ -82,6 +82,31 @@ export default {
       }
     }
   },
+  mounted() {
+    switch (this.$route.name) {
+      case 'home':
+        this.link = 'graaly'
+        break
+      case 'search':
+        this.link = 'search'
+        break
+      case 'buildhome':
+        this.link = 'create'
+        break
+      case 'profile':
+        this.link = 'profil'
+        break
+      case 'admin':
+        this.link = 'admin'
+        break
+      case 'scanCode':
+        this.link = 'scan'
+        break
+      default:
+        this.link = 'other'
+        break
+    }
+  },
   watch: {
     $route (to, from) {
       //console.log('to', to)
