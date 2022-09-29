@@ -1198,7 +1198,9 @@ module.exports = {
       QRCodeIsNotPlayingOne: "This is not the right QR code. Look for the QR code with a logo on the bottom right!",
       Loading2: "Loading",
       Configuration: "Settings",
-      Video: "Video"
+      Video: "Video",
+      UserCanNotQuit: "Players can not quit game",
+      CharacterSize: "Picture size (% of screen size)? 60% by default."
     }
   },
   fr: {
@@ -2387,7 +2389,9 @@ module.exports = {
       QRCodeIsNotPlayingOne: "Ce n'est pas le bon QR code. Recherchez un QR code avec un logo en bas à droite !",
       Loading2: "Chargement",
       Configuration: "Configuration",
-      Video: "Vidéo"
+      Video: "Vidéo",
+      UserCanNotQuit: "Le joueur ne peut pas quitter",
+      CharacterSize: "Taille image (% de l'écran). Par défaut : 60%."
     }
   }
 }

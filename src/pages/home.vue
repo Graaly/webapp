@@ -535,7 +535,8 @@ export default {
 
         if (!response.data.message || response.data.message !== 'No quest') {
           if (response.data.best) {
-            this.bestQuest = response.data.best
+            this.bestQuest = []
+            this.bestQuest.push(response.data.best[0])
           }
           if (response.data.nearests) {
             this.nearestQuests = response.data.nearests

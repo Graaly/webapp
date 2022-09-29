@@ -18,7 +18,7 @@
         <div class="text-h4" v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage[lang] && (nbGoodAnwers !== nbQuestions || (quest.customization.endMessageForPerfectScore && quest.customization.endMessageForPerfectScore[lang] && quest.customization.endMessageForPerfectScore[lang] === ''))" v-html="quest.customization.endMessage[lang]" />
         <div class="text-h4" v-if="quest.customization && quest.customization.endMessage && nbGoodAnwers === nbQuestions && quest.customization.endMessageForPerfectScore && quest.customization.endMessageForPerfectScore[lang] && quest.customization.endMessageForPerfectScore[lang] !== ''" v-html="quest.customization.endMessageForPerfectScore[lang]" />
         <div class="text-h4" v-if="!quest.customization || !quest.customization.endMessage|| !quest.customization.endMessage[lang] || (quest.customization.endMessage[lang] && quest.customization.endMessage[lang] === '')">{{ $t('label.ThanksForPlaying') }}</div>
-        <div>{{ $t('label.GoodAnswersNumber') }}: {{ nbGoodAnwers }} / {{ nbQuestions }}</div>
+        <!--<div>{{ $t('label.GoodAnswersNumber') }}: {{ nbGoodAnwers }} / {{ nbQuestions }}</div>-->
       </div>
       <div v-if="isUserAuthor" class="back centered q-pa-md">
         <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
@@ -28,14 +28,14 @@
       </div>
     </div>
     <div v-if="quest && quest.customization && quest.customization.endMessage && quest.customization.endMessage[lang] && quest.customization.endMessage[lang] !== ''" class="q-px-md text-grey align-right" style="font-size: 0.8em; margin-top: -10px;">
-      {{ endDate }} {{ranking.total}}
+      <!--{{ endDate }} {{ranking.total}}-->
     </div>
 
     <div v-if="isUserAuthor" class="back centered q-pa-md">
       <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
     </div>
 
-    <div class="q-pa-md" v-if="!warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
+    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
       <div v-if="run && run._id">
         <div class="relative-position header-point-box">
           <div class="full-width centered header-point absolute">
@@ -127,7 +127,7 @@
 
     </div>
 
-    <div class="q-pa-md" v-if="!warnings.noNetwork">
+    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork">
       <div>
         <!------------------ REVIEW AREA ------------------------>
 
@@ -160,7 +160,7 @@
       </div>
     </div>
 
-    <div class="q-pa-md" v-if="!warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
+    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
       <div v-if="run && run._id">
         <!------------------ RANKING AREA ------------------------>
 
@@ -371,10 +371,7 @@ export default {
     this.endDate = Moment(date).format('DD/MM/YYYY, k:mm')
     
     // After 6 seconds, show the notation box to increase the number of comments on games
-    if (!isUserAuthor && !isUserAdmin) {
-    console.log("show notation")
-      utils.setTimeout(this.showNotationBox, 7000)
-    }
+    utils.setTimeout(this.showNotationBox, 7000)
   },
   methods: {
     /*

@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "4ec34b4441c9ee70b4f1",
-    "url": "css/app.41741a80.css"
+    "revision": "a57b341280973af397b5",
+    "url": "css/app.598544da.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -72,7 +72,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "5e0cf121bd42f2adf8300beea9c77981",
+    "revision": "711aa274ab66dec06fced9cbc6b46981",
     "url": "index.html"
   },
   {
@@ -80,8 +80,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2.5af11629.js"
   },
   {
-    "revision": "4ec34b4441c9ee70b4f1",
-    "url": "js/app.8a1c8fb4.js"
+    "revision": "a57b341280973af397b5",
+    "url": "js/app.eabee50b.js"
   },
   {
     "revision": "108d9e23d3355ef710ed",
@@ -861,6 +861,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   },
   {
     "revision": "76a48f2d69d9c0cbba570e605a3ce644",
+    "url": "statics/icons/story/sticker-bottom-old.png"
+  },
+  {
+    "revision": "f4d54ababfbec457c9928cf9189047ac",
     "url": "statics/icons/story/sticker-bottom.png"
   },
   {

@@ -244,9 +244,9 @@
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
-            <img style="vertical-align:bottom" v-if="step.options.character.length < 3" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
-            <img style="vertical-align:bottom;" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : uploadUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
-            <img style="vertical-align:bottom;" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? uploadUrl + '/upload/quest/' + customization.character : customization.character" />
+            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%')" v-if="step.options.character.length < 3" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
+            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%')" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : uploadUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
+            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%')" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? uploadUrl + '/upload/quest/' + customization.character : customization.character" />
           </div>
           <div v-if="step.options && step.options.characterBarColor && step.options.characterBarColor !== ''" class="full-width" :class="(step.options && step.options.characterBarColor) ? '' : 'bg-black'" :style="'height: 68px; ' + ((step.options && step.options.characterBarColor && step.options.characterBarColor !== '') ? 'background-color: ' + step.options.characterBarColor : '')">
           </div>
@@ -354,14 +354,14 @@
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
-          <div class="color-bubbles" style="margin-top: 5rem;">
+          <div class="color-bubbles" style="margin-top: 10px;">
             <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
           </div>
           <div class="color-bubbles" v-if="rightAnswer">
             <div v-for="(color, index) in rightAnswer" :key="index" :style="'background-color: ' + color" class="shadow-8 right">&nbsp;</div>
           </div>
 
-          <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
+          <div class="actions q-mt-sm q-mx-md" v-show="playerResult === null">
             <div>
               <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
             </div>
@@ -401,7 +401,7 @@
             </tr>
             <tr>
               <td v-for="(code, index) in playerCode" :key="index" class="text-center">
-                <q-btn :disabled="stepPlayed" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index" />
+                <q-btn :disabled="stepPlayed" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" style="margin-top: 0px;" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index" />
               </td>
             </tr>
           </table>
@@ -2114,7 +2114,7 @@ export default {
       const type = this.step.type
       if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character' || type === 'help' || type === 'image-over-flow' || type === 'binocular' || type === 'phone-call') {
         return { result: true, answer: true, score: 0, reward: 0, offline: true }
-      } else if (type === 'geolocation' || type === 'locate-item-ar' || type === 'jigsaw-puzzle') {
+      } else if (type === 'geolocation' || type === 'locate-item-ar' || type === 'jigsaw-puzzle' || this.step.id === 'gpssensor') {
         //TODO: find a way to check server side
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
       } else if (type === 'use-item') {
@@ -2221,7 +2221,7 @@ export default {
       if (this.step.id === 'gpssensor') {
         checkAnswerResult = await this.sendAnswer(this.step.questId, answer.stepId, this.runId, {answer: answer.position, isTimeUp: this.isTimeUp}, false)
 
-        this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true, answer.position)
+        this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true, answer.position, answer.stepId)
         return
       }
 
@@ -2496,7 +2496,7 @@ export default {
 
             this.nbTry++
             if (checkAnswerResult.remainingTrial > 0) {
-              Notification(this.$t('label.UseItemNothingHappens'), 'error')
+              Notification(this.$t('label.UseItemNothingHappens'), 'warning')
             } else {
               if (this.step.displayRightAnswer) {
                 this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
@@ -2529,9 +2529,9 @@ export default {
               this.nbTry++
               if (remainingTrial > 0) {
                 if (this.step.options.wrongLocationMessage && this.step.options.wrongLocationMessage[this.lang] && this.step.options.wrongLocationMessage[this.lang] !== "") {
-                  Notification(this.step.options.wrongLocationMessage[this.lang], 'error')
+                  Notification(this.step.options.wrongLocationMessage[this.lang], 'warning')
                 } else {
-                  Notification(this.$t('label.FindItemNothingHappens'), 'error')
+                  Notification(this.$t('label.FindItemNothingHappens'), 'warning')
                 }
               } else {
                 checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: false, isTimeUp: this.isTimeUp}, true)
@@ -2715,7 +2715,7 @@ export default {
     /*
      * Send good answer
      */
-    submitGoodAnswer(score, offlineMode, showResult, answer) {
+    submitGoodAnswer(score, offlineMode, showResult, answer, forceStepId) {
       /*if (showResult) {
         this.playerResult = true
       } else {
@@ -2738,7 +2738,7 @@ export default {
       }
       this.stepPlayed = true
 
-      this.$emit('success', score, offlineMode, showResult, answer)
+      this.$emit('success', score, offlineMode, showResult, answer, forceStepId)
       this.$emit('played')
 
       if (showResult || (this.step.options && this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage[this.lang] && this.step.options.rightAnswerMessage[this.lang] !== "")) {
@@ -3206,6 +3206,7 @@ export default {
           closestDistance = Math.min(closestDistance, parseInt(this.geolocation.GPSdistance, 10))
 
           limitDistance = (this.step.locations[i].distance ? this.step.locations[i].distance : 5)
+          // if a geolocation step is close to the user
           if (this.geolocation.GPSdistance <= limitDistance) {
             //this.$refs['geolocation-component'].disabled = true
             this.geolocation.active = false

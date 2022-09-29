@@ -166,7 +166,7 @@
             </p>
             <p>
               <q-btn
-              v-if="!info.quest || !info.quest.customization || (!info.quest.customization.removeScoring && !info.quest.customization.userCanNotQuit)"
+              v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring"
               class="glossy large-button"
               :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
               :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
@@ -178,7 +178,7 @@
             </p>
             <p>
               <q-btn
-                v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2 && (!info.quest.customization || info.quest.customization.userReplay == 'yes')" class="glossy large-button"
+                v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2" class="glossy large-button"
                 :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
                 :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
                 @click="restartGame">
@@ -869,7 +869,6 @@ export default {
       this.warnings.stepDataMissing = false
 
       // --- load step Id ---
-      //if (typeof forceStepId !== 'undefined' && forceStepId !== null && forceStepId !== 'geolocation') {
       if (typeof forceStepId !== 'undefined' && forceStepId !== null) {
         stepId = forceStepId
       } else if (!this.offline.active) {
@@ -998,7 +997,6 @@ export default {
       } else {
         // get quest data from device storage
         const step = await utils.readFile(this.questId, 'step_' + stepId + '.json')
-        
         if (!step) {
           this.$q.dialog({
             title: this.$t('label.TechnicalProblem')
@@ -1241,7 +1239,7 @@ export default {
     /*
      * Track step success
      */
-    async trackStepSuccess (score, offline, showResult, answer, forceStepId) {
+    async trackStepSuccess (score, offline, showResult, answer) {
       if (showResult) {
         // add step score to general score
         this.info.score += score
@@ -1251,8 +1249,9 @@ export default {
       if (this.step.type !== 'image-over-flow' && this.step.type !== 'binocular') {
         this.hideHint()
       }
+
       // save offline run
-      await this.saveOfflineAnswer(true, false, false, forceStepId)
+      await this.saveOfflineAnswer(true, false, false)
 
       // move to next step if right answer not displayed
       if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
@@ -1981,7 +1980,7 @@ export default {
     /*
      * save the offline answer for a run
      */
-    async saveOfflineAnswer(success, answer, updateRunDate, forceStepId) {
+    async saveOfflineAnswer(success, answer, updateRunDate) {
       // offline mode not activated for multiplayer
       if (this.isMultiplayer) {
         return false
@@ -2007,11 +2006,7 @@ export default {
             conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player)
           }
         } else {*/
-        if (forceStepId) {
-          conditions = this.updateConditions(conditions, forceStepId, true, "", true, this.player, answer)
-        } else {
           conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player, answer)
-        }
         /*}*/
         ended = true
 
@@ -2032,11 +2027,7 @@ export default {
             conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player)
           }
         } else {*/
-        if (forceStepId) {
-          conditions = this.updateConditions(conditions, forceStepId, false, "", true, this.player, answer)
-        } else {
           conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player, answer)
-        }          
         /*}*/
       }
 
@@ -2336,7 +2327,6 @@ export default {
                 continue stepListFor
               }
             }
-            
             // if the marker is not requested, do not treat marker step
             if (stepsofChapter[i].type === 'locate-marker') {
               // if advanced mode => do not treat this step
@@ -2894,3 +2884,54 @@ export default {
   .actions > div > .q-btn:not(:first-child) { flex-grow: 1; margin-left: 1rem; }
 
 </style>
+<style>
+.story .character img {
+    width: 75%;
+    max-width: 400px;
+    max-height: 400px;
+}
+.find-item, use-item {
+  background: url(https://graaly-upload.s3.eu-west-3.amazonaws.com/upload/quest/6321e08cc4301449ca6092d9/step/background/1663680586952.png);
+  height: 100% !important;
+  /*margin-bottom: 80px !important;*/
+}
+.help-text .white-buttons {
+  margin-bottom: 14px;
+}
+
+body {
+  font-family: arial;
+}
+.concertone {
+  font-family: arial;
+}
+.font-standard {
+  font-family: arial;
+}
+.font-arial {
+  font-family: arial;
+}
+.bubble-middle .text-grey {
+  color: #0D77C6 !important;
+  font-weight: bold;
+}
+.q-notifications__list--bottom .bg-positive {
+  background: #fff !important;
+}
+.q-notifications__list--bottom .text-white, .q-notifications__list--bottom .text-white .q-notification__actions {
+  color: #0D77C6 !important;
+}
+.character img {
+  max-height: 40vh !important;
+}
+.code-color .color-bubbles {
+  margin-top: 10px !important;
+}
+.code-color .actions.q-mt-lg {
+  margin-top: 1px;
+}
+.q-btn__content {
+  font-weight: bold;
+}
+</style>
+

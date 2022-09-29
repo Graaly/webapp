@@ -46,17 +46,9 @@
         <div class="q-py-sm dark-banner absolute-bottom limit-size-desktop">
           <q-item clickable v-ripple @click="openProfile(quest.authorUserId)">
             <q-item-section side>
-              <q-avatar size="50px" v-if="!quest.customization || !quest.customization.logo || quest.customization.logo === ''">
-                <img v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.picture" :src="uploadUrl + '/upload/profile/' + quest.author.picture" />
-                <img v-if="typeof quest.author === 'undefined' || !quest.author || !quest.author.picture" src="statics/profiles/noprofile.png" />
-              </q-avatar>
-              <q-avatar size="50px" v-if="quest.customization && quest.customization.logo && quest.customization.logo !== ''">
-                <img v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.picture" :src="uploadUrl + '/upload/quest/' + quest.customization.logo" />
-              </q-avatar>
+
             </q-item-section>
             <q-item-section style="padding-right: 84px">
-              <q-item-label class="subtitle5" v-if="(!quest.customization || !quest.customization.authorName || quest.customization.authorName === '') && typeof quest.author !== 'undefined' && quest.author && quest.author.name">{{ quest.author.name }}</q-item-label>
-              <q-item-label class="subtitle5" v-if="quest.customization && quest.customization.authorName && quest.customization.authorName !== ''">{{ quest.customization.authorName }}</q-item-label>
             </q-item-section>
           </q-item>
         </div>
@@ -459,6 +451,40 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+    
+    <!------------------ Validate terms ------------------------>
+
+    <q-dialog v-model="terms.show">
+      <div class="q-pa-md">
+        <q-item dense>
+          <q-item-section avatar>
+            <q-checkbox dark v-model="terms.usage" />
+          </q-item-section>
+          <q-item-section>
+            <span v-html="$t('label.IAgreeTheTermsAndConditions')" />
+            <div class="q-field-bottom" v-if="terms.usageError">
+              <div class="error">{{ $t('label.PleaseAgreeTheTermsAndConditions') }}</div>
+            </div>
+          </q-item-section>
+        </q-item>
+
+        <q-item dense>
+          <q-item-section avatar>
+            <q-checkbox dark v-model="terms.privacy" />
+          </q-item-section>
+          <q-item-section>
+            <span v-html="$t('label.IAgreeThePrivacyPolicy')" />
+            <div class="q-field-bottom" v-if="terms.privacyError">
+              <div class="error">{{ $t('label.PleaseAgreeThePrivacyPolicy') }}</div>
+            </div>
+          </q-item-section>
+        </q-item>
+
+        <div class="centered q-pa-md">
+          <q-btn color="primary" class="glossy large-button" @click="playAfterTerms()"><span>{{ $t('label.Confirm') }}</span></q-btn>
+        </div>
+      </div>
+    </q-dialog>
 
     <!------------------ NO GEOLOCATION AREA ------------------------>
 
@@ -508,6 +534,16 @@ export default {
           buyable: false,
           alreadyPayed: false
         }
+      },
+      // BOSCH SPECIFIC
+      terms: {
+        show: false,
+        usage: false,
+        usageError: false,
+        privacy: false,
+        privacyError: false,
+        questId: '',
+        lang: ''
       },
       offline: {
         active: false,
@@ -568,6 +604,10 @@ export default {
     })
   }, 250),
   methods: {
+    // BOSCH SPECIFIC
+    async validateTerms() {
+      this.terms.show = true
+    },
     /*
      * Check if the user is next to the starting point
      */
@@ -1026,41 +1066,60 @@ export default {
      * @param   {String}    lang               lang of the quest
      */
     async playQuest(questId, lang) {
-      //check if user must create his account
-      if (this.quest.forcePlayerToHaveAccount && this.$store.state.user.name === '-') {
-        this.$q.dialog({
-          message: this.$t('label.YouNeedToCreateYourAccountToPlay'),
-          ok: this.$t('label.Ok'),
-          cancel: this.$t('label.Cancel')
-        }).onOk(() => {
-          this.$router.push('/profile/' + this.$store.state.user.id)
-        }).onCancel(() => {
-          return false
-        })
-        return false
-      }
-      if (this.quest.shareUserDataWithCreator && this.$store.state.user.name !== '-' && !this.isSharedWithPartners) {
-        this.$q.dialog({
-          message: this.$t('label.PartnerAskForYouData'),
-          options: {
-            type: 'checkbox',
-            model: [],
-            items: [
-              { label: this.$t('label.ShareDataWithPartner'), value: 'ok' }
-            ]
-          },
-          ok: this.$t('label.Ok'),
-          cancel: this.$t('label.Cancel')
-        }).onOk(data => {
-          if (data.length > 0 && data[0] === 'ok') {
-            this.isSharedWithPartners = true
-          }
-          this.playQuestLaunch(questId, lang)
-        }).onCancel(() => {
-          return false
-        })
+      // BOSCH SPECIFIC
+      this.terms.questId = questId
+      this.terms.lang = lang
+      this.validateTerms()
+    },
+    async playAfterTerms(){
+      // BOSCH SPECIFIC
+      let questId = this.terms.questId
+      let lang = this.terms.lang
+      this.terms.usageError = false
+      this.terms.privacyError = false
+      if (this.terms.usage === false) {
+        this.terms.usageError = true
+      } else if (this.terms.privacy === false) {
+        this.terms.privacyError = true
       } else {
-        await this.playQuestLaunch(questId, lang)
+        this.terms.show = false
+        
+        //check if user must create his account
+        if (this.quest.forcePlayerToHaveAccount && this.$store.state.user.name === '-') {
+          this.$q.dialog({
+            message: this.$t('label.YouNeedToCreateYourAccountToPlay'),
+            ok: this.$t('label.Ok'),
+            cancel: this.$t('label.Cancel')
+          }).onOk(() => {
+            this.$router.push('/profile/' + this.$store.state.user.id)
+          }).onCancel(() => {
+            return false
+          })
+          return false
+        }
+        if (this.quest.shareUserDataWithCreator && this.$store.state.user.name !== '-' && !this.isSharedWithPartners) {
+          this.$q.dialog({
+            message: this.$t('label.PartnerAskForYouData'),
+            options: {
+              type: 'checkbox',
+              model: [],
+              items: [
+                { label: this.$t('label.ShareDataWithPartner'), value: 'ok' }
+              ]
+            },
+            ok: this.$t('label.Ok'),
+            cancel: this.$t('label.Cancel')
+          }).onOk(data => {
+            if (data.length > 0 && data[0] === 'ok') {
+              this.isSharedWithPartners = true
+            }
+            this.playQuestLaunch(questId, lang)
+          }).onCancel(() => {
+            return false
+          })
+        } else {
+          await this.playQuestLaunch(questId, lang)
+        }
       }
     },
     /*
@@ -1315,5 +1374,11 @@ export default {
 <style>
 #teaser .text-subtitle1 {
   white-space: pre-line;
+}
+.bg-primary {
+  background: #0D77C6 !important;
+}
+.text-primary {
+  color: #0D77C6 !important;
 }
 </style>
