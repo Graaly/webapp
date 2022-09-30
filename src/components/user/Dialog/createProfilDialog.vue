@@ -2,20 +2,17 @@
   <q-dialog ref="createProfilDialog" style="max-width: 400px">
     <q-card class="login-dialog-card">
       <q-card-section class="row items-center">
-        Texte à définir
+        {{ $t('label.StartCreation') }}
         <q-space/>
         <icon-btn-square color="accent" icon="close" rotation fill v-close-popup/>
       </q-card-section>
-
-      <q-separator/>
-
       <q-card-section>
         {{ $t('label.DoYouWantToCreateAnAccount') }}
         <div>
           <text-btn-square
             class="q-mb-lg q-mt-lg"
             @click.native="onOKClick()"
-            title="Créer(à définir)"
+            :title="$t('label.CreateAccount')"
             color="accent"
             icon="done"
           />

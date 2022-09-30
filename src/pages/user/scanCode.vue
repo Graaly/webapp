@@ -7,7 +7,6 @@
     <div style="max-width: 350px; margin: 0 auto;">
       <back-bar color="accent" v-if="fromLogin"/>
     </div>
-
   </div>
 </template>
 

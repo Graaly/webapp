@@ -3,11 +3,9 @@
     <div id="teaser" class="friends">
       <div style="margin-top: 80px">
         <q-infinite-scroll @load="loadFriends" :offset="250" v-if="tab === 'follow'">
-<!--          <usersList format='list' :add="$store.state.user.id === $route.params.id ? true : false" :users="users" @refresh="reloadFriends"></usersList>-->
           <user-list :users="users" color="accent"/>
         </q-infinite-scroll>
         <q-infinite-scroll @load="loadSuggestions" :offset="250" v-if="tab === 'suggestion' && user.position !== null">
-<!--          <usersList format='list' :add="false" :users="suggestions"></usersList>-->
           <user-list :users="suggestions" color="accent"/>
         </q-infinite-scroll>
         <div v-if="tab === 'suggestion' && user.position === null" class="text-white">

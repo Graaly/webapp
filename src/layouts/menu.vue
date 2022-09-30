@@ -1,12 +1,15 @@
 <template>
   <q-layout view="lHh lpr lfr" :right-breakpoint="1100">
+
     <!------------------ MAIN PAGE AREA ------------------------>
+
     <q-page-container>
       <router-view id="menu-view" :key="$route.fullPath"  style="height: calc(100vh - 61px);"/>
     </q-page-container>
     <home-menu color="accent"/>
 
     <!------------------ IF NOT A MOBILE DEVICE ------------------------>
+
     <div id="screen-too-large">
       <h5 class="text-center">
         {{ $t("label.GraalyIsOptimizedForSmallerScreens") }}

@@ -344,7 +344,7 @@
     <q-dialog v-model="deleteDialog">
       <q-card class="help-dialog-card">
         <q-card-section class="row items-center">
-          Confirmation de suppression
+          {{ $t('label.ConfirmDeleteAccount') }}
           <q-space/>
           <icon-btn-square color="accent" icon="close" rotation fill v-close-popup/>
         </q-card-section>
@@ -619,7 +619,7 @@ export default {
     },
     async createNewAccount() {
       console.log('CREATE')
-      if (!this.profile.form.terms || !this.profile.form.privacy){
+      if (!this.profile.form.terms || !this.profile.form.privacy) {
         return
       }
       let modifications = {

@@ -2,7 +2,7 @@
   <div class="background-404">
     <div class="absolute-center text-center">
       <p class="text-404">Error 404</p>
-      <p class="text-not-found">Page not found</p>
+      <p class="text-not-found">{{ $t('label.Error404') }}</p>
       <text-btn-square
         style="width: 250px"
         submit
@@ -41,6 +41,5 @@ export default{
   .text-not-found {
     padding: 0;
   }
-
 }
 </style>

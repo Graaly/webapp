@@ -8,32 +8,6 @@
         <icon-btn-square :label="$t('label.Designers')" icon="extension" color="secondary" :fill="type !== 'designer'" @click.native="selectType('designer')"/>
         <icon-btn-square :label="$t('label.Players')" icon="face" color="accent" :fill="type !== 'player'" @click.native="selectType('player')"/>
       </div>
-<!--      <div class="row q-pa-sm">
-        <div class="col-4" @click="selectType('quest')" :class="{'box-unselected': (type !== 'quest')}">
-          <div v-if="scrollInfo.position < 20" class="search-box-top search-quest-box-top">
-            <img src="statics/images/icon/key-big.svg" />
-          </div>
-          <div class="search-box-bottom search-quest-box-bottom subtitle6 centered">
-            {{ $t('label.EscapeGame') }}
-          </div>
-        </div>
-        <div class="col-4" @click="selectType('designer')" :class="{'box-unselected': (type !== 'designer')}">
-          <div v-if="scrollInfo.position < 20" class="search-box-top search-creator-box-top">
-            <img src="statics/images/icon/puzzle-big.svg" />
-          </div>
-          <div class="search-box-bottom search-creator-box-bottom subtitle6 centered">
-            {{ $t('label.Designers') }}
-          </div>
-        </div>
-        <div class="col-4" @click="selectType('player')" :class="{'box-unselected': (type !== 'player')}">
-          <div v-if="scrollInfo.position < 20" class="search-box-top search-user-box-top">
-            <img src="statics/images/icon/user-big.svg" />
-          </div>
-          <div class="search-box-bottom search-user-box-bottom subtitle6 centered">
-            {{ $t('label.Players') }}
-          </div>
-        </div>
-      </div>-->
       <div v-if="type === 'quest'">
         <div class="q-pa-md">
           <q-btn-group spread rounded>
@@ -53,21 +27,6 @@
                    @click="selectSubtype('friends')"/>
           </q-btn-group>
         </div>
-<!--        <div class="row q-pa-sm">
-          <div class="col-6" @click="selectSubtype('around')" :class="{'tab-unselected': (subtype !== 'around')}">
-            <q-btn>
-
-            </q-btn>
-            <div class="tab-button subtitle6 centered">
-              {{ $t('label.AroundYou') }}
-            </div>
-          </div>
-          <div class="col-6" @click="selectSubtype('friends')" :class="{'tab-unselected': (subtype !== 'friends')}">
-            <div class="tab-button subtitle6 centered">
-              {{ $t('label.FriendsQuests') }}
-            </div>
-          </div>
-        </div>-->
       </div>
       <div class="q-px-md">
         <q-input
@@ -88,33 +47,21 @@
 
           <template v-slot:hint class="flex justify-between">
             <div v-if="search.text !== '' && search.text.length < 3" class="text-negative q-pt-sm">
-              3 Letters min.
+              {{ $t('label.ThreeLetterMin') }}
             </div>
             <div>
               <div class="text-right q-pt-sm" v-if="search.text.length > 2 && type === 'quest' && results.quests">
-                {{ results.quests.length }} résultat<span v-if="results.quests.length > 1">s</span>
+                {{ results.quests.length }} {{ $t('label.Result') }}<span v-if="results.quests.length > 1">s</span>
               </div>
               <div class="text-right q-pt-sm" v-if="search.text.length > 2 && type === 'designer' && results.designers">
-                {{ results.designers.length }} résultat<span v-if="results.designers.length > 1">s</span>
+                {{ results.designers.length }} {{ $t('label.Result') }}<span v-if="results.designers.length > 1">s</span>
               </div>
               <div class="text-right q-pt-sm" v-if="search.text.length > 2 && type === 'player' && results.players">
-                {{ results.players.length }} résultat<span v-if="results.players.length > 1">s</span>
+                {{ results.players.length }} {{ $t('label.Result') }}<span v-if="results.players.length > 1">s</span>
               </div>
             </div>
           </template>
         </q-input>
-<!--        <q-input
-          dark
-          class="q-px-md arial"
-          v-model="search.text"
-          debounce="500"
-          :placeholder="$t('label.Search')"
-          @input="find()"
-        >
-          <template v-if="search.text !== ''" v-slot:append>
-            <q-icon name="close" />
-          </template>
-        </q-input>-->
       </div>
     </div>
       <!------------------ QUEST COMPONENT ------------------------>

@@ -1,14 +1,14 @@
 <template>
   <q-table
     class="container"
-    title="Earnings of games"
+    :title="$t('label.EarningsGames')"
     :data="items"
     :columns="columns"
     :visible-columns="visible"
     row-key="id"
     :loading="loading"
     :pagination="initialPagination"
-    no-data-label="I didn't find anything for you"
+    :no-data-label="$t('label.FindNothing')"
   >
     <template v-slot:header="props">
       <q-tr :props="props">
@@ -25,7 +25,7 @@
       <q-tr :props="props">
         <q-td auto-width key="name" v-if="props.row.title.fr">{{ props.row.title.fr }}</q-td>
         <q-td auto-width key="price" class="text-center" v-if="props.row.premiumPrice.prices">{{ props.row.premiumPrice.prices.fr ? props.row.premiumPrice.prices.fr : props.row.premiumPrice.prices.en}}<br>{{ props.row.premiumPrice.manual && props.row.premiumPrice.manual !== "" ?  "manual : " + props.row.premiumPrice.manual : "" }}</q-td>
-        <q-td auto-width key="price" class="text-center" v-else> Pas de prix</q-td>
+        <q-td auto-width key="price" class="text-center" v-else>{{ $t('label.NotPrice') }}</q-td>
         <q-td auto-width key="qrcode" class="text-center">{{ props.row.premiumPrice.tier ? props.row.tierEarnings : "--" }}</q-td>
         <q-td auto-width key="earnings" class="text-right">{{ props.row.earnings.toFixed(2) }} €</q-td>
       </q-tr>
@@ -44,10 +44,10 @@ export default {
       items: [],
       visible: ['name', 'price', 'mail', 'qrcode', 'earnings'],
       columns: [
-        {name: 'name', required: true, label: 'Name', align: 'left', sortable: true, field: row => row.title.fr},
-        {name: 'price', label: 'Price', sortable: false, align: 'center', field: row => row.premiumPrice.prices.fr},
-        {name: 'qrcode', label: 'QR-Code used', align: 'center', sortable: true, field: 'tierEarnings'},
-        {name: 'earnings', label: 'Earnings', align: 'right', sortable: true, field: 'earnings'}
+        {name: 'name', required: true, label: this.$t('label.AdminName'), align: 'left', sortable: true, field: row => row.title.fr},
+        {name: 'price', label: this.$t('label.AdminPrice'), sortable: false, align: 'center', field: row => row.premiumPrice.prices.fr},
+        {name: 'qrcode', label: this.$t('label.AdminQRCodeUsed'), align: 'center', sortable: true, field: 'tierEarnings'},
+        {name: 'earnings', label: this.$t('label.AdminEarning'), align: 'right', sortable: true, field: 'earnings'}
       ],
       initialPagination: {
         sortBy: 'earnings',

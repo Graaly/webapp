@@ -1,14 +1,14 @@
 <template>
   <q-table
     class="container"
-    title="Statistics of games"
+    :title="$t('label.StatisticGames')"
     :data="items"
     :columns="columns"
     :visible-columns="visible"
     row-key="id"
     :loading="loading"
     :pagination="initialPagination"
-    no-data-label="I didn't find anything for you"
+    :no-data-label="$t('label.FindNothing')"
   >
     <template v-slot:header="props">
       <q-tr :props="props">
@@ -58,10 +58,10 @@ export default {
       items: [],
       visible: ['name', 'weekNb', 'monthNb', 'rating'],
       columns: [
-        {name: 'name', required: true, label: 'Name', align: 'left', sortable: true, field: row => row._id.questData.fr},
-        {name: 'weekNb', label: 'Played Weekly', sortable: true, align: 'center', field: 'weekNb'},
-        {name: 'monthNb', label: 'Played Monthly', align: 'center', sortable: true, field: 'monthNb'},
-        {name: 'rating', label: 'Rating', align: 'center', sortable: true, field: 'rating'}
+        {name: 'name', required: true, label: this.$t('label.AdminName'), align: 'left', sortable: true, field: row => row._id.questData.fr},
+        {name: 'weekNb', label: this.$t('label.AdminPlayedWeekly'), sortable: true, align: 'center', field: 'weekNb'},
+        {name: 'monthNb', label: this.$t('label.AdminPlayedMonthly'), align: 'center', sortable: true, field: 'monthNb'},
+        {name: 'rating', label: this.$t('label.AdminRating'), align: 'center', sortable: true, field: 'rating'}
       ],
       initialPagination: {
         sortBy: 'monthNb',

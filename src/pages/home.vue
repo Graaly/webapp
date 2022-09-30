@@ -1,27 +1,12 @@
 <template>
   <div class="wrapper" :class="showNonHybridQRReader ? 'bg-transparent' : 'background-home'">
-<!--    <div v-if="showNonHybridQRReader" >
 
-      &lt;!&ndash;====================== QR CODE READER ON WEBAPP =================================&ndash;&gt;
-&lt;!&ndash;      <div class="text-white bg-primary q-pt-xl q-pl-md q-pb-sm">
-        <div class="float-right no-underline close-btn q-pa-sm" @click="closeQRCodeReader"><q-icon name="close" class="subtitle1" /></div>
-        {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
-      </div>&ndash;&gt;
+<!--    ====================== QR CODE READER ON WEBAPP =================================-->
 
-      <qr-code-stream
-        v-if="showNonHybridQRReader"
-        v-on:QrCodeResult="checkCode"
-        :color="'accent'"
-        menu
-        v-on:CloseQRCodeReader="closeQRCodeReader"
-      />
-    </div>-->
     <div class="home q-pa-md">
     <div class="teaser" v-if="!showNonHybridQRReader">
 
       <!--====================== MAIN QUEST =================================-->
-
-<!--      <mainQuest v-if="!offline.active" :quest="bestQuest"></mainQuest>-->
 
       <q-carousel
         v-if="!offline.active && bestQuest"
@@ -61,59 +46,40 @@
         </div>
         <div v-if="!questList.length" class="q-pa-md text-white">{{ $t('label.YouAreOfflineNoQuestsAvailable') }}</div>
         <div v-if="questList.length">
-<!--          <mainQuest :quest="questList[0]"></mainQuest>-->
           <quest-card  :quest="questList[0]" color="primary" direction="left" class="q-mb-xl"/>
 
           <div class="centered bg-warning q-pa-sm text-white" v-if="warnings.noNetwork">
             <q-spinner-radio class="on-left" /> {{ $t('label.WarningNoNetwork') }}
           </div>
-
-<!--          <titleBar :title="{text: $t('label.CachedQuests'), type: 'key'}"></titleBar>-->
-<!--          <questsList format="small" :quests="questList"></questsList>-->
-
           <quest-list
             :quests="questList"
             :title="$t('label.CachedQuests')"
             icon="cloud_off"
             color="#757575"
           />
-
         </div>
       </div>
-
-      <!--====================== QR CODE BUTTON =================================-->
-
-<!--      <div class="q-px-md q-pt-lg q-pb-lg cursor-pointer centered" v-if="!offline.active">
-        <div class="q-pb-md">Vous avez reçu un QR code ?</div>
-        <div class="image-button" @click="startScanQRCode" style="background-image: url(statics/images/icon/scan-button.png)">
-          {{ $t('label.ScanQRCode') }}
-        </div>
-      </div>-->
 
       <!--====================== WARNINGS =================================-->
 
-      <div class="centered bg-warning q-pa-sm" v-if="warnings.noNetwork">
+      <div class="centered bg-warning q-px-sm q-py-md" v-if="warnings.noNetwork">
         <q-spinner-radio class="on-left" /> {{ $t('label.WarningNoNetwork') }}
       </div>
+      <!--   Todo: MANQUE LE CLICK   -->
       <div v-if="warnings.noNetwork || warnings.noServerReponse">
-        <div class="centered bg-warning q-pa-sm" v-if="!warnings.noNetwork && warnings.noServerReponse">
+        <div class="centered bg-warning q-px-sm q-py-md" v-if="!warnings.noNetwork && warnings.noServerReponse">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
       </div>
       <!--====================== INVITATION QUEST =================================-->
 
       <div v-if="!offline.active && invitationQuests && invitationQuests.length > 0">
-
-<!--        <titleBar :title="{text: $t('label.Invitations'), type: 'key'}"></titleBar>-->
-<!--        <questsList :quests="invitationQuests"></questsList>-->
-
         <quest-list
           :quests="invitationQuests"
           :title="$t('label.Invitations')"
           icon="send_time_extension"
           color="primary"
         />
-
       </div>
 
        <!--====================== AROUND QUEST =================================-->
@@ -128,19 +94,6 @@
           color="accent"
           around
         />
-<!--        <titleBar :title="{text: $t('label.AroundYou'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAroundYou"></titleBar>
-
-        <div v-if="!nearestQuests || nearestQuests.length > 0">
-          <questsList :format="mainQuestListFormat" :quests="nearestQuests"></questsList>
-        </div>
-        <div v-if="nearestQuests && nearestQuests.length === 0">
-          <div class="centered q-pa-md">
-            {{ $t('label.NoQuestAroundYou') }}
-            <div>
-              <a class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
-            </div>
-          </div>
-        </div>-->
       </div>
 
       <!--====================== ON TOP QUEST =================================-->
@@ -157,8 +110,6 @@
       <!--====================== EXTRA QUEST =================================-->
 
       <div v-if="!offline.active && extraQuests && extraQuests.items && extraQuests.items.length > 0">
-<!--        <titleBar v-if="extraQuests.title && extraQuests.title[$t('label.shortLang')]" :title="{text: extraQuests.title[$t('label.shortLang')], type: 'key'}"></titleBar>-->
-<!--        <questsList format="small" :quests="extraQuests.items"></questsList>-->
         <quest-list
           :quests="extraQuests.items"
           :title="$t('label.shortLang')"
@@ -178,43 +129,10 @@
         color="accent"
         icon="face"
       />
-<!--      &lt;!&ndash;  DIALOG CREATE PROFIL  &ndash;&gt;
-      <q-dialog v-model="createProfilDialog" style="max-width: 400px">
-        <q-card class="login-dialog-card">
-          <q-card-section class="row items-center">
-            Texte à définir
-            <q-space/>
-            <icon-btn-square color="accent" icon="close" rotation fill v-close-popup/>
-          </q-card-section>
-
-          <q-separator/>
-
-          <q-card-section>
-            {{ $t('label.DoYouWantToCreateAnAccount') }}
-            <div>
-              <text-btn-square
-                class="q-mb-lg q-mt-lg"
-                @click.native="openUpdateProfilePage()"
-                title="Créer(adefinir)"
-                color="accent"
-                icon="done"
-              />
-            </div>
-
-          </q-card-section>
-        </q-card>
-      </q-dialog>-->
-<!--      <div class="q-px-md q-pt-lg" v-if="!offline.active && (!this.$store.state.user.name || this.$store.state.user.name === '' || this.$store.state.user.email === 'providersignin' || !this.$store.state.user.location || !this.$store.state.user.location.postalCode || this.$store.state.user.location.postalCode === '' || !this.$store.state.user.location.country || this.$store.state.user.location.country === '')">
-        <div class="image-button" @click="openUpdateProfilePage" style="background-image: url(statics/images/icon/profile-button.png)">
-          {{ $t('label.WeNeedMoreInformationAboutYou') }}
-        </div>
-      </div>-->
 
       <!--====================== QUEST PLAYED OR CREATED BY GRAALY =================================-->
 
       <div v-if="!offline.active && (!friendQuests || friendQuests.length > 0)">
-        <titleBar format="small" :title="{text: $t('label.FriendsQuests'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMoreFriendsGames"></titleBar>
-        <questsList format="small" :quests="friendQuests"></questsList>
         <quest-list
           :quests="friendQuests"
           :title="$t('label.FriendsQuests')"
@@ -226,15 +144,12 @@
       <!--====================== CREATORS =================================-->
 
       <div v-if="!offline.active && (!users || users.length > 0)">
-
         <creator-list
           :creators="users"
           v-on:readMore="readMoreAllCreators"
           color="primary"
           title
         />
-<!--        <titleBar :title="{text: $t('label.Designers'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAllCreators"></titleBar>
-        <usersList format="scroll" :users="users"></usersList>-->
       </div>
 
       <!--====================== CREATE QUEST BUTTON =================================-->
@@ -247,14 +162,6 @@
           color="accent"
           icon="extension"
         />
-<!-- <div  class="q-ma-md relative-position creator-button cursor-pointer" @click="buildQuest">
-       <img src="statics/images/other/creator.jpg" class="full-width" />
-        <div class="bg-accent subtitle2 q-pa-md full-width" style="bottom: 0px; position: absolute; line-height: 0.8em;">
-          <div class="float-right"><img src="statics/images/icon/puzzle-big.svg" style="width: 32px" /></div>
-          <span>{{ $t('label.StartCreation') }}</span>
-        </div>
-       </div>-->
-
       </div>
 
       <!--====================== MAP BUTTON =================================-->
@@ -268,122 +175,11 @@
         outlined
         icon="public"
       />
-<!--      <div class="q-px-md q-py-lg" v-if="!offline.active">
-        <div class="image-button cursor-pointer" @click="openMap" style="background-image: url(statics/images/icon/locator-button.png)">
-          {{ $t('label.OpenTheMap') }}
-        </div>
-      </div>-->
-
-      <!--====================== HEADER =================================-->
-
-<!--      <div class="fixed-top">
-        <div class="home-header row no-wrap" :class="{'disabled': offline.active}">
-          <div class="col centered">
-            <img src="statics/images/logo/logo-header-color.png" class="logo" />
-          </div>
-          <div class="col centered">
-            <q-icon v-if="$store.state.user.isAdmin" name="build" class="header-button cursor-pointer" @click="openAdminPage" />
-          </div>
-          <div class="col centered">
-            <q-icon name="add_circle_outline" class="header-button cursor-pointer" @click="buildQuest" />
-          </div>
-          <div class="col centered">
-            &lt;!&ndash;<img src="statics/images/icon/search.svg" class="header-button q-mr-md cursor-pointer" @click="openSearch" />&ndash;&gt;
-            <q-icon name="search" class="header-button cursor-pointer" @click="openSearch" />
-          </div>
-          &lt;!&ndash;<div class="col centered">
-            <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" class="header-button q-mr-md cursor-pointer" @click="openRanking" />
-          </div>&ndash;&gt;
-          <div class="col centered">
-            <q-avatar class="cursor-pointer" @click="openProfile()">
-              <img :src="getProfileImage()" />
-            </q-avatar>
-          </div>
-        </div>
-      </div>-->
 
       <!------------------ GEOLOCATION COMPONENT ------------------------>
 
       <geolocation v-if="!offline.active" ref="geolocation-component" @success="onLocationSuccess($event)" @error="onLocationError()" />
 
-      <!--====================== RANKING PAGE =================================-->
-
-<!--      <q-dialog maximized v-model="ranking.show" class="over-map">
-        <q-card>
-          <q-card-section class="row items-center">
-            <h1 class="size-3 q-pl-md">{{ $t('label.YourRanking') }}</h1>
-            <q-space />
-            <q-btn icon="close" flat round dense />
-          </q-card-section>
-          <q-card-section class="centered bg-warning q-pa-sm" v-if="warnings.rankingMissing" @click="getRanking">
-            <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
-          </q-card-section>
-          <q-card-section>
-            <q-list>
-              <q-item-label header>{{ $t("label.Level") }}</q-item-label>
-              <q-item multiline>
-                <q-item-section avatar><q-icon name="trending_up" color="primary" /></q-item-section>
-                <q-item-section>
-                  <q-item-label>{{ $t('label.MyLevel') }}: {{ $store.state.user.level }} ({{ $store.state.user.score}} {{ $t('label.points') }})</q-item-label>
-                  <q-linear-progress class="q-my-sm" rounded :value="profile.level.progress" color="primary" style="height: 18px;" />
-                  <q-item-label caption>{{ $t('label.ReachScoreOf', {score: profile.level.max}) }}</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-            <q-list v-if="$store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings">
-              <q-item-label header>{{ $t("label.Rankings") }}</q-item-label>
-              <q-item>
-                <q-item-section avatar><q-icon name="public" color="primary" /></q-item-section>
-                <q-item-label>
-                  {{ $t('label.YourWorldRanking') }} :
-                  <span v-if="$store.state.user.statistics.rankings.world">{{ $store.state.user.statistics.rankings.world }}</span>
-                  <span v-if="!$store.state.user.statistics.rankings.world">{{ $t('label.AvailableTomorrow') }}</span>
-                </q-item-label>
-              </q-item>
-              <q-item>
-                <q-item-section avatar><q-icon name="home" color="primary" /></q-item-section>
-                <q-item-label>
-                  {{ $t('label.YourCityRanking') }} :
-                  <span v-if="$store.state.user.statistics.rankings.town">{{ $store.state.user.statistics.rankings.town }}</span>
-                  <span v-if="!$store.state.user.statistics.rankings.town">{{ $t('label.AvailableTomorrow') }}</span>
-                  </q-item-label>
-              </q-item>
-            </q-list>
-            <div v-if="success.ranking && success.ranking.length > 0">
-              <h1 class="size-3 q-pl-md">{{ $t('label.Rewards') }}</h1>
-              <q-list v-for="(item, index) in success.ranking" :key="index">
-                <q-item-label header>{{ item.city }}</q-item-label>
-                <q-item style="flex-wrap: wrap">
-                  <img v-for="(reward, index2) in item.rewards" :class="{'reward': true, 'disabled': !reward.won}" :key="index2" :src="uploadUrl + '/upload/quest/' + reward.image" />
-                </q-item>
-              </q-list>
-              {{ $t("label.PlayAllQuestsInACityToWin") }}
-            </div>
-          </q-card-section>
-          <q-card-section v-if="!($store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings) && !(success.ranking && success.ranking.length > 0)">
-            {{ $t("label.NoRankingYet") }}
-          </q-card-section>
-        </q-card>
-      </q-dialog>-->
-
-      <!--====================== BOTTOM BAR =================================-->
-
-<!--      <div class="fixed-bottom over-map" v-if="!offline.active">
-        <div v-if="offline.show">
-          <offlineLoader
-          :quest="offline.quest"
-          :design="'download'"
-          :lang="$t('label.shortLang')"
-          @end="questLoadedInCache()">
-          </offlineLoader>
-        </div>
-      </div>-->
-
-      <!--====================== SUGGEST A QUEST =================================-->
-
-<!--      <q-dialog maximized v-model="suggestQuest.show" class="over-map bg-white">
-        <suggest @close="suggestQuest.show = false"></suggest>
-      </q-dialog>-->
     </div>
   </div>
 </template>
@@ -394,13 +190,6 @@ import UserService from 'services/UserService'
 import AppStoreRatingService from 'services/AppStoreRatingService'
 
 import geolocation from 'components/geolocation'
-import shop from 'components/shop'
-import suggest from 'components/quest/suggest'
-import titleBar from 'components/titleBar'
-import mainQuest from 'components/quest/mainQuest'
-import questsList from 'components/quest/questsList'
-import usersList from 'components/user/usersList'
-import qrCodeStream from "components/qrCodeStream";
 import homeMenu from "../components/user/UI/homeMenu";
 import questCard from "../components/user/UI/questCard";
 import questList from "../components/user/questList";
@@ -420,14 +209,7 @@ export default {
     QInfiniteScroll,
     QSpinnerDots,
     geolocation,
-    shop,
-    suggest,
     //offlineLoader,
-    mainQuest,
-    titleBar,
-    questsList,
-    usersList,
-    qrCodeStream,
     homeMenu,
     questCard,
     questList,
@@ -600,17 +382,17 @@ export default {
     /*
     * start the scanner for hybrid app
     */
-    startScanQRCode() {
+    /*startScanQRCode() {
         this.showNonHybridQRReader = true
-    },
-    closeQRCodeReader () {
+    },*/
+    /*closeQRCodeReader () {
       this.showNonHybridQRReader = false
-    },
+    },*/
     /*
      * Check if the quest code is valid
      * @param   {String}  code            QR Code value
      */
-    async checkCode(code) {
+    /*async checkCode(code) {
       code = utils.removeUnusedUrl(code)
       let checkStatus = await QuestService.checkQRCode(code, this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
@@ -627,7 +409,7 @@ export default {
       } else {
         Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
       }
-    },
+    },*/
     /*
      * Check network
      */
@@ -774,17 +556,17 @@ export default {
     /*
      * Get current user ranking data
      */
-    async getRanking() {
-      this.warnings.rankingMissing = false
-      this.$q.loading.show()
-      let response = await UserService.getRanking()
-      this.$q.loading.hide()
-      if (response && response.data) {
-        this.success.ranking = response.data
-      } else {
-        this.warnings.rankingMissing = true
-      }
-    },
+    // async getRanking() {
+    //   this.warnings.rankingMissing = false
+    //   this.$q.loading.show()
+    //   let response = await UserService.getRanking()
+    //   this.$q.loading.hide()
+    //   if (response && response.data) {
+    //     this.success.ranking = response.data
+    //   } else {
+    //     this.warnings.rankingMissing = true
+    //   }
+    // },
     /* MPA 2021-01-28 seems not used
     displayNetworkIssueMessage() {
       this.$q.dialog({
@@ -792,11 +574,11 @@ export default {
         message: this.$t('label.TechnicalProblemNetworkIssue')
       })
     },*/
-    openAdminPage() {
+    /*openAdminPage() {
       if (!this.offline.active) {
         this.$router.push('/admin')
       }
-    },
+    },*/
     /*
      * Open How to popup
      * MPA 2021-01-28 seems not used
@@ -812,12 +594,12 @@ export default {
      * @param   {object}    quest            quest data
      * @param   {Boolean}   showLanguage     define if the map is displayed if the quest is not translated in the user language
      */
-    getQuestTitle(quest, showLanguage) {
-      if (!quest || !quest.title) {
-        return this.$t('label.NoTitle')
-      }
-      return quest.title
-    },
+    // getQuestTitle(quest, showLanguage) {
+    //   if (!quest || !quest.title) {
+    //     return this.$t('label.NoTitle')
+    //   }
+    //   return quest.title
+    // },
     /*
      * Back to the login page
      */
@@ -913,7 +695,6 @@ export default {
         }).onOk(async () => {
           _this.openUpdateProfilePage()
         })*/
-
       }
     },
     userIsConnected() {
@@ -926,9 +707,9 @@ export default {
     /*
      * Modify a quest
      */
-    modifyQuest(questId) {
+    /*modifyQuest(questId) {
       this.$router.push('/quest/builder/' + questId)
-    },
+    },*/
     /*
      * Read more links
      */
@@ -956,30 +737,30 @@ export default {
     /*
      * Open a user profile
      */
-    openProfile(id) {
+    /*openProfile(id) {
       if (!this.offline.active) {
         if (!id) {
           id = this.$store.state.user.id
         }
         this.$router.push('/profile/' + id)
       }
-    },
+    },*/
     /*
      * Open search page
      */
-    openSearch() {
+    /*openSearch() {
       if (!this.offline.active) {
         this.$router.push('/search/quest/around')
       }
-    },
+    },*/
     /*
      * Open ranking page
      */
-    openRanking() {
+    /*openRanking() {
       if (!this.offline.active) {
         this.$router.push('/user/ranking/level/all')
       }
-    },
+    },*/
     /*
      * Open map page
      */
@@ -988,13 +769,13 @@ export default {
         this.$router.push('/map')
       }
     },
-    goToHome() {
+    /*goToHome() {
       console.log('Go Home')
-    },
+    },*/
     /*
      * get profile image
      */
-    getProfileImage () {
+    /*getProfileImage () {
       const user = this.$store.state.user
       if (user.picture && user.picture.indexOf('http') !== -1) {
         return user.picture
@@ -1003,7 +784,7 @@ export default {
       } else {
         return 'statics/images/icon/profile-small.png'
       }
-    }
+    }*/
   }
 }
 </script>

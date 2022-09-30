@@ -1,14 +1,14 @@
 <template>
   <q-table
     class="container"
-    title="Statistics of games"
+    :title="$t('label.LimitationGames')"
     :data="items"
     :columns="columns"
     :visible-columns="visible"
     row-key="id"
     :loading="loading"
     :pagination="initialPagination"
-    no-data-label="I didn't find anything for you"
+    :no-data-label="$t('label.FindNothing')"
   />
 </template>
 
@@ -23,9 +23,9 @@ export default {
       items: [],
       visible: ['name', 'stats', 'remaining'],
       columns: [
-        {name: 'name', required: true, label: 'Name', align: 'left', sortable: true, field: row => row.title.fr},
-        {name: 'stats', label: 'Played/Limit', sortable: true, align: 'right', field: row => row.nbPlayers + '/' + row.limitations.nbPlays},
-        {name: 'remaining', label: 'Remaining credit', sortable: true, align: 'right', field: row => row.limitations.nbPlays - row.nbPlayers},
+        {name: 'name', required: true, label: this.$t('label.AdminName'), align: 'left', sortable: true, field: row => row.title.fr},
+        {name: 'stats', label: this.$t('label.AdminPlayLimit'), sortable: true, align: 'right', field: row => row.nbPlayers + '/' + row.limitations.nbPlays},
+        {name: 'remaining', label: this.$t('label.AdminRemainingCredit'), sortable: true, align: 'right', field: row => row.limitations.nbPlays - row.nbPlayers},
       ],
       initialPagination: {
         sortBy: 'monthNb',
@@ -45,7 +45,7 @@ export default {
       let response = await AdminService.ListLimitations();
       this.items = response.data.limitations;
       this.loading = false;
-    },
+    }
   }
 }
 </script>

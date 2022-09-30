@@ -1,14 +1,15 @@
 <template>
   <div class="scroll background-welcome">
     <!--  HEADER COMPONENT -->
-<!--    <back-bar color="accent"/>-->
     <div class="welcome">
       <q-tab-panels v-model="panel" animated class="bg-transparent q-mb-xl">
+
         <!--   FIRST PANEL     -->
+
         <q-tab-panel name="first">
           <div class="text-center">
             <q-img src="statics/new/logo-color-white.png" class="login-logo-top"/>
-            <div class="subtitle text-accent">STUDIO DE CREATION</div>
+            <div class="subtitle text-accent text-uppercase">{{ $t('label.CreationStudio') }}</div>
           </div>
           <div class="q-px-lg">
             <div class="q-mb-lg">{{ $t('label.BuilderChooseUserType') }}</div>
@@ -45,7 +46,9 @@
             </div>
           </div>
         </q-tab-panel>
+
         <!--   SECOND PANEL     -->
+
         <q-tab-panel name="second">
           <q-card class="new-dialog bg-transparent" flat>
             <q-card-section class="dialog-title flex justify-between items-center">
@@ -110,7 +113,9 @@
             </q-card-section>
           </q-card>
         </q-tab-panel>
+
         <!--   LAST PANEL     -->
+
         <q-tab-panel name="last">
           <q-card class="new-dialog bg-transparent" flat>
             <q-card-section class="dialog-title flex justify-between items-center">
@@ -155,6 +160,7 @@
       </q-tab-panels>
 
       <!-- DIALOG SHEET -->
+
       <q-dialog v-model="infoPopup" position="right">
         <q-card class="new-dialog q-mx-md" :class="[infoType === 'pro' ? 'bg-secondary' : infoType === 'individual' ? 'bg-primary' : 'bg-accent']">
           <q-card-section class="dialog-title flex justify-between items-center">
@@ -176,203 +182,6 @@
         </q-card>
       </q-dialog>
     </div>
-
-    <!-- -- -- -- -- -- -- ----------- OLD VERSION ------------ -- -- -- -- -- -- -->
-
-<!--    <div id="teaser" class="reduce-window-size-desktop">
-      <div v-if="!userType">
-        <h1 class="subtitle3 text-uppercase q-px-md q-mt-xl q-pt-lg">{{ $t('label.CreateYourQuest') }}</h1>
-        <div class="q-pa-md">
-          {{ $t('label.BuilderChooseUserType') }}
-        </div>
-        <div class="q-pa-md cursor-pointer" @click="changeUserType('pro')" test-id="btn-create-public-quest">
-          <q-card class="my-card">
-            <q-card-section class="bg-accent text-white centered text-uppercase">
-              <div class="text-h6">{{ $t('label.AProfessional') }}</div>
-            </q-card-section>
-
-            <q-card-section class="bg-accent text-white subtitle5">
-              {{ $t('label.AProfessionalDesc1') }}
-            </q-card-section>
-          </q-card>
-        </div>
-        <div class="q-pa-md cursor-pointer" @click="changeUserType('individual')">
-          <q-card class="my-card">
-            <q-card-section class="bg-accent text-white centered text-uppercase">
-              <div class="text-h6">{{ $t('label.AnIndividual') }}</div>
-            </q-card-section>
-
-            <q-card-section class="bg-accent text-white subtitle5">
-              {{ $t('label.AnIndividualDesc1') }}
-            </q-card-section>
-          </q-card>
-        </div>
-        <div class="q-pa-md">
-          <q-card class="my-card">
-            <q-card-section class="bg-accent text-white centered text-uppercase">
-              <div class="text-h6">{{ $t('label.Education') }}</div>
-            </q-card-section>
-
-            <q-card-section class="bg-accent text-white subtitle5">
-              {{ $t('label.EducationDesc') }}
-            </q-card-section>
-          </q-card>
-        </div>
-        <div class="centered">
-          <q-btn flat @click="cancel">{{ $t('label.Cancel') }}</q-btn>
-        </div>
-      </div>
-      <div v-if="userType==='pro' && !access">
-        <h1 class="subtitle3 text-uppercase q-px-md q-mt-xl q-pt-lg">{{ $t('label.CreateYourQuest') }}</h1>
-        <div class="q-pa-md">
-          {{ $t('label.BuilderProIntro') }}
-        </div>
-        <div class="q-pa-md">
-          <q-card class="my-card bg-primary text-white" @click="changeAccess('private')">
-            <q-card-section class="centered">
-              <div class="subtitle2">{{ $t('label.PrivateQuest') }}</div>
-              <div class="subtitle4">{{ $t('label.PaymentOnUsage') }}</div>
-            </q-card-section>
-
-            <q-card-section class="subtitle5">
-              <div v-html="$t('label.PrivateProQuestDesc1')"></div>
-            </q-card-section>
-
-            <q-separator />
-
-            <q-card-actions align="right">
-              <q-btn flat color="white">{{ $t('label.TryForFree') }}</q-btn>
-            </q-card-actions>
-          </q-card>
-        </div>
-        <div class="q-pa-md">
-          <q-card class="my-card bg-primary text-white" @click="changeAccess('public')">
-            <q-card-section class="centered">
-              <div class="subtitle2">{{ $t('label.PublicQuest') }}</div>
-              <div class="subtitle4">{{ $t('label.PaymentOnUsage') }}</div>
-            </q-card-section>
-
-            <q-card-section class="subtitle5">
-              <div v-html="$t('label.PublicProQuestDesc1')"></div>
-              &lt;!&ndash;<div class="centered" v-if="!readMorePublicProQuest"><a @click="readMorePublicProQuest = true">{{ $t('label.ReadMore') }}</a></div>&ndash;&gt;
-            </q-card-section>
-
-            <q-card-section v-if="readMorePublicProQuest">
-              <div v-html="$t('label.PublicProQuestDesc2')"></div>
-            </q-card-section>
-
-            <q-separator />
-
-            <q-card-actions align="right">
-              <q-btn flat color="white">{{ $t('label.TryForFree') }}</q-btn>
-            </q-card-actions>
-          </q-card>
-        </div>
-        &lt;!&ndash;
-        <div class="q-pa-md">
-          {{ $t('label.AddYourRoomInTheDirectory') }}
-        </div>
-        <div class="q-pa-md">
-          <q-card class="my-card bg-primary text-white" @click="changeAccess('public'); changeQuestType('room')">
-            <q-card-section class="centered">
-              <div class="subtitle2">{{ $t('label.AddYourRoom') }}</div>
-              <div class="subtitle4">{{ $t('label.Free') }}</div>
-            </q-card-section>
-
-            <q-card-section class="subtitle5">
-              <div v-html="$t('label.ProAddYourRoom')"></div>
-            </q-card-section>
-
-            <q-separator />
-
-            <q-card-actions align="right">
-              <q-btn flat color="white">{{ $t('label.Add') }}</q-btn>
-            </q-card-actions>
-          </q-card>
-        </div>
-        &ndash;&gt;
-        <div class="centered">
-          <q-btn flat @click="backToUserType">{{ $t('label.Back') }}</q-btn>
-        </div>
-      </div>
-      <div v-if="userType==='individual' && !access">
-        <h1 class="subtitle3 text-uppercase q-pa-md q-mt-xl q-pt-lg">{{ $t('label.CreateYourQuest') }}</h1>
-        <div class="q-pa-md">
-          {{ $t('label.BuilderIntro') }}
-        </div>
-        &lt;!&ndash;<div class="q-pa-md">
-          <q-card class="my-card bg-primary text-white">
-            <q-card-section class="centered">
-              <div class="subtitle2">{{ $t('label.PublicQuest') }}</div>
-              <div class="subtitle4">{{ $t('label.Free') }}</div>
-            </q-card-section>
-
-            <q-card-section class="subtitle5">
-              {{ $t('label.PublicQuestDesc1') }}
-            </q-card-section>
-
-            <q-card-section class="subtitle5">
-              {{ $t('label.PublicQuestDesc2') }}
-            </q-card-section>
-
-            <q-separator />
-
-            <q-card-actions align="right">
-              <q-btn flat color="white" @click="changeAccess('public')">{{ $t('label.CreatePublicQuest') }}</q-btn>
-            </q-card-actions>
-          </q-card>
-        </div>&ndash;&gt;
-        <div class="q-pa-md">
-          <q-card class="my-card bg-primary text-white">
-            <q-card-section class="centered">
-              <div class="subtitle2">{{ $t('label.PrivateQuest') }}</div>
-              <div class="subtitle4" v-if="privateQuest.buyable">{{ privateQuest.price }}</div>
-            </q-card-section>
-
-            <q-card-section class="subtitle5">
-              {{ $t('label.PrivateQuestDesc1') }}
-            </q-card-section>
-
-            <q-separator />
-
-            <q-card-actions align="right">
-              <q-btn v-if="privateQuest.buyable" flat color="white" @click="changeAccess('private')">{{ $t('label.BuyPrivateQuest') }}</q-btn>
-              <q-btn v-if="!privateQuest.buyable" flat disabled>{{ $t('label.OnlyBuyableOnMobile') }}</q-btn>
-              &lt;!&ndash;<q-btn flat>Utiliser un modèle</q-btn>&ndash;&gt;
-            </q-card-actions>
-          </q-card>
-        </div>
-        <div class="centered">
-          <q-btn flat @click="backToUserType">{{ $t('label.Back') }}</q-btn>
-        </div>
-      </div>
-      <div class="grow" v-if="access === 'public' && questType === 'room'">
-        <h1 class="subtitle3 text-uppercase q-pa-md q-mt-xl q-pt-lg">{{ $t('label.AddYourRoom') }}</h1>
-        <div class="q-pa-md" v-html="$t('label.BuilderAddRoomMessage')"></div>
-        <div class="q-px-md centered">
-          <q-btn color="primary" class="glossy large-btn" @click="createNewQuest()" test-id="btn-accept-rules"><div>{{ $t('label.Add') }}</div></q-btn>
-          <q-btn class="full-width center q-mt-md" @click="cancel()">{{ $t('label.Cancel') }}</q-btn>
-        </div>
-      </div>
-      <div class="grow" v-if="access === 'public' && questType === 'quest'">
-        <h1 class="subtitle3 text-uppercase q-pa-md q-mt-xl q-pt-lg">{{ $t('label.CreateYourPublicQuest') }}</h1>
-        <div class="q-pa-md" v-html="$t('label.BuilderWelcomeMessage')"></div>
-        <div class="q-px-md centered">
-          <q-btn color="primary" class="glossy large-btn" @click="createNewQuest()" test-id="btn-accept-rules"><div>{{ $t('label.AcceptTheRules') }}</div></q-btn>
-          <q-btn class="full-width center q-mt-md" @click="cancel()">{{ $t('label.Cancel') }}</q-btn>
-        </div>
-      </div>
-      <div class="grow" v-if="access === 'private'">
-        <h1 class="subtitle3 text-uppercase q-pa-md q-mt-xl q-pt-lg">{{ $t('label.CreateYourPrivateQuest') }}</h1>
-        <div v-if="userType === 'individual'" class="q-pa-md" v-html="$t('label.BuilderPrivateWelcomeMessage')"></div>
-        <div v-if="userType === 'pro'" class="q-pa-md" v-html="$t('label.BuilderPrivateProWelcomeMessage')"></div>
-        <div class="q-px-md centered">
-          <q-btn v-if="userType === 'individual'" color="primary" class="glossy large-btn" @click="buyPrivateQuest()"><div>{{ $t('label.AcceptAndBuyAPrivateQuest') }} ({{ privateQuest.price }})</div></q-btn>
-          <q-btn v-if="userType === 'pro'" color="primary" class="glossy large-btn" @click="createNewQuest()"><div>{{ $t('label.AcceptTheRules') }}</div></q-btn>
-          <q-btn class="full-width center q-mt-md" @click="cancel()">{{ $t('label.Cancel') }}</q-btn>
-        </div>
-      </div>
-    </div>-->
   </div>
 </template>
 

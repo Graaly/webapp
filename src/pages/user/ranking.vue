@@ -122,7 +122,6 @@
 
       <div class="q-py-sm q-px-md dark-banner header-ranking fixed-top">
         <div style="max-width: 400px; margin: 0 auto">
-<!--          <BackBar color="primary" relative class="q-py-sm"/>-->
           <div class="row q-pa-sm">
             <div class="col-4" @click="selectTab('level')" :class="{'tab-unselected': (tab !== 'level')}">
               <div class="tab-button subtitle5 centered">
@@ -192,12 +191,10 @@ import UserService from 'services/UserService'
 import RunService from 'services/RunService'
 import userCard from 'components/user/userCard'
 import LevelCompute from 'boot/LevelCompute'
-import BackBar from "../../components/user/UI/backBar";
 
 export default {
   components: {
     userCard,
-    BackBar
   },
   data () {
     return {

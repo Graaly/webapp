@@ -1,27 +1,8 @@
 <template>
   <div class="background-login wrapper">
-<!--    <div class="" :class="[showNonHybridQRReader && isHybrid ? 'bg-transparent' : 'background-login', showNonHybridQRReader ? '' : 'wrapper']">-->
-    <!--====================== TEST MENU =================================-->
-<!--    <div v-if="showNonHybridQRReader">
-      &lt;!&ndash;====================== QR CODE READER ON WEBAPP =================================&ndash;&gt;
-
-      &lt;!&ndash;      <div class="text-white camera-title q-py-md q-pl-lg flex items-center justify-between">
-              <div>{{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}</div>
-              <q-btn icon="close" flat round dense  @click="closeQRCodeReader"/>
-            </div> &ndash;&gt;
-
-      <qr-code-stream
-        v-if="showNonHybridQRReader"
-        v-on:QrCodeResult="checkCode"
-        :color="'accent'"
-        v-on:CloseQRCodeReader="closeQRCodeReader"
-      />
-    </div>-->
     <div class="login">
       <div class="page-content" style="padding-bottom: 100px">
-        <!--<div class="desktop-only centered q-pa-md warning bg-warning">
-          {{ $t('label.OnDesktopDisplayMessage') }}
-        </div>-->
+
         <!------------------ TITLE AREA ------------------------>
 
         <div class="centered">
@@ -29,7 +10,6 @@
         </div>
 
         <div class="q-pa-lg login-form">
-          <!-- <div class="centered title2 q-mb-lg">{{ $t('label.Welcome') }}</div> -->
 
           <!------------------ FORM AREA ------------------------>
           <form @submit.prevent="formSubmit">
@@ -135,17 +115,6 @@
             />
           </div>
         </div>
-        <!--<p class="text-center text-h6 text-grey q-mt-md q-mb-md">
-          {{ $t('label.orSignInWith') }}
-        </p>-->
-
-        <!------------------ SOCIAL LOGIN BUTTONS ------------------------>
-        <!-- MPA 2019-12-10 not currently supported by new JWT-based auth
-        <div class="q-pl-md q-pr-md">
-          <q-btn v-if="showSocialLogin.facebook" @click="facebookLogin" class="full-width" color="facebook" icon="fab fa-facebook" label="Facebook" />
-          <q-btn v-if="showSocialLogin.google" @click="googleLogin" class="full-width" color="google" icon="fab fa-google" label="Google" />
-        </div>
-        -->
 
         <div class="centered text-white q-pt-lg">
           Version {{ version }} -
@@ -277,7 +246,6 @@
 <script>
 import axios from 'axios'
 import AuthService from 'services/AuthService'
-import QuestService from 'services/QuestService'
 import { required, minLength, email } from 'vuelidate/lib/validators'
 import checkPasswordComplexity from 'boot/PasswordComplexity'
 import Notification from 'boot/NotifyHelper'

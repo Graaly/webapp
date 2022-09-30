@@ -1,6 +1,8 @@
 <template>
   <div class="scroll background-profil" >
-    <!--  ||||||||||||  FRIENDS   ||||||||||||  -->
+
+    <!--====================== FRIENDS / CREATORS QUESTS =================================-->
+
     <div class="profil friends" v-if="$store.state.user.id !== userId">
       <div class="profil-photo-center" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
       </div>
@@ -32,8 +34,10 @@
           icon="done"
         />
       </div>
+
+      <!--====================== QUESTS CREATED BY OTHER USER =================================-->
+
       <div v-if="$store.state.user.id !== userId && quests && quests.built && quests.built.length > 0">
-        <!--====================== QUESTS CREATED BY OTHER USER =================================-->
         <quest-list
           :quests="quests.built"
           :title="$t('label.EscapeGame')"
@@ -43,7 +47,9 @@
         />
       </div>
     </div>
-    <!--  ||||||||||||  PLAYER PROFIL   ||||||||||||  -->
+
+    <!--====================== PLAYER PROFIL =================================-->
+
     <div class="profil q-px-md q-pb-lg" v-else>
       <div>
         <icon-btn-square icon="settings" color="accent" fill @click.native="updateProfile()" class="float-right q-pa-md"/>
@@ -68,22 +74,7 @@
       <div v-if="user.description" class="q-pa-md subtitle6">
         {{ user.description }}
       </div>
-<!--      <div class="centered q-pa-md" v-if="$store.state.user.id !== userId">
-        <q-btn
-           v-if="!user.status || user.status !== 'friend'"
-          class="glossy large-btn"
-          color="primary"
-          :label="$t('label.Follow')"
-          @click="follow" />
-        <div v-if="user.status && user.status === 'friend'" class="centered">
-          <q-chip class="glossy" color="primary" text-color="white" icon-right="star">
-            {{ $t('label.Followed') }}
-          </q-chip>
-          <div class="q-pt-sm">
-            <a @click="removeFriend">{{ $t('label.DoNotFollowAnymore') }}</a>
-          </div>
-        </div>
-      </div>-->
+
       <div>
         <div class="centered bg-warning q-pa-sm" v-if="warnings.listCreatedQuestsMissing" @click="listCreatedQuests($store.state.user._id)">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
@@ -123,7 +114,9 @@
 
         </div>
       </div>-->
+
       <!--====================== QUESTS CREATED BY CURRENT USER =================================-->
+
       <div v-if="$store.state.user.id === userId">
           <quest-list
             :quests="quests.built"
@@ -134,7 +127,9 @@
             color="secondary"
           />
       </div>
+
       <!--====================== QUESTS CREATED BY CURRENT USER =================================-->
+
       <text-btn-square
         class="q-mb-lg"
         @click.native="readMoreQuestPublished()"
@@ -142,11 +137,15 @@
         color="secondary"
         icon="extension"
       />
+
       <!--====================== BADGES WON =================================-->
+
       <div v-if="badges === null || badges.length > 0">
         <badge-list :badges="badges" :title="$t('label.Badges')" icon="military_tech"/>
       </div>
+
       <!--====================== QUESTS PLAYED =================================-->
+
       <div v-if="quests.played === null || quests.played.length > 0">
         <quest-list
           :quests="quests.played"
@@ -159,7 +158,9 @@
           no-price
         />
       </div>
+
       <!--====================== FRIENDS =================================-->
+
       <div v-if="friends.list === null || friends.list.length > 0 && $store.state.user.id === userId">
         <user-list :users="friends.list" horizontal color="accent" :title="$t('label.YouFollowThem')" icon="group"/>
       </div>
@@ -179,10 +180,6 @@ import UserService from 'services/UserService'
 import QuestService from 'services/QuestService'
 import Notification from 'boot/NotifyHelper'
 import utils from 'src/includes/utils'
-import titleBar from 'components/titleBar'
-import questsList from 'components/quest/questsList'
-import usersList from 'components/user/usersList'
-import badgesList from 'components/user/badgesList'
 import Vue from 'vue'
 
 import iconBtnSquare from "../../components/user/UI/iconBtnSquare";
@@ -193,10 +190,6 @@ import userList from "../../components/user/userList";
 
 export default {
   components: {
-    titleBar,
-    questsList,
-    usersList,
-    badgesList,
     iconBtnSquare,
     textBtnSquare,
     questList,
@@ -344,6 +337,7 @@ export default {
         formatedResults.push({
           questId: results[i].questId,
           picture: results[i].questData.picture,
+          thumb: results[i].questData.thumb,
           title: results[i].questData.title,
           location: {
             town: results[i].questData.town

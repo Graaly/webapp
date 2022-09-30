@@ -1,14 +1,14 @@
 <template>
   <q-table
     class="container"
-    title="Rejected Games"
+    :title="$t('label.RejectedGames')"
     :data="items"
     :columns="columns"
     :visible-columns="visible"
     row-key="id"
     :loading="loading"
     :pagination="initialPagination"
-    no-data-label="I didn't find anything for you"
+    :no-data-label="$t('label.FindNothing')"
   >
     <template v-slot:header="props">
       <q-tr :props="props">
@@ -57,11 +57,11 @@ export default {
       visible: ['name', 'author', 'mail', 'access', 'premium'],
       columns: [
         {name: 'id', label: 'ID', field: 'questId'},
-        {name: 'name', required: true, label: 'Name', align: 'left', sortable: true, field: row => row.title.fr},
-        {name: 'author', required: true, label: 'Author', align: 'left', sortable: true, field: 'author'},
-        {name: 'mail', label: 'Mail', sortable: true, align: 'left', field: 'userMail'},
-        {name: 'access', label: 'Access', align: 'left', sortable: true, field: 'access'},
-        {name: 'premium', label: 'Premium', align: 'left', sortable: true, field: row => row.isPremium ? 'Premium' : 'Individual'}
+        {name: 'name', required: true, label: this.$t('label.AdminName'), align: 'left', sortable: true, field: row => row.title.fr},
+        {name: 'author', required: true, label: this.$t('label.AdminAuthor'), align: 'left', sortable: true, field: 'author'},
+        {name: 'mail', label: this.$t('label.AdminMail'), sortable: true, align: 'left', field: 'userMail'},
+        {name: 'access', label: this.$t('label.AdminAccess'), align: 'left', sortable: true, field: 'access'},
+        {name: 'premium', label: this.$t('label.AdminPremium'), align: 'left', sortable: true, field: row => row.isPremium ? 'Premium' : 'Individual'}
       ],
       initialPagination: {
         sortBy: 'desc',

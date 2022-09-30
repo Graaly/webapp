@@ -1,14 +1,14 @@
 <template>
     <q-table
       class="container"
-      title="Not Published Games"
+      :title="$t('label.NotPublishedGames')"
       :data="items"
       :columns="columns"
       :visible-columns="visible"
       row-key="id"
       :loading="loading"
       :pagination.sync="pagination"
-      no-data-label="I didn't find anything for you"
+      :no-data-label="$t('label.FindNothing')"
       @request="onRequest"
     >
       <template v-slot:header="props">
@@ -21,7 +21,7 @@
           >
             {{ col.label }}
           </q-th>
-          <q-th auto-width>Delete</q-th>
+          <q-th auto-width>{{ $t('label.AdminDelete') }}</q-th>
         </q-tr>
       </template>
 
@@ -47,22 +47,24 @@
           <q-td auto-width key="dateUpdated">{{ props.row.dateUpdated}}</q-td>
           <q-td auto-width class="text-center">
             <q-btn size="md" color="accent" glossy icon="delete" @click="openDeleteDialog(props.row.questId, props.row.version, props.row.title.fr ? props.row.title.fr : props.row.title.en)"/>
+
             <q-dialog ref="adminDeleteDialog">
               <q-card class="q-dialog-plugin">
                 <q-card-section class="bg-primary">
                   ATTENTION !!!
                 </q-card-section>
                 <q-card-section>
-                  <p class="q-ma-none q-py-md">Vous allez supprimer définitement la quête <br>
+                  <p class="q-ma-none q-py-md">{{ $t('label.AreYouSureYouWantToRemoveThisQuest') }} <br>
                     <span class="text-primary">{{ deleteQ.title }}</span> en version : <span class="text-primary">{{ deleteQ.version }}</span><br>
-                    Etes vous réellement sûr de vouloir executer cette commande ?</p>
+                    </p>
                   <p class="q-ma-none">ID : {{ deleteQ.questId }}</p>
                 </q-card-section>
                 <q-card-actions align="right">
-                  <q-btn color="accent" label="DELETE" @click="confirmDeleteQuest()" />
-                  <q-btn color="primary"  label="Cancel" @click="cancelDeleteDialog()" />
+                  <q-btn color="accent" :label="$t('label.AdminDelete')" @click="confirmDeleteQuest()" />
+                  <q-btn color="primary"  :label="$t('label.Cancel')" @click="cancelDeleteDialog()" />
                 </q-card-actions>
               </q-card>
+
             </q-dialog>
           </q-td>
         </q-tr>
@@ -83,13 +85,13 @@ export default {
       visible: ['name', 'mail', 'status', 'nbStep', 'version', 'lastUpdate'],
       columns: [
         {name: 'id', label: 'ID', field: 'questId'},
-        {name: 'name', required: true, label: 'Name', align: 'left', sortable: true, field: row => row.title.fr},
-        {name: 'mail', label: 'Mail', sortable: true, align: 'left', field: 'userMail'},
-        {name: 'status', required: true, label: 'Status', align: 'left', sortable: true, field: 'status'},
-        {name: 'nbRun', required: true, label: 'Run Count', align: 'left', sortable: true, field: 'creationStep'},
-        {name: 'version', required: true, label: 'Version', align: 'left', sortable: true, field: 'version'},
-        {name: 'size', required: true, label: 'Size', align: 'left', sortable: true, field: row => row.size.current},
-        {name: 'lastUpdate', required: true, label: 'Last Update', align: 'left', sortable: true, field: 'dateUpdated'}
+        {name: 'name', required: true, label: this.$t('label.AdminName'), align: 'left', sortable: true, field: row => row.title.fr},
+        {name: 'mail', label: this.$t('label.AdminMail'), sortable: true, align: 'left', field: 'userMail'},
+        {name: 'status', required: true, label: this.$t('label.Status'), align: 'left', sortable: true, field: 'status'},
+        {name: 'nbRun', required: true, label: this.$t('label.AdminRunCount'), align: 'left', sortable: true, field: 'creationStep'},
+        {name: 'version', required: true, label: this.$t('label.Version'), align: 'left', sortable: true, field: 'version'},
+        {name: 'size', required: true, label: this.$t('label.AdminSize'), align: 'left', sortable: true, field: row => row.size.current},
+        {name: 'lastUpdate', required: true, label: this.$t('label.AdminLastUpdate'), align: 'left', sortable: true, field: 'dateUpdated'}
         // {name: 'access', label: 'Access', align: 'left', sortable: true, field: 'access'},
         // {name: 'premium', label: 'Premium', align: 'left', sortable: true, field: row => row.isPremium ? 'Premium' : 'Individual'}
       ],

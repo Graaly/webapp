@@ -25,8 +25,8 @@
         <div class="card-title">{{ quest.title }}</div>
         <div class="card-city"> {{ quest.location.town }} {{ quest.location.zipcode}}</div>
         <div class="card-stats">
-          <div class="card-time q-mr-md">Temps estimé : {{ quest.duration }}Min</div>
-          <div class="card-difficult">Difficulté : {{ getDifficult() }}</div>
+          <div class="card-time q-mr-md">{{ $t('label.EstimateTime') }} : {{ quest.duration }}Min</div>
+          <div class="card-difficult">{{ $t('label.Difficulty') }} : {{ getDifficult() }}</div>
 <!--          <creator-badge class="creator-badge" :class="direction === 'left' ? 'left' : 'right'"/>-->
         </div>
       </q-card-section>
@@ -94,18 +94,18 @@ export default {
   methods: {
     getPrice () {
       if (this.quest.price === 0) {
-        return 'GRATUIT'
+        return this.$t('label.Free')
       } else {
         return this.quest.price + ' €'
       }
     },
     getDifficult() {
       if (this.quest.level === 3) {
-        return 'Difficile'
+        return this.$t('label.Hard')
       } else if (this.quest.level === 2) {
-        return 'Normal'
+        return this.$t('label.Normal')
       } else {
-        return 'Facile'
+        return this.$t('label.Easy')
       }
     },
     getThumbImage () {
@@ -118,6 +118,8 @@ export default {
           picture = this.quest.thumb[this.lang]
         } else if (this.quest.thumb[this.quest.mainLanguage]) {
           picture = this.quest.thumb[this.quest.mainLanguage]
+        } else {
+          picture =this.quest.thumb
         }
       }
       if (picture && picture[0] === '_') {
