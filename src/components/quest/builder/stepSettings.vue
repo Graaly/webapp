@@ -1461,7 +1461,7 @@ export default {
           answerType: 'text',
           defaultNbAnswers: 4,
           minNbAnswers: 2,
-          maxNbAnswers: 6,
+          maxNbAnswers: 10,
           answers: []
         },
         colorCode: {

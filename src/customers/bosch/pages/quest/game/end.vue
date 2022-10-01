@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll text-white" :class="quest && quest.customization && quest.customization.endColor ? '' : 'background-dark'" :style="(quest && quest.customization && quest.customization.endColor && quest.customization.endColor !== '') ? 'background-color: ' + quest.customization.endColor : ''">
+  <div class="scroll text-white" style="height: 100vh;" :class="quest && quest.customization && quest.customization.endColor ? '' : 'background-dark'" :style="(quest && quest.customization && quest.customization.endColor && quest.customization.endColor !== '') ? 'background-color: ' + quest.customization.endColor : ''">
     <!------------------ NO NETWORK AREA ------------------------>
     <div v-if="warnings.noNetwork">
       <div class="bg-primary">
@@ -825,3 +825,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+  .fit {
+    background: #323232;
+  }
+</style>

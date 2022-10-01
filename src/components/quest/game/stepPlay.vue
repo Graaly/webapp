@@ -263,8 +263,8 @@
              <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
              <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
-          <div class="answers-text q-mt-lg" v-if="answerType === 'text'">
-            <q-btn v-for="(option, key) in step.options.items" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="chooseSelectValue(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
+          <div class="answers-text q-mt-lg" :class="{'compact-mode': step.options.items.length > 4, 'ultracompact-mode': (step.options.items.length > 6 || (step.options.items.length > 4 && step.options.multipleAnswers))}" v-if="answerType === 'text'">
+            <q-btn v-for="(option, key) in step.options.items" :key="key" class="full-width" :class="option.class" :icon="option.icon" @click="chooseSelectValue(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
               <span :class="'font-' + customization.font" v-if="!option.textLanguage || !option.textLanguage[lang]">{{ option.text }}</span>
               <span :class="'font-' + customization.font" v-if="option.textLanguage && option.textLanguage[lang]">{{ option.textLanguage[lang] }}</span>
             </q-btn>
@@ -385,7 +385,7 @@
           </div>
           <table>
             <tr>
-              <td v-for="(code, index) in playerCode" :key="index" class="text-center">
+              <td v-for="(code, index) in playerCode" :key="index" class="text-center q-pb-sm">
                 <q-btn :disabled="stepPlayed" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_up" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index" />
               </td>
             </tr>
@@ -5046,6 +5046,13 @@ export default {
     text-align: right;
   }
 
+  .answers-text.compact-mode .q-btn {
+    margin-top: 0px;
+    padding: 0px;
+  }
+  .answers-text.ultracompact-mode .q-btn {
+    font-size: 1rem;
+  }
   /* text/image choice specific */
 
   .answers-text { flex-grow: 1; display: flex; flex-flow: column nowrap; justify-content: center; padding: 0 1rem; }

@@ -1,5 +1,5 @@
 <template>
-  <div class="reduce-window-size-desktop">
+  <div class="reduce-window-size-desktop no-select">
     <div class="centered full-height bg-primary q-pa-sm" style="margin: auto;" v-if="warnings.questDataMissing || warnings.stepDataMissing || warnings.runDataMissing" @click="initData()">
       <q-card class="my-card">
         <q-card-section>
@@ -2886,7 +2886,7 @@ export default {
 </style>
 <style>
 .story .character img {
-    width: 75%;
+    width: 67%;
     max-width: 400px;
     max-height: 400px;
 }

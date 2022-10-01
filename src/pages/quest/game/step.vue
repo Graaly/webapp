@@ -1,5 +1,5 @@
 <template>
-  <div class="reduce-window-size-desktop">
+  <div class="reduce-window-size-desktop no-select">
     <div class="centered full-height bg-primary q-pa-sm" style="margin: auto;" v-if="warnings.questDataMissing || warnings.stepDataMissing || warnings.runDataMissing" @click="initData()">
       <q-card class="my-card">
         <q-card-section>
@@ -2857,7 +2857,7 @@ export default {
 
   #main-view { padding: 0rem; height: inherit; min-height: inherit; }
 
-  #main-view > #play-view { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; }
+  #main-view > #play-view { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap;}
   #main-view > #play-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
 
   #controls {
