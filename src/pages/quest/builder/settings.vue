@@ -296,6 +296,11 @@
                     options-cover
                     >
                   </q-select>
+                  <q-toggle
+                    :readonly="readOnly"
+                    :label="$t('label.UserCanNotQuit')"
+                    v-model="form.fields.customization.userCanNotQuit"
+                    />
                 </div>
               </div>
             </q-expansion-item>

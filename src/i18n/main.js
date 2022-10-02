@@ -1195,7 +1195,12 @@ module.exports = {
       PrintQRCodePages: "Print QR Codes",
       AnswerNumber: "Number of the answer",
       QRCodeIsNotStartingOne: "This is not the right QR code. Look for the QR code to start the game!",
-      QRCodeIsNotPlayingOne: "This is not the right QR code. Look for the QR code with a logo on the bottom right!"
+      QRCodeIsNotPlayingOne: "This is not the right QR code. Look for the QR code with a logo on the bottom right!",
+      Loading2: "Loading",
+      Configuration: "Settings",
+      Video: "Video",
+      UserCanNotQuit: "Players can not quit game",
+      CharacterSize: "Picture size (% of screen size)? 60% by default."
     }
   },
   fr: {
@@ -2381,7 +2386,12 @@ module.exports = {
       PrintQRCodePages: "Imprimer les QR Codes",
       AnswerNumber: "Numéro de la réponse",
       QRCodeIsNotStartingOne: "Ce n'est pas le bon QR code. Recherchez le QR code de démarrage du jeu !",
-      QRCodeIsNotPlayingOne: "Ce n'est pas le bon QR code. Recherchez un QR code avec un logo en bas à droite !"
+      QRCodeIsNotPlayingOne: "Ce n'est pas le bon QR code. Recherchez un QR code avec un logo en bas à droite !",
+      Loading2: "Chargement",
+      Configuration: "Configuration",
+      Video: "Vidéo",
+      UserCanNotQuit: "Le joueur ne peut pas quitter",
+      CharacterSize: "Taille image (% de l'écran). Par défaut : 60%."
     }
   }
 }

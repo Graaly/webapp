@@ -28,7 +28,7 @@
         </div>
         <div v-if="!questList.length" class="q-pa-md">{{ $t('label.YouAreOfflineNoQuestsAvailable') }}</div>
         <div v-if="questList.length">
-          <mainQuest :quest="questList[0]"></mainQuest>
+          <mainQuest :quest="questList"></mainQuest>
 
           <div class="centered bg-warning q-pa-sm" v-if="warnings.noNetwork">
             <q-spinner-radio class="on-left" /> {{ $t('label.WarningNoNetwork') }}
@@ -535,7 +535,8 @@ export default {
 
         if (!response.data.message || response.data.message !== 'No quest') {
           if (response.data.best) {
-            this.bestQuest = response.data.best
+            this.bestQuest = []
+            this.bestQuest.push(response.data.best[0])
           }
           if (response.data.nearests) {
             this.nearestQuests = response.data.nearests

@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll text-white" :class="quest && quest.customization && quest.customization.endColor ? '' : 'background-dark'" :style="(quest && quest.customization && quest.customization.endColor && quest.customization.endColor !== '') ? 'background-color: ' + quest.customization.endColor : ''">
+  <div class="scroll text-white" style="height: 100vh;" :class="quest && quest.customization && quest.customization.endColor ? '' : 'background-dark'" :style="(quest && quest.customization && quest.customization.endColor && quest.customization.endColor !== '') ? 'background-color: ' + quest.customization.endColor : ''">
     <!------------------ NO NETWORK AREA ------------------------>
     <div v-if="warnings.noNetwork">
       <div class="bg-primary">
@@ -35,7 +35,7 @@
       <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
     </div>
 
-    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
+    <div class="q-pa-md" v-if="!warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
       <div v-if="run && run._id">
         <div class="relative-position header-point-box">
           <div class="full-width centered header-point absolute">
@@ -127,7 +127,7 @@
 
     </div>
 
-    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork">
+    <div class="q-pa-md" v-if="!warnings.noNetwork">
       <div>
         <!------------------ REVIEW AREA ------------------------>
 
@@ -160,7 +160,7 @@
       </div>
     </div>
 
-    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
+    <div class="q-pa-md" v-if="!warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
       <div v-if="run && run._id">
         <!------------------ RANKING AREA ------------------------>
 
@@ -371,7 +371,10 @@ export default {
     this.endDate = Moment(date).format('DD/MM/YYYY, k:mm')
     
     // After 6 seconds, show the notation box to increase the number of comments on games
-    utils.setTimeout(this.showNotationBox, 7000)
+    if (!isUserAuthor && !isUserAdmin) {
+    console.log("show notation")
+      utils.setTimeout(this.showNotationBox, 7000)
+    }
   },
   methods: {
     /*

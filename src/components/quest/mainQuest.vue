@@ -1,42 +1,44 @@
 <template>
-  <div class="main-quest relative-position">
-    <div class="absolute-position fullwidth" :style="'background: url(' + getThumbImage() + ' ) center center /cover no-repeat; height: 35vh'">
-      <div class="absolute-position fullwidth" style="height: 20vh;">
+  <div>
+    <div class="main-quest relative-position" v-for="(item, index) in quest" :key="index" >
+      <div class="absolute-position fullwidth" :style="'background: url(' + getThumbImage(item) + ' ) center center /cover no-repeat; height: 35vh'">
+        <div class="absolute-position fullwidth" style="height: 20vh;">
+        </div>
+        <div class="absolute-position fullwidth" style="background: linear-gradient(to bottom, transparent, #323232); height: 15vh;">
+        </div>
       </div>
-      <div class="absolute-position fullwidth" style="background: linear-gradient(to bottom, transparent, #323232); height: 15vh;">
+      <div v-if="!item" class="absolute-center">
+        <q-spinner-dots
+          color="primary"
+          size="2em"
+        />
       </div>
-    </div>
-    <div v-if="!quest" class="absolute-center">
-      <q-spinner-dots
-        color="primary"
-        size="2em"
-      />
-    </div>
-    <div v-if="quest">
-      <div class="centered main-quest-banner q-pa-md">
-        <div class="title2">
+      <div v-if="item">
+        <div class="centered main-quest-banner q-pa-md">
+          <div class="title2">
 
-        </div>
-        <div class="q-pt-md q-pb-md subtitle6">
-          <!--{{ $t('label.Difficulty' + quest.level) }}
-          <img src="statics/images/icon/separator.png" />
-          <span class="q-mx-sm" v-if="quest.premiumPrice && quest.premiumPrice.androidId && quest.premiumPrice.active">{{ $t('label.Paying') }}</span>
-          <span class="q-mx-sm" v-if="!(quest.premiumPrice && quest.premiumPrice.androidId && quest.premiumPrice.active)">{{ $t('label.Free') }}</span>
-          <span v-if="quest.availablePoints && quest.availablePoints.maxPts">
+          </div>
+          <div class="q-pt-md q-pb-md subtitle6">
+            <!--{{ $t('label.Difficulty' + quest.level) }}
             <img src="statics/images/icon/separator.png" />
-            +{{ quest.availablePoints.maxPts }} {{ $t('label.points') }}
-          </span>-->
-        </div>
-        <div>
-          <q-btn
-            class="glossy large-btn"
-            color="primary"
-            :label="$t('label.Play')"
-            :loading="submitting"
-            @click="playQuest" />
-        </div>
-        <div class="white-overliner q-mt-md subtitle6" v-if="quest.description.length < 30">
-          {{ $t('label.' + quest.description) }}
+            <span class="q-mx-sm" v-if="quest.premiumPrice && quest.premiumPrice.androidId && quest.premiumPrice.active">{{ $t('label.Paying') }}</span>
+            <span class="q-mx-sm" v-if="!(quest.premiumPrice && quest.premiumPrice.androidId && quest.premiumPrice.active)">{{ $t('label.Free') }}</span>
+            <span v-if="quest.availablePoints && quest.availablePoints.maxPts">
+              <img src="statics/images/icon/separator.png" />
+              +{{ quest.availablePoints.maxPts }} {{ $t('label.points') }}
+            </span>-->
+          </div>
+          <div>
+            <q-btn
+              class="glossy large-btn"
+              color="primary"
+              :label="$t('label.Play')"
+              :loading="submitting"
+              @click="playQuest(item)" />
+          </div>
+          <div class="white-overliner q-mt-md subtitle6" v-if="item.description.length < 30">
+            {{ $t('label.' + item.description) }}
+          </div>
         </div>
       </div>
     </div>
@@ -59,9 +61,9 @@ export default {
     /*
      * launch the quest
      */
-    async playQuest() {
+    async playQuest(quest) {
       this.submitting = true
-      this.$router.push('/quest/play/' + this.quest.questId)
+      this.$router.push('/quest/play/' + quest.questId)
     },
     /*
      * get background image
@@ -83,16 +85,16 @@ export default {
     /*
      * get thumb image
      */
-    getThumbImage () {
-      if (!this.quest) {
+    getThumbImage (quest) {
+      if (!quest) {
         return 'statics/images/quest/default-quest-picture.jpg'
       }
       let picture
-      if (this.quest.thumb) {
-        if (this.quest.thumb[this.lang]) {
-          picture = this.quest.thumb[this.lang]
-        } else if (this.quest.thumb[this.quest.mainLanguage]) {
-          picture = this.quest.thumb[this.quest.mainLanguage]
+      if (quest.thumb) {
+        if (quest.thumb[this.lang]) {
+          picture = quest.thumb[this.lang]
+        } else if (quest.thumb[quest.mainLanguage]) {
+          picture = quest.thumb[quest.mainLanguage]
         }
       }
       if (picture && picture[0] === '_') {

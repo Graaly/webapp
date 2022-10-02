@@ -482,7 +482,7 @@ import utils from 'src/includes/utils'
 import Notification from 'boot/NotifyHelper'
 import gpscalibration from 'components/gpsCalibration'
 import debounce from 'lodash/debounce'
-import qrCodeStream from "../../../components/qrCodeStream";
+import qrCodeStream from "components/qrCodeStream";
 
 export default {
   components: {

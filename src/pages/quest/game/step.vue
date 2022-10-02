@@ -1,5 +1,5 @@
 <template>
-  <div class="reduce-window-size-desktop">
+  <div class="reduce-window-size-desktop no-select">
     <div class="centered full-height bg-primary q-pa-sm" style="margin: auto;" v-if="warnings.questDataMissing || warnings.stepDataMissing || warnings.runDataMissing" @click="initData()">
       <q-card class="my-card">
         <q-card-section>
@@ -166,7 +166,7 @@
             </p>
             <p>
               <q-btn
-              v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring"
+              v-if="!info.quest || !info.quest.customization || (!info.quest.customization.removeScoring && !info.quest.customization.userCanNotQuit)"
               class="glossy large-button"
               :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
               :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
@@ -178,7 +178,7 @@
             </p>
             <p>
               <q-btn
-                v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2" class="glossy large-button"
+                v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2 && (!info.quest.customization || info.quest.customization.userReplay == 'yes')" class="glossy large-button"
                 :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
                 :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
                 @click="restartGame">
@@ -362,7 +362,7 @@ import RunService from 'services/RunService'
 import StepService from 'services/StepService'
 import QuestService from 'services/QuestService'
 import UserService from 'services/UserService'
-import chat from "../../../components/chat";
+import chat from "components/chat";
 //import colorsForCode from 'data/colorsForCode.json'
 //import questItems from 'data/questItems.json'
 import stepPlay from 'components/quest/game/stepPlay'
@@ -869,6 +869,7 @@ export default {
       this.warnings.stepDataMissing = false
 
       // --- load step Id ---
+      //if (typeof forceStepId !== 'undefined' && forceStepId !== null && forceStepId !== 'geolocation') {
       if (typeof forceStepId !== 'undefined' && forceStepId !== null) {
         stepId = forceStepId
       } else if (!this.offline.active) {
@@ -997,6 +998,7 @@ export default {
       } else {
         // get quest data from device storage
         const step = await utils.readFile(this.questId, 'step_' + stepId + '.json')
+        
         if (!step) {
           this.$q.dialog({
             title: this.$t('label.TechnicalProblem')
@@ -1239,7 +1241,7 @@ export default {
     /*
      * Track step success
      */
-    async trackStepSuccess (score, offline, showResult, answer) {
+    async trackStepSuccess (score, offline, showResult, answer, forceStepId) {
       if (showResult) {
         // add step score to general score
         this.info.score += score
@@ -1249,9 +1251,8 @@ export default {
       if (this.step.type !== 'image-over-flow' && this.step.type !== 'binocular') {
         this.hideHint()
       }
-
       // save offline run
-      await this.saveOfflineAnswer(true, false, false)
+      await this.saveOfflineAnswer(true, false, false, forceStepId)
 
       // move to next step if right answer not displayed
       if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
@@ -1980,7 +1981,7 @@ export default {
     /*
      * save the offline answer for a run
      */
-    async saveOfflineAnswer(success, answer, updateRunDate) {
+    async saveOfflineAnswer(success, answer, updateRunDate, forceStepId) {
       // offline mode not activated for multiplayer
       if (this.isMultiplayer) {
         return false
@@ -2006,7 +2007,11 @@ export default {
             conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player)
           }
         } else {*/
+        if (forceStepId) {
+          conditions = this.updateConditions(conditions, forceStepId, true, "", true, this.player, answer)
+        } else {
           conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player, answer)
+        }
         /*}*/
         ended = true
 
@@ -2027,7 +2032,11 @@ export default {
             conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player)
           }
         } else {*/
+        if (forceStepId) {
+          conditions = this.updateConditions(conditions, forceStepId, false, "", true, this.player, answer)
+        } else {
           conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player, answer)
+        }          
         /*}*/
       }
 
@@ -2327,6 +2336,7 @@ export default {
                 continue stepListFor
               }
             }
+            
             // if the marker is not requested, do not treat marker step
             if (stepsofChapter[i].type === 'locate-marker') {
               // if advanced mode => do not treat this step
@@ -2847,7 +2857,7 @@ export default {
 
   #main-view { padding: 0rem; height: inherit; min-height: inherit; }
 
-  #main-view > #play-view { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; }
+  #main-view > #play-view { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap;}
   #main-view > #play-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
 
   #controls {

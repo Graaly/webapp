@@ -1056,6 +1056,7 @@
               <q-input v-model="selectedStep.form.options.distance" :label="$t('label.DistanceToWin')" />
             </div>
             <div v-if="options.type.code == 'character'">
+              <q-input v-model="selectedStep.form.options.characterSize" :label="$t('label.CharacterSize')" />
               <q-input v-model="selectedStep.form.options.characterBarColor" :label="$t('label.CharacterBarColor')" />
             </div>
             <div v-if="options.type.code == 'new-item'">
@@ -1460,7 +1461,7 @@ export default {
           answerType: 'text',
           defaultNbAnswers: 4,
           minNbAnswers: 2,
-          maxNbAnswers: 6,
+          maxNbAnswers: 10,
           answers: []
         },
         colorCode: {
