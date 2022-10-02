@@ -1,67 +1,67 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "40a00100d7570c655224",
-    "url": "css/app.515e0377.css"
+    "revision": "6615b6aa6bbef4b0d2ef",
+    "url": "css/app.d053b6b2.css"
   },
   {
-    "revision": "4aa2e69855e3b83110a251c47fdd05fc",
-    "url": "fonts/KFOkCnqEu92Fr1MmgVxIIzQ.68bb21d0.woff"
+    "revision": "5cb7edfceb233100075dc9a1e12e8da3",
+    "url": "fonts/KFOkCnqEu92Fr1MmgVxIIzQ.a45108d3.woff"
   },
   {
-    "revision": "40bcb2b8cc5ed94c4c21d06128e0e532",
-    "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.48af7707.woff"
+    "revision": "87284894879f5b1c229cb49c8ff6decc",
+    "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.cea99d3e.woff"
   },
   {
-    "revision": "ea60988be8d6faebb4bc2a55b1f76e22",
-    "url": "fonts/KFOlCnqEu92Fr1MmSU5fBBc-.c2f7ab22.woff"
+    "revision": "b00849e00f4c2331cddd8ffb44a6720b",
+    "url": "fonts/KFOlCnqEu92Fr1MmSU5fBBc-.865f928c.woff"
   },
   {
-    "revision": "0774a8b7ca338dc1aba5a0ec8f2b9454",
-    "url": "fonts/KFOlCnqEu92Fr1MmWUlfBBc-.77ecb942.woff"
+    "revision": "adcde98f1d584de52060ad7b16373da3",
+    "url": "fonts/KFOlCnqEu92Fr1MmWUlfBBc-.2267169e.woff"
   },
   {
-    "revision": "bcb7c7e2499a055f0e2f93203bdb282b",
-    "url": "fonts/KFOlCnqEu92Fr1MmYUtfBBc-.f5677eb2.woff"
+    "revision": "bb1e4dc6333675d11ada2e857e7f95d7",
+    "url": "fonts/KFOlCnqEu92Fr1MmYUtfBBc-.bac8362e.woff"
   },
   {
-    "revision": "d3907d0ccd03b1134c24d3bcaf05b698",
-    "url": "fonts/KFOmCnqEu92Fr1Mu4mxM.f1e2a767.woff"
+    "revision": "60fa3c0614b8fb2f394fa29944c21540",
+    "url": "fonts/KFOmCnqEu92Fr1Mu4mxM.49ae34d4.woff"
   },
   {
     "revision": "1b40f0186d1a8b1500b4676b2e9a7ba1",
     "url": "fonts/concertone.a116a857.ttf"
   },
   {
-    "revision": "1a575a4138e5f366474f0e7c5bd614a5",
-    "url": "fonts/fa-brands-400.2285773e.woff"
+    "revision": "0ce1e868452204695c8ac1c70f693c2d",
+    "url": "fonts/fa-brands-400.5f63cb7f.woff"
   },
   {
-    "revision": "ed311c7a0ade9a75bb3ebf5a7670f31d",
-    "url": "fonts/fa-brands-400.d878b0a6.woff2"
+    "revision": "0c9f225e8f69c622f681cf1ed973cc3d",
+    "url": "fonts/fa-brands-400.6e63bd22.woff2"
   },
   {
-    "revision": "b91d376b8d7646d671cd820950d5f7f1",
-    "url": "fonts/fa-regular-400.7a333762.woff2"
+    "revision": "847712aaabbeba674afdda86d31cab17",
+    "url": "fonts/fa-regular-400.2c154b0f.woff2"
   },
   {
-    "revision": "d1d7e3b4c219fde0f7376c6facfd7149",
-    "url": "fonts/fa-regular-400.bb58e57c.woff"
+    "revision": "3cace4a04d941b5981ba32c6ce9afae1",
+    "url": "fonts/fa-regular-400.ea5a41ec.woff"
   },
   {
-    "revision": "d824df7eb2e268626a2dd9a6a741ac4e",
-    "url": "fonts/fa-solid-900.1551f4f6.woff2"
+    "revision": "9ae050d1876ac1763eb6afe4264e6d5a",
+    "url": "fonts/fa-solid-900.3eb06c70.woff2"
   },
   {
-    "revision": "d745348d289b149026921f197929a893",
-    "url": "fonts/fa-solid-900.eeccf4f6.woff"
+    "revision": "4bfbf7eb4b19d9ff9293eb177b6d0070",
+    "url": "fonts/fa-solid-900.f4f93856.woff"
   },
   {
-    "revision": "e7ee6642f9771137444ed489b12f99cc",
-    "url": "fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNa.99f5f787.woff"
+    "revision": "39083cdef834fe0d7ee39e0272d1aa76",
+    "url": "fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNa.6d14df8c.woff"
   },
   {
-    "revision": "4525df77e6f46e1ed85e150ea763d185",
-    "url": "fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.c08197a9.woff2"
+    "revision": "d960b795b343e35150c1a0aa3c38c16b",
+    "url": "fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.c8685531.woff2"
   },
   {
     "revision": "839a5f4e833b20507650b76bbbd58948",
@@ -72,20 +72,20 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "d3b0bd1f1e2b346c19763a421072ffa1",
+    "revision": "1e026de2f4f593f7914cac82a273cb44",
     "url": "index.html"
   },
   {
-    "revision": "773bf292504c6094c858",
-    "url": "js/2.773bf292.js"
+    "revision": "5af1162920faf149bfa2",
+    "url": "js/2.5af11629.js"
   },
   {
-    "revision": "40a00100d7570c655224",
-    "url": "js/app.bf2143aa.js"
+    "revision": "6615b6aa6bbef4b0d2ef",
+    "url": "js/app.48d901f6.js"
   },
   {
-    "revision": "e06eee03209464aa343d",
-    "url": "js/vendor.e06eee03.js"
+    "revision": "928862dde354174d52c6",
+    "url": "js/vendor.928862dd.js"
   },
   {
     "revision": "19e941eacef1fc70e8b70479c2cb66cb",
@@ -436,7 +436,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/colors/colors9.png"
   },
   {
-    "revision": "75e99f804bcf40e5a549e3504631e896",
+    "revision": "8a03c2a835f6de88c69150700aee1642",
     "url": "statics/css/addtohomescreen.css"
   },
   {
@@ -526,6 +526,26 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "95885fcb6d82c60fc4c07c8c053280f5",
     "url": "statics/customers/conseil-europe/images/visites_en.png"
+  },
+  {
+    "revision": "407f47752200227347c9e7e6f1cd7c43",
+    "url": "statics/customers/iconicube/bouton1.png"
+  },
+  {
+    "revision": "a49d29417d4f0b9ad0a63c436b4c9e55",
+    "url": "statics/customers/iconicube/bouton2.png"
+  },
+  {
+    "revision": "198c4d33999893816215a7eb21f1a723",
+    "url": "statics/customers/iconicube/bouton3.png"
+  },
+  {
+    "revision": "81bca313521ed617bad422569eab0987",
+    "url": "statics/customers/iconicube/bouton4.png"
+  },
+  {
+    "revision": "ae36149a406933f6882946e96afa5f71",
+    "url": "statics/customers/iconicube/bouton5.png"
   },
   {
     "revision": "3fe7549904127ab02d1bf894e49382ef",
@@ -644,7 +664,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/game/oops.png"
   },
   {
-    "revision": "876739316cb1a0a766dff7a2ba0d9796",
+    "revision": "116cd5d424f456c20b690803761104e4",
     "url": "statics/icons/game/pointer-me.svg"
   },
   {
@@ -841,6 +861,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   },
   {
     "revision": "76a48f2d69d9c0cbba570e605a3ce644",
+    "url": "statics/icons/story/sticker-bottom-old.png"
+  },
+  {
+    "revision": "f4d54ababfbec457c9928cf9189047ac",
     "url": "statics/icons/story/sticker-bottom.png"
   },
   {
@@ -1396,7 +1420,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/images/quest/default-quest-picture.png"
   },
   {
-    "revision": "1f367b55665a572f18fc4ab63085ada4",
+    "revision": "3f4c7e83e4bd39896608786c61ee6a1a",
     "url": "statics/manifest.json"
   },
   {
@@ -1408,7 +1432,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/001/marker_full.png"
   },
   {
-    "revision": "886d1a6c998f084a4e610d4aab840954",
+    "revision": "45b28e95ee62ec93b7d2160123365e6b",
     "url": "statics/markers/001/pattern-marker.patt"
   },
   {
@@ -1420,7 +1444,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/002/marker_full.png"
   },
   {
-    "revision": "eeeda3507a70f094208259b5790cd048",
+    "revision": "17b6ea7ad831f56229de63af113f0d8e",
     "url": "statics/markers/002/pattern-marker.patt"
   },
   {
@@ -1432,7 +1456,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/003/marker_full.png"
   },
   {
-    "revision": "610c6548b642b25decc9b8eeea3c9dea",
+    "revision": "01b14b364ee870693352b7e9792574a2",
     "url": "statics/markers/003/pattern-marker.patt"
   },
   {
@@ -1444,7 +1468,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/004/marker_full.png"
   },
   {
-    "revision": "88afde976065fad53f09b03817f7baf8",
+    "revision": "86ed766226b2408b32f57580b2521814",
     "url": "statics/markers/004/pattern-marker.patt"
   },
   {
@@ -1456,7 +1480,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/005/marker_full.png"
   },
   {
-    "revision": "2b90dfa1a86e5c06bee141d4d85e2038",
+    "revision": "4145a1b6422658ebb703a65738551488",
     "url": "statics/markers/005/pattern-marker.patt"
   },
   {
@@ -1468,7 +1492,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/006/marker_full.png"
   },
   {
-    "revision": "5946772a9d68fe2ea43b92d9cf7bdad2",
+    "revision": "2b2a148754d5a283a8a873a697c42dbc",
     "url": "statics/markers/006/pattern-marker.patt"
   },
   {
@@ -1480,7 +1504,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/007/marker_full.png"
   },
   {
-    "revision": "fb06a49f63b5b7a9b9e8b0d33fd5ddd7",
+    "revision": "1e9abf4e07ea16dfbeae0c72ec23e100",
     "url": "statics/markers/007/pattern-marker.patt"
   },
   {
@@ -1492,7 +1516,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/008/marker_full.png"
   },
   {
-    "revision": "ec9e075ac5e522c53f630e7f202ad43e",
+    "revision": "a5d78ce5b88242bf94273f49b019f298",
     "url": "statics/markers/008/pattern-marker.patt"
   },
   {
@@ -1504,7 +1528,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/009/marker_full.png"
   },
   {
-    "revision": "f0f3f60fb9bf14de192d785240aed521",
+    "revision": "69fc27e2a0f88fb9d0e2c1ff8771a519",
     "url": "statics/markers/009/pattern-marker.patt"
   },
   {
@@ -1516,7 +1540,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/010/marker_full.png"
   },
   {
-    "revision": "ccd5a01980499eb4c01f13f491076d3d",
+    "revision": "304d5e120912c64258a3087eb0b9ab58",
     "url": "statics/markers/010/pattern-marker.patt"
   },
   {
@@ -1528,7 +1552,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/011/marker_full.png"
   },
   {
-    "revision": "e26e17aad10f1b4a78794b5fda111c84",
+    "revision": "a64f1a4cfe8af75bee1466b6d8a8dc50",
     "url": "statics/markers/011/pattern-marker.patt"
   },
   {
@@ -1540,7 +1564,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/012/marker_full.png"
   },
   {
-    "revision": "5b7bf2c1a7b862b67b707ca760952a91",
+    "revision": "3c69d9d9e0da6472f205e3ec6bed77eb",
     "url": "statics/markers/012/pattern-marker.patt"
   },
   {
@@ -1552,7 +1576,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/013/marker_full.png"
   },
   {
-    "revision": "6128543bd330eefc957f437f21f8578c",
+    "revision": "bf91294c6e578c97c0a1c2301fdf493d",
     "url": "statics/markers/013/pattern-marker.patt"
   },
   {
@@ -1564,7 +1588,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/014/marker_full.png"
   },
   {
-    "revision": "8e08bd9749bd462d8b82c2de03684cc7",
+    "revision": "ed976a92bd2d08989dc324755ed8ebc7",
     "url": "statics/markers/014/pattern-marker.patt"
   },
   {
@@ -1576,7 +1600,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/015/marker_full.png"
   },
   {
-    "revision": "71e3e5e59ee2930aa01eda1b7a496576",
+    "revision": "67896459a14125db0b0faacc43ed58ce",
     "url": "statics/markers/015/pattern-marker.patt"
   },
   {
@@ -1588,7 +1612,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/016/marker_full.png"
   },
   {
-    "revision": "c83735dd113800afe3b568d77a10baa9",
+    "revision": "e284cb7bde393843bb4c599310d052b9",
     "url": "statics/markers/016/pattern-marker.patt"
   },
   {
@@ -1600,7 +1624,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/017/marker_full.png"
   },
   {
-    "revision": "c66b00d8f58ef11f73c7cf99110d9efa",
+    "revision": "cd77d5e543f3842703c7f81a9b5d729f",
     "url": "statics/markers/017/pattern-marker.patt"
   },
   {
@@ -1612,7 +1636,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/018/marker_full.png"
   },
   {
-    "revision": "8e7676a7dc2ad9c71657ebaf77e7b107",
+    "revision": "6de5927111261971ab0eb2cf03abab0d",
     "url": "statics/markers/018/pattern-marker.patt"
   },
   {
@@ -1624,7 +1648,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/019/marker_full.png"
   },
   {
-    "revision": "0eaf6df5e57aaadce2d5d5b0278e1bed",
+    "revision": "caffdd0b7177a5024ed618eff555f6f6",
     "url": "statics/markers/019/pattern-marker.patt"
   },
   {
@@ -1636,7 +1660,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/020/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/020/pattern-marker.patt"
   },
   {
@@ -1648,7 +1672,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/021/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/021/pattern-marker.patt"
   },
   {
@@ -1660,7 +1684,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/022/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/022/pattern-marker.patt"
   },
   {
@@ -1672,7 +1696,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/023/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/023/pattern-marker.patt"
   },
   {
@@ -1684,7 +1708,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/024/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/024/pattern-marker.patt"
   },
   {
@@ -1696,7 +1720,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/025/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/025/pattern-marker.patt"
   },
   {
@@ -1708,7 +1732,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/026/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/026/pattern-marker.patt"
   },
   {
@@ -1720,7 +1744,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/027/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/027/pattern-marker.patt"
   },
   {
@@ -1732,7 +1756,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/028/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/028/pattern-marker.patt"
   },
   {
@@ -1744,7 +1768,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/029/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/029/pattern-marker.patt"
   },
   {
@@ -1756,7 +1780,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/030/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/030/pattern-marker.patt"
   },
   {
@@ -1768,7 +1792,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/031/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/031/pattern-marker.patt"
   },
   {
@@ -1780,7 +1804,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/032/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/032/pattern-marker.patt"
   },
   {
@@ -1792,7 +1816,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/033/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/033/pattern-marker.patt"
   },
   {
@@ -1804,7 +1828,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/034/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/034/pattern-marker.patt"
   },
   {
@@ -1816,7 +1840,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/035/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/035/pattern-marker.patt"
   },
   {
@@ -1828,7 +1852,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/036/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/036/pattern-marker.patt"
   },
   {
@@ -1840,7 +1864,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/037/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/037/pattern-marker.patt"
   },
   {
@@ -1852,7 +1876,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/038/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/038/pattern-marker.patt"
   },
   {
@@ -1864,7 +1888,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/039/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/039/pattern-marker.patt"
   },
   {
@@ -1876,7 +1900,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/040/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/040/pattern-marker.patt"
   },
   {
@@ -1888,7 +1912,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/041/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/041/pattern-marker.patt"
   },
   {
@@ -1900,7 +1924,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/042/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/042/pattern-marker.patt"
   },
   {
@@ -1912,7 +1936,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/043/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/043/pattern-marker.patt"
   },
   {
@@ -1924,7 +1948,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/044/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/044/pattern-marker.patt"
   },
   {
@@ -1936,7 +1960,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/045/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/045/pattern-marker.patt"
   },
   {
@@ -1948,7 +1972,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/046/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/046/pattern-marker.patt"
   },
   {
@@ -1960,7 +1984,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/047/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/047/pattern-marker.patt"
   },
   {
@@ -1972,7 +1996,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/048/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/048/pattern-marker.patt"
   },
   {
@@ -1984,7 +2008,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/049/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/049/pattern-marker.patt"
   },
   {
@@ -1996,7 +2020,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/050/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/050/pattern-marker.patt"
   },
   {
@@ -2008,7 +2032,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/051/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/051/pattern-marker.patt"
   },
   {
@@ -2020,7 +2044,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/052/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/052/pattern-marker.patt"
   },
   {
@@ -2032,7 +2056,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/053/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/053/pattern-marker.patt"
   },
   {
@@ -2044,7 +2068,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/054/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/054/pattern-marker.patt"
   },
   {
@@ -2056,7 +2080,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/055/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/055/pattern-marker.patt"
   },
   {
@@ -2068,7 +2092,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/056/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/056/pattern-marker.patt"
   },
   {
@@ -2080,7 +2104,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/057/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/057/pattern-marker.patt"
   },
   {
@@ -2092,7 +2116,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/058/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/058/pattern-marker.patt"
   },
   {
@@ -2104,7 +2128,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/059/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/059/pattern-marker.patt"
   },
   {
@@ -2116,7 +2140,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/060/marker_full.png"
   },
   {
-    "revision": "c7c1d3f5f73524a03442ae9334cca387",
+    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
     "url": "statics/markers/060/pattern-marker.patt"
   },
   {
@@ -2132,15 +2156,15 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/camera_para.dat"
   },
   {
-    "revision": "f55e70a2bdefa404130cea2ae742ef39",
+    "revision": "7f48fbeccbed0721607e231d7d2c80e9",
     "url": "statics/markers/graaly.patt"
   },
   {
-    "revision": "553433c39b1572342829ca9c0ae43810",
+    "revision": "4092b01e12a5522059c6252251bfe711",
     "url": "statics/markers/hiro.patt"
   },
   {
-    "revision": "c8b49ebdb0ac11e7d4972bec21d19e48",
+    "revision": "f8fc27335e2e1ede55bc6de672c5291f",
     "url": "statics/markers/kanji.patt"
   },
   {
@@ -2548,23 +2572,23 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/profiles/noprofile.png"
   },
   {
-    "revision": "0769b40253fead5a2918c0cfb0258e77",
+    "revision": "eaf1797891e6969a739fe2cb3a257f7f",
     "url": "statics/scripts/addtohomescreen.js"
   },
   {
-    "revision": "f21c48498311215802ba0811b330ffb5",
+    "revision": "30b9c7e88fe983d54877c64bcf6d815f",
     "url": "statics/scripts/addtohomescreen.min.js"
   },
   {
-    "revision": "9609a5facaa9ec82c0dd78c1e68000fc",
+    "revision": "415388c0d7d5e5fb52ba01ee67136e30",
     "url": "statics/scripts/analytics.js"
   },
   {
-    "revision": "ea0e171a17be213c44ee0e7f78b17054",
+    "revision": "001dd61ba096259339790589a8234698",
     "url": "statics/scripts/dragdroptouch.js"
   },
   {
-    "revision": "e480e8509dcff9676286d77b3d619387",
+    "revision": "251268eb7a72a94ef5003af38329937e",
     "url": "statics/scripts/polyfills.js"
   },
   {

@@ -1464,6 +1464,7 @@ export default {
                 backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
               } else {
                 backgroundImage.style.background = 'transparent'
+                document.body.style.backgroundColor = 'transparent'
               }
             }
             // display controls after some seconds to let user see background
