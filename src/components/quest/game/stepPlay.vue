@@ -1437,40 +1437,32 @@ export default {
       this.resetData()
       await this.resetBackgroundImage()
       TWEEN.removeAll()
-console.log("Test1")
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(async () => {
         let background = document.getElementById('play-view')
         if (this.step.backgroundImage) {
-console.log("Test2")
           if (this.step.type === 'find-item' || this.step.type === 'use-item' || this.step.type === 'binocular' || this.step.type === 'phone-call') {
-console.log("Test3")
             background.style.background = 'none'
             background.style.backgroundColor = '#000'
             this.showControls()
           } else if (this.step.type === 'image-over-flow' || this.step.type === 'locate-marker' || this.step.id === 'sensor') {
-console.log("Test4")
             this.showControls()
             background.style.background = 'none'
             background.style.backgroundColor = 'transparent'
             document.body.style.backgroundColor = 'transparent'
           } else if (this.step.type === 'jigsaw-puzzle') {
-console.log("Test5")
             let backgroundUrl = this.getBackgroundImage()
             background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             this.showControls()
           } else {
-console.log("Test6")
             // define if background image is a generic one or user defined one
             let backgroundUrl = this.getBackgroundImage()
             let backgroundImage = document.getElementById('background-image')
             //background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             if (backgroundImage) {
               if (backgroundUrl) {
-console.log("Test9")
                 backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
               } else {
-console.log("Test10")
                 backgroundImage.style.background = 'transparent'
                 document.body.style.backgroundColor = 'transparent'
               }
@@ -1483,14 +1475,12 @@ console.log("Test10")
             }
           }
         } else {
-console.log("Test11")
           // no background on some steps to display camera stream
           if (this.step.type && this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker' && this.step.id !== 'sensor' && this.step.type !== 'image-over-flow') {
             background.style.background = 'none'
             background.style.backgroundColor = '#fff'
             document.body.style.backgroundColor = '#323232'
           } else {
-console.log("Test12")
             background.style.background = 'none'
             background.style.backgroundColor = 'transparent'
             document.body.style.backgroundColor = 'transparent'
@@ -1504,7 +1494,7 @@ console.log("Test12")
           }
           this.showControls()
         }
-console.log("Test13")
+
         // start step audio
         this.getAudioSound()
 
