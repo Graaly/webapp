@@ -683,8 +683,6 @@
       </div>
 
       <!------------------ LOCATE ITEM IN AUGMENTED REALITY STEP AREA ------------------------>
-<div v-if="!this.geolocation.active">GEOLOCATION INACTIVE</div>
-<div v-if="this.geolocation.active">GEOLOCATION ACTIVE</div>
       <div class="locate-item-ar" v-if="step.type === 'locate-item-ar'" v-show="$refs['geolocation-component'] && $refs['geolocation-component'].isActive">
         <!-- PAS DE CAPTEUR -->
         <div v-if="noSensorFound" class="text text-center" :class="'font-' + customization.font">
