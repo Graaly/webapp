@@ -118,10 +118,13 @@ export default {
           picture = this.quest.thumb[this.lang]
         } else if (this.quest.thumb[this.quest.mainLanguage]) {
           picture = this.quest.thumb[this.quest.mainLanguage]
+        } else if (this.quest.languages && this.quest.languages[0].lang) {
+          picture = this.quest.thumb[this.quest.languages[0].lang]
         } else {
           picture =this.quest.thumb
         }
       }
+
       if (picture && picture[0] === '_') {
         return 'statics/images/quest/' + picture
       } else if (picture && picture.indexOf('blob:') !== -1) {

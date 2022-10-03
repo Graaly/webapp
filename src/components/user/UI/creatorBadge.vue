@@ -79,6 +79,8 @@ export default {
    background-size: cover;
    background-position: center center;
    background-repeat: no-repeat;
+   margin-right: 16px;
+
    .info-games, .info-follows{
      position: absolute;
      border-radius: 50%;

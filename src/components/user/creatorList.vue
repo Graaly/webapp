@@ -18,8 +18,11 @@
         </div>
       </q-card>
     </div>
-    <div class="creator-list horizontal-scroll-wrapper users-horizontal-scroll-wrapper q-pl-sm">
+    <div v-if="horizontal" class="creator-list horizontal-scroll-wrapper users-horizontal-scroll-wrapper q-pl-sm">
       <creator-badge v-for="(creator, index) in creators" :key="index" :creator="creator" list :color="color"/>
+    </div>
+    <div v-else class="creator-list q-pl-sm flex justify-center">
+      <creator-badge v-for="(creator, index) in creators" :key="index" :creator="creator" list :color="color" class="q-px-none q-mb-xl"/>
     </div>
   </div>
 </template>
@@ -39,6 +42,10 @@ export default {
     },
     title: Boolean,
     search: {
+      type: Boolean,
+      default: false
+    },
+    horizontal: {
       type: Boolean,
       default: false
     }

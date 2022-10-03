@@ -149,6 +149,7 @@
           v-on:readMore="readMoreAllCreators"
           color="primary"
           title
+          horizontal
         />
       </div>
 

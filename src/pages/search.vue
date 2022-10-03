@@ -206,7 +206,7 @@ export default {
      */
     async findUser(type) {
       try {
-        if (this.search.text.length > 3) {
+        if (this.search.text.length > 2) {
           this.subtype = 'keyword'
           // show loading animation
           this.$q.loading.show()
