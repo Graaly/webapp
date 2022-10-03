@@ -683,7 +683,8 @@
       </div>
 
       <!------------------ LOCATE ITEM IN AUGMENTED REALITY STEP AREA ------------------------>
-
+<div v-if="!this.geolocation.active">GEOLOCATION INACTIVE</div>
+<div v-if="this.geolocation.active">GEOLOCATION ACTIVE</div>
       <div class="locate-item-ar" v-if="step.type === 'locate-item-ar'" v-show="$refs['geolocation-component'] && $refs['geolocation-component'].isActive">
         <!-- PAS DE CAPTEUR -->
         <div v-if="noSensorFound" class="text text-center" :class="'font-' + customization.font">
@@ -939,8 +940,8 @@
       <q-avatar size="140px" font-size="52px" style="margin: auto; margin-bottom: 30px;" color="positive" text-color="white" icon="thumb_up" />
     </div>
 
-    <!-- keep geolocation active during all quest duration -->
-    <geolocation ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />
+    <!-- keep geolocation active during all quest duration. ! must be started when page is init -->
+    <geolocation v-if="isPageInit" ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />
     
     <div class="geolocation-issue" v-show="(step.type === 'geolocation' || step.type === 'locate-item-ar') && $refs['geolocation-component'] && ($refs['geolocation-component'].userDeniedGeolocation || !$refs['geolocation-component'].isActive)">
       <div>
@@ -1432,9 +1433,9 @@ export default {
      * Init the component data
      */
     async initData () {
-      this.isPageInit = true
       this.resetEvents()
       this.resetData()
+      this.isPageInit = true
       await this.resetBackgroundImage()
       TWEEN.removeAll()
       // wait that DOM is loaded (required by steps involving camera)
@@ -4252,6 +4253,7 @@ export default {
           this.resetDrawDirectionInterval()
           // stop location watching
           //this.$refs['geolocation-component'].disabled = true
+console.log("ACTIVE FALSE 2")
           this.geolocation.active = false
           // stop updating object position
           this.geolocation.playerTouchedArObject = true
