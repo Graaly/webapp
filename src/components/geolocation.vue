@@ -113,7 +113,9 @@ export default {
         return false;
       }
     },
-    askUserToEnableGeolocation() { return (this.nbFails >= 2 && !this.alreadyWorked) || this.userDeniedGeolocation }
+    askUserToEnableGeolocation() { 
+      return (this.nbFails >= 2 && !this.alreadyWorked) || this.userDeniedGeolocation 
+    }
   },
   mounted() {
     if (!navigator || !navigator.geolocation) {
@@ -131,6 +133,8 @@ export default {
       if (this.disabled) {
         return
       }
+      // kill tracking if running
+      this.stopTracking()
       // MPA 2022-07-08 tried here to use Cordova plugin cordova.plugins.permissions to check if player has allowed
       // Graaly to retrieve his location, however this is not compatible enough across various Android devices.
       // For example, a Samsung Galaxy S8 with geolocation enabled will still trigger the "permission denied" behavior 🤯.
