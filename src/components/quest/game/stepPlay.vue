@@ -430,7 +430,7 @@
         <div :class="geolocation.mode + 'mode'">
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
-          <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: (geolocation.GPSdistance == 0 ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: ((geolocation.GPSdistance == 0 || geolocation.GPSdistance == null) ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
         </div>
 
         <geolocationStepMap class="geolocation-step-map" :class="'font-' + customization.font" v-show="geolocation.mode === 'map' && playerResult === null" :target-position="geolocation.destinationPosition" :player-position="geolocation.playerPosition" />
@@ -703,7 +703,7 @@
               <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
               <p v-if="step.options && step.options.html" v-html="getTranslatedText()" />
               <p v-if="!geolocation.active">{{ $t('label.PleaseWaitLoadingAndGPSInit') }}</p>
-              <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: (geolocation.GPSdistance == 0 ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
+              <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: ((geolocation.GPSdistance == 0 || geolocation.GPSdistance == null) ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
               <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
               <p v-if="geolocation.canTouchTarget && geolocation.active" style="color: #f00">{{ $t('label.TouchTheObject') }}</p>
               <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
@@ -939,9 +939,12 @@
     </div>
 
     <!-- keep geolocation active during all quest duration. ! must be started when page is init -->
-    <geolocation v-if="isPageInit" ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />
+    <!--<geolocation v-if="isPageInit" ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />-->
+    <geolocation ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />
     
     <div class="geolocation-issue" v-show="(step.type === 'geolocation' || step.type === 'locate-item-ar') && $refs['geolocation-component'] && ($refs['geolocation-component'].userDeniedGeolocation || !$refs['geolocation-component'].isActive)">
+      <!--<div v-if="$refs['geolocation-component'] && $refs['geolocation-component'].userDeniedGeolocation">DENIED</div>-->
+      <!--<div v-if="$refs['geolocation-component'] && !$refs['geolocation-component'].isActive">NOT ACTIVE</div>-->
       <div>
         <p class="bg-warning">{{ $t('label.GeolocationCouldNotBeRetrieved') }}</p>
         <p>{{ $t('label.GeolocationIssuePleaseSkipThisStep') }}</p>
@@ -1156,7 +1159,7 @@ export default {
 
         // for step types 'geoloc' and 'locate-item-ar'
         geolocation: {
-          active: false,
+          active: false,//geolocationActive,
           distance: null, // target distance (can be changed by accelerometer for 'locate-item-ar')
           GPSdistance: null, // only given by GPS
           // direction
@@ -1606,7 +1609,7 @@ export default {
           }
           if (this.customization && this.customization.characterOnMap && this.customization.characterOnMap !== "") {
             this.geolocation.playerPosition.marker = this.customization.characterOnMap.indexOf('blob:') !== -1 ? this.customization.characterOnMap : this.uploadUrl + '/upload/quest/' + this.customization.characterOnMap
-          }
+          } 
         }
         if (this.step.id === 'gpssensor') {
           if (this.step.visibles && this.step.visibles.length > 0) {
@@ -1727,6 +1730,9 @@ export default {
               console.log("calibration tests not working")
             }
           }
+          
+          // force to get location
+          this.$refs['geolocation-component'].startTracking()
         }
 
         if (this.step.type === 'locate-item-ar' && !this.playerResult) {
@@ -4251,7 +4257,6 @@ export default {
           this.resetDrawDirectionInterval()
           // stop location watching
           //this.$refs['geolocation-component'].disabled = true
-console.log("ACTIVE FALSE 2")
           this.geolocation.active = false
           // stop updating object position
           this.geolocation.playerTouchedArObject = true

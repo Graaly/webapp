@@ -84,7 +84,7 @@
               <q-btn-group>
                 <q-btn padding="xs" size="md" color="primary" icon="zoom_in" @click="zoomItem(item)" />
                 <q-btn padding="xs" size="md" v-if="step.type === 'use-item'" color="primary" icon="done" @click="useItem(item)" />
-                <q-btn padding="xs" size="md" v-if="inventory.items.length > 0 && info.quest.editorMode !== 'simple'" :color="inventory.selectedItems.indexOf(item.picture) === -1 ? 'primary' : 'secondary'" icon="merge_type" @click="selectItem(item)" />
+                <q-btn padding="xs" size="md" v-if="inventory.items.length > 0 && info.quest.editorMode !== 'simple' && !(info.quest.customization && info.quest.customization.hideObjectCombination)" :color="inventory.selectedItems.indexOf(item.picture) === -1 ? 'primary' : 'secondary'" icon="merge_type" @click="selectItem(item)" />
               </q-btn-group>
             </div>
           </div>

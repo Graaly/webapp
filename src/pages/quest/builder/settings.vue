@@ -604,6 +604,13 @@
                 <div>
                   <q-toggle
                     :readonly="readOnly"
+                    :label="$t('label.HideObjectCombination')"
+                    v-model="form.fields.customization.hideObjectCombination"
+                    />
+                </div>
+                <div>
+                  <q-toggle
+                    :readonly="readOnly"
                     :label="$t('label.DoNotPreventUserForHint')"
                     v-model="form.fields.customization.doNotPreventUserForHint"
                     />
@@ -686,6 +693,18 @@
                     class="full-width"
                     type="textarea"
                   />
+                </div>
+                <div>
+                  <q-toggle
+                    :readonly="readOnly"
+                    :label="$t('label.HideUserProgressionOnEnd')"
+                    v-model="form.fields.customization.hideUserProgressionOnEnd"
+                    />
+                    <q-toggle
+                    :readonly="readOnly"
+                    :label="$t('label.HideAuthorOnEnd')"
+                    v-model="form.fields.customization.hideAuthorOnEnd"
+                    />
                 </div>
               </div>
             </q-expansion-item>

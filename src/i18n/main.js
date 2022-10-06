@@ -831,7 +831,7 @@ module.exports = {
       YouAlreadyDidThisQuest: "<b>You already completed this game</b>. You can play it again, but <b>this will not give you points again</b>",
       YouAreQuestOwnerDesc: "You are editor of this game, you will not win any point, and you will not play it with offline mode",
       GeneralWarning: "<b>For your safety</b>, do not play the game driving or riding your bicycle, always be alert to what is happening around you, do not enter private property without permission, follow the safety rules when you move.",
-      RemoveScoringAndRating: "Hide the score and the rating",
+      RemoveScoringAndRating: "Replace end screen by a text",
       TypeEndMessage: "Text replacing the scoring and rating final screen",
       TypeEndMessageForPerfectScore: "Customized text if user has all answers right",
       ThanksForPlaying: "Thanks for playing this game. See you later with new games!",
@@ -967,9 +967,9 @@ module.exports = {
       RestartQuest: "Restart game",
       AreYouSureToRestartThisQuest: "Are you sure to restart this game? You will not gain any point by restarting.",
       PaymentOnMobile: "Payment on mobile",
-      PaymentOnMobileHelp: "The payment is really simple for players, in one touch. Meanwhile, the Apple / Google stores will take 30% of the revenues.",
+      PaymentOnMobileHelp: "The payment is really simple for players, in one touch. Meanwhile, the Apple / Google stores will take 15% of the revenues.",
       PaymentOnYourSide: "Payment managed by you",
-      PaymentOnYourSideHelp: "You can manage the payment in your store or with tiers like 4Escape",
+      PaymentOnYourSideHelp: "You can manage the payment in your store. The players will need a single usage QR code that you will generate in the Payment tab that will appear in this page",
       Payments: "Payments",
       CreateNewQRCodeForPlay: "Create a new unique QR Code for a player",
       Create10NewQRCodeForPlay: "Create 10 new unique QR Codes",
@@ -1200,7 +1200,10 @@ module.exports = {
       Configuration: "Settings",
       Video: "Video",
       UserCanNotQuit: "Players can not quit game",
-      CharacterSize: "Picture size (% of screen size)? 60% by default."
+      CharacterSize: "Picture size (% of screen size)? 60% by default.",
+      HideUserProgressionOnEnd: "Hide user progression bar",
+      HideAuthorOnEnd: "Hide author",
+      HideObjectCombination: "Hide option to combine objects in inventory"
     }
   },
   fr: {
@@ -2022,7 +2025,7 @@ module.exports = {
       YouAlreadyDidThisQuest: "<b>Vous avez déjà réussi ce jeu</b>. Vous pouvez le résoudre à nouveau, mais il ne vous <b>rapportera aucun point</b>.",
       YouAreQuestOwnerDesc: "Vous êtes éditeur de ce jeu, il ne vous rapportera aucun point, et vous ne pourrez pas y jouer en mode offline",
       GeneralWarning: "<b>Pour votre sécurité</b>, ne jouez pas au jeu en conduisant ou quand votre vélo est en mouvement, soyez toujours vigilant à ce qui se passe autour de vous, ne pénétrez pas dans des propriétés privées sans autorisation, respectez les règles de sécurité quand vous vous déplacez.",
-      RemoveScoringAndRating: "Cacher le score et la notation",
+      RemoveScoringAndRating: "Remplacer l'écran de fin par un texte",
       TypeEndMessage: "Texte de fin qui remplace l'écran de score et de notation",
       TypeEndMessageForPerfectScore: "Texte de fin personnalisé si le joueur a toutes les bonnes réponses",
       ThanksForPlaying: "Merci d'avoir joué à ce jeu. A bientôt pour d'autres jeux !",
@@ -2158,9 +2161,9 @@ module.exports = {
       RestartQuest: "Redémarrer le jeu",
       AreYouSureToRestartThisQuest: "Etes-vous sûr de redémarrer ce jeu ? Vous ne gagnerez aucun point en redémarrant le jeu.",
       PaymentOnMobile: "Paiement sur mobile",
-      PaymentOnMobileHelp: "Le paiement est très simple pour les joueurs, juste en pressant un bouton. Cependant Google / Apple prennent 30% des revenus de votre jeu.",
+      PaymentOnMobileHelp: "Le paiement est très simple pour les joueurs, juste en pressant un bouton. Cependant Google / Apple prennent 15% des revenus de votre jeu.",
       PaymentOnYourSide: "Paiement réalisé par vous",
-      PaymentOnYourSideHelp: "Vous pouvez collecter le paiement dans votre boutique ou au travers de tiers (4Escape, ...)",
+      PaymentOnYourSideHelp: "Vous pouvez collecter le paiement dans votre boutique. Pour démarrer les joueurs devront scanner un QR code à usage unique, que vous générez via l'onglet Paiement qui apparaitra dans cette page après validation",
       Payments: "Paiements",
       CreateNewQRCodeForPlay: "Créer un nouveau QR Code pour un joueur qui a payé",
       Create10NewQRCodeForPlay: "Créer 10 nouveaux QR Codes",
@@ -2379,10 +2382,10 @@ module.exports = {
       ObjectNotInInventory: "L'objet n'est pas dans l'inventaire",
       ResetChapterProgression: "Supprimer la progression de ce chapitre",
       GeolocationCouldNotBeRetrieved: "Position du joueur inconnue",
-      GeolocationIsDeniedPleaseSkipThisStep: "Cette partie du jeu nécessite un accès à votre position, cependant il semble que ayez refusé cet accès. Cette étape ne peut donc pas être affichée. Veuillez appuyer sur la flèche permettant de jouer l'étape suivante.",
+      GeolocationIsDeniedPleaseSkipThisStep: "Cette partie du jeu nécessite un accès à votre position, cependant soit vous avez refusé cette permission, soit aucun signal GPS n'est disponible. Si rien ne se débloque dans quelques secondes, passez à étape suivante.",
       HidePaiement: "Cacher le prix (communiqué aux joueurs hors de Graaly)",
       QRCodeAlreadyUsed: "Ce QR code a déjà été utilisé par un autre compte. Veuillez vous connecter ou contacter le créateur du jeu pour obtenir un autre code.",
-      GeolocationIssuePleaseSkipThisStep: "Cette partie du jeu nécessite un accès à votre position, mais Graaly n'a pas pu la récupérer, soit à cause d'un problème de permissions ou de précision. Vérifiez que vos avez autorisé Graaly à accéder à votre position (en vérifiant dans les paramètres de votre appareil) et que votre GPS est activé et calibré (pour calibrer, tenez votre appareil en lui faisant faire des \"8\" plusieurs fois). Actuellement, cette étape ne peut pas être affichée. Veuillez appuyer sur la flèche permettant de jouer l'étape suivante.",
+      GeolocationIssuePleaseSkipThisStep: "Cette partie du jeu nécessite un accès à votre position, mais Graaly n'a pas pu la récupérer, soit à cause d'un problème de permissions ou de précision. Vérifiez que votre GPS est activé faisant, faites des \"8\" plusieurs fois). Si rien ne s'arrange, passez à l'étape suivante !",
       PrintQRCodePages: "Imprimer les QR Codes",
       AnswerNumber: "Numéro de la réponse",
       QRCodeIsNotStartingOne: "Ce n'est pas le bon QR code. Recherchez le QR code de démarrage du jeu !",
@@ -2391,7 +2394,10 @@ module.exports = {
       Configuration: "Configuration",
       Video: "Vidéo",
       UserCanNotQuit: "Le joueur ne peut pas quitter",
-      CharacterSize: "Taille image (% de l'écran). Par défaut : 60%."
+      CharacterSize: "Taille image (% de l'écran). Par défaut : 60%.",
+      HideUserProgressionOnEnd: "Cacher la barre de progression du joueur",
+      HideAuthorOnEnd: "Cacher l'auteur du jeu",
+      HideObjectCombination: "Cacher l'option de combinaison d'objets"
     }
   }
 }
