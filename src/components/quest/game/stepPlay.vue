@@ -699,7 +699,7 @@
             <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && geolocation.active && playerResult === null"></video>
           </transition>
           <div v-show="playerResult === null && (this.geolocation.active || isIOs)" class="q-mt-xl">
-            <div class="text" :class="'font-' + customization.font">
+            <div class="text" :class="'font-' + customization.font" @click="resetBackgroundImage">
               <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
               <p v-if="step.options && step.options.html" v-html="getTranslatedText()" />
               <p v-if="!geolocation.active">{{ $t('label.PleaseWaitLoadingAndGPSInit') }}</p>
@@ -1422,6 +1422,8 @@ export default {
       let background = await document.getElementById('play-view')
       background.style.background = 'none'
       background.style.backgroundColor = 'transparent'
+      document.body.style.background = 'none'
+      document.body.style.backgroundColor = 'transparent'
       let backgroundImage = await document.getElementById('background-image')
       if (backgroundImage) {
         backgroundImage.style.background = 'none'
@@ -1466,6 +1468,7 @@ export default {
                 backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
               } else {
                 backgroundImage.style.background = 'transparent'
+                document.body.style.background = 'none'
                 document.body.style.backgroundColor = 'transparent'
               }
             }
