@@ -1466,6 +1466,7 @@ export default {
                 backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
               } else {
                 backgroundImage.style.background = 'transparent'
+                document.body.style.background = 'none'
                 document.body.style.backgroundColor = 'transparent'
               }
             }
