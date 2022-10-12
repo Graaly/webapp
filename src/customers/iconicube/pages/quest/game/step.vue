@@ -275,7 +275,7 @@
 
     <div v-show="footer.show" class="step-menu step-menu-fixed fixed-bottom">
       <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
-      <div class="row white-buttons" :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''">
+      <div class="row white-buttons q-py-sm" :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''">
         <div class="col centered">
           <q-btn
             flat
@@ -2848,5 +2848,9 @@ export default {
   .actions > div { display: flex; flex-flow: row nowrap; }
   .actions > div > .q-btn { flex-grow: 1; }
   .actions > div > .q-btn:not(:first-child) { flex-grow: 1; margin-left: 1rem; }
-
+</style>
+<style>
+  .step-menu .row .col .q-btn .q-btn__wrapper {
+    padding: 0px !important;
+  }
 </style>
