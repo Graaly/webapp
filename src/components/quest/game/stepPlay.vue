@@ -4416,6 +4416,9 @@ export default {
     */
     readMore() {
       if (this.step.extraText) {
+        // save that this readmore is read
+        this.$emit('readMoreRead')
+        
         this.story.step = 6
         this.story.data = {
           readMore: utils.replaceBreakByBR(this.step.extraText),

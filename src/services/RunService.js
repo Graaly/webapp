@@ -256,6 +256,16 @@ export default {
       .catch(error => console.log(error.request));
   },
   /*
+   * Set a readmore as read
+   * @param   {String}    id                  ID of the run
+   * @param   {String}    stepId              ID of the step
+   */
+  SetReadMoreAsRead(id, stepId) {
+    return Api()
+      .put("run/" + id + "/step/" + stepId + "/readmore/viewed")
+      .catch(error => console.log(error.request));
+  },
+  /*
    * remove in-progress runs for a user
    * @param   {String}    id                  ID of the quest
    */

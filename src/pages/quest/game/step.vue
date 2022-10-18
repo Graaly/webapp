@@ -59,6 +59,7 @@
         @hideButtons="hideFooterButtons"
         @showButtons="showFooterButtons"
         @openInventory="zoomOrUse"
+        @readMoreRead="setReadMoreAsRead"
         @msg="trackMessage">
       </stepPlay>
     </div>
@@ -2084,6 +2085,16 @@ export default {
         return true
       }
       return false
+    },
+    async setReadMoreAsRead() {
+      // offline save
+      for (var i = 0; i < this.run.answers.length; i++) {
+        if (this.run.answers[i] && this.run.answers[i].stepId && this.run.answers[i].stepId !== null && this.run.answers[i].stepId === this.step.stepId) {
+          this.run.answers[i].readMoreRead = true
+        }
+      }
+      //online save
+      await RunService.SetReadMoreAsRead(this.runId, this.step.stepId)
     },
     /*
      * init the run offline file
