@@ -12,9 +12,9 @@ export default {
   },
   mounted () {
     if (this.$t('label.shortLang') === 'en') {
-      this.$router.push('/quest/play/631749df4dd69e42b276d6a4')
+      this.$router.push('/quest/play/633d88f560f7913b1661fbe1')
     } else {
-      this.$router.push('/quest/play/631749df4dd69e42b276d6a4')
+      this.$router.push('/quest/play/633d88f560f7913b1661fbe1')
     }
   }
 }
