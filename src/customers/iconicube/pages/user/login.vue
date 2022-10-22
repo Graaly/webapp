@@ -274,7 +274,7 @@ export default {
           if (checkStatus.data.user) {
             window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
             axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
-            this.$router.push('/quest/play/631749df4dd69e42b276d6a4')
+            this.$router.push('/quest/play/633d88f560f7913b1661fbe1')
           }
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')

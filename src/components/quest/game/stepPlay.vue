@@ -92,7 +92,7 @@
           autoplay>
           <source :src="audio.file" type="audio/mpeg">
         </audio>
-        <div style="position: absolute; top: 4px; right: 10px; z-index: 1000;">
+        <div style="position: absolute; top: 4px; right: 10px; z-index: 99;">
           <q-btn-group
             rounded
             :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
@@ -2218,7 +2218,9 @@ export default {
           Notification(this.$t('label.QRCodeIsNotPlayingOne'), 'error')
           return
         }
-        if (!this.locateMarker.markerControls[answer].detected) {
+        if (this.locateMarker.markerControls[answer].detected) {
+          Notification(this.$t('label.qrCodeAlreadyScan'), 'info')
+        } else {
           this.locateMarker.flash = false
           this.locateMarker.flash = true
           this.locateMarker.markerControls[answer].detected = true

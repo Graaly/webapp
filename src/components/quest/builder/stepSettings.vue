@@ -2288,6 +2288,10 @@ export default {
         Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.config.choose.minNbAnswers }), 'error')
       } else {
         this.selectedStep.form.options.items.splice(key, 1)
+        // remove answer from selected answers
+        if (this.config.choose.answers.indexOf(key) !== -1) {
+          this.config.choose.answers.splice(this.config.choose.answers.indexOf(key), 1)
+        }
       }
     },
     /*

@@ -15,6 +15,7 @@ import CustomerTeamPlay from '../customers/ouigo/pages/user/teamplay'
 
 // ============== ICONICUBE =============
 /*
+import CustomerUserLogin from '../customers/iconicube/pages/user/login'
 import CustomerQuestPlayStep from '../customers/iconicube/pages/quest/game/step'
 import CustomerHome from '../customers/iconicube/pages/home'
 */
@@ -45,7 +46,8 @@ export default {
 */
 
   // ICONICUBE
-/*
+/*  
+  LOGIN_PAGE: CustomerUserLogin,
   QUEST_PLAY_STEP: CustomerQuestPlayStep,
   HOME: CustomerHome
 */

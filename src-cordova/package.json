@@ -33,7 +33,6 @@
     "cordova-plugin-nativestorage": "^2.3.2",
     "cordova-plugin-network-information": "^2.0.2",
     "cordova-plugin-phone-call": "^1.0.0",
-    "cordova-plugin-purchase": "10.6.1",
     "cordova-plugin-qrscanner": "^3.0.1",
     "cordova-plugin-save-image": "^0.3.0",
     "cordova-plugin-save-image-gallery": "0.0.26",
@@ -83,9 +82,6 @@
       "cordova.plugins.headingcalibration": {},
       "cordova-plugin-phone-call": {},
       "cordova-plugin-fullscreen": {},
-      "cordova-plugin-purchase": {
-        "BILLING_KEY": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmwxDQYxJHFcniYGQ6v14KMVZMeW6ZmQtoyEI8Z2LPdzMqyh6bA+GuOjAii7pX+eM5hrm6+0XeibLOIz9sozdJoqZN7020rz7ZBBM1J07PTQD2JKIkXQxeWqugyXM3eil1nVn7TcxEIc4o8pcYAev2hqqobkG479InVoQJyxStop9M5x5ifBzUR0ODz19bUDsg93i/SPZgl7ZCjzo56LRPlTUgdmKsGchR3HbVtodJI3IkK5Rp8AeaKeWuitFKsMopTXZXfqGagmd4IZAn99LLcr7JQ/YKuf5g7gZcw5r3P78rAXdzsf/6fvV8jyXYjDDv18pGD7d5d487gKdY2ZhyQIDAQAB"
-      },
       "cordova-plugin-save-image": {},
       "cordova-plugin-x-socialsharing": {
         "PHOTO_LIBRARY_ADD_USAGE_DESCRIPTION": "This app requires photo library access to function properly.",
@@ -93,7 +89,8 @@
       },
       "cordova-plugin-androidx": {},
       "cordova-plugin-androidx-adapter": {},
-      "cordova-plugin-qrscanner": {}
+      "cordova-plugin-qrscanner": {},
+      "cordova-plugin-purchase": {}
     },
     "platforms": [
       "ios",
