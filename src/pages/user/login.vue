@@ -167,12 +167,11 @@
     <q-dialog v-model="terms.show">
       <q-card class="login-dialog-card">
         <q-card-section class="row items-center">
-          Texte à definir
+          {{ $t('label.LetsPlayWithoutAccount') }}
           <q-space/>
           <icon-btn-square color="accent" icon="close" rotation fill v-close-popup/>
         </q-card-section>
 
-        <q-separator/>
         <q-card-section>
           <q-item dense>
             <q-item-section avatar>
@@ -213,12 +212,10 @@
     <q-dialog v-model="teamPlayPopup" style="max-width: 400px">
       <q-card class="login-dialog-card">
         <q-card-section class="row items-center">
-          Texte à définir
+          {{ $t('label.JoinATeam') }}
           <q-space/>
           <icon-btn-square color="accent" icon="close" rotation fill v-close-popup/>
         </q-card-section>
-
-        <q-separator/>
 
         <q-card-section>
           {{ $t('label.TypeTeamPlayId') }}
@@ -226,7 +223,7 @@
             class="q-my-md"
             outlined
             type="email"
-            label="A définir(team Id)"
+            :label="$t('label.TeamID')"
             v-model="teamPlayId"
             bottom-slots
           />

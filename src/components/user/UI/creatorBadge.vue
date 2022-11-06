@@ -20,6 +20,10 @@ export default {
     color: {
       type: String,
       default: 'accent'
+    },
+    custom: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -44,25 +48,27 @@ export default {
       return {
         "--bg-color": this.bgColor,
         "--bg-darken": colors.lighten(this.bgColor, -20),
-        "--bg-image": 'url(' + this.getBackgroundImage(this.creator ? this.creator.picture : null) + ' )',
+        "--bg-image": 'url(' + this.getBackgroundImage(this.custom ? 'quest' : 'profile', this.creator ? this.creator.picture : null) + ' )',
         "border": this.list ? '2px solid '+ this.bgColor : '4px solid '+ this.bgColor
       }
     }
   },
   methods: {
-    getBackgroundImage (picture) {
+    getBackgroundImage (path, picture) {
       if (picture && picture[0] === '_') {
         return 'statics/images/profile/' + picture
       } else if (picture && picture.indexOf('blob:') !== -1) {
         return picture
       } else if (picture) {
-        return this.uploadUrl + '/upload/profile/' + picture
+        return this.uploadUrl + '/upload/' + path + '/' + picture
       } else {
         return 'statics/images/icon/profile-small.png'
       }
     },
     openProfile(id) {
-      this.$router.push('/profile/' + id)
+      if (!this.custom) {
+        this.$router.push('/profile/' + id)
+      }
     }
   }
 }

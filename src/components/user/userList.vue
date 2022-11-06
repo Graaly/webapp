@@ -30,8 +30,8 @@
     <div v-else-if="users && users.length === 0 && canAddFriend">
         <q-btn round :color="color" icon="add" size="xl" @click="openFriendAddPopup()" />
     </div>
-    <div v-else class="users-list" :class="horizontal ? 'horizontal-scroll-wrapper users-horizontal-scroll-wrapper' : ''">
-      <div v-if="horizontal">
+    <div v-else class="users-list" >
+      <div v-if="horizontal" class="horizontal-scroll-wrapper users-horizontal-scroll-wrapper" style="overflow-x: scroll">
         <user-badge v-for="(user, index) in users" :key="index" :user="user" :color="color" @click.native="openProfile(user._id)"/>
       </div>
       <div v-else>

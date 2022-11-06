@@ -11,7 +11,7 @@
       </q-card-section>
       <q-card-section class="section-right">
         <q-rating
-          v-if="!noRating"
+          v-if="!noRating && ratingValue != 0"
           class="quest-rating"
           v-model="ratingValue"
           size="1em"
@@ -23,9 +23,11 @@
           icon-half="star_half"
         />
         <div class="card-title">{{ quest.title }}</div>
-        <div class="card-city"> {{ quest.location.town }} {{ quest.location.zipcode}}</div>
+        <div class="card-city"> {{ quest.location.town }} <span v-if="quest.location.zipcode">({{ quest.location.zipcode}})</span></div>
         <div class="card-stats">
-          <div class="card-time q-mr-md">{{ $t('label.EstimateTime') }} : {{ quest.duration }}Min</div>
+          <div v-if="quest.duration && quest.duration < 999" class="q-mr-lg">
+            <div class="card-time q-mr-md">{{ $t('label.EstimateTime') }} : {{ quest.duration }} min</div>
+          </div>
           <div class="card-difficult">{{ $t('label.Difficulty') }} : {{ getDifficult() }}</div>
 <!--          <creator-badge class="creator-badge" :class="direction === 'left' ? 'left' : 'right'"/>-->
         </div>
@@ -93,10 +95,10 @@ export default {
   },
   methods: {
     getPrice () {
-      if (this.quest.price === 0) {
+      if (this.quest.premiumPrice && !(this.quest.premiumPrice.androidId && this.quest.premiumPrice.active) && !this.quest.premiumPrice.manual) {
         return this.$t('label.Free')
       } else {
-        return this.quest.price + ' €'
+        return this.$t('label.Paying')
       }
     },
     getDifficult() {

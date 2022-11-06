@@ -529,7 +529,6 @@ console.log("CHECK OFFLINE 6")
     .item-level{
       height: 40px;
       width: 40px;
-      margin-right: 12px;
     }
   }
 
@@ -538,7 +537,7 @@ console.log("CHECK OFFLINE 6")
     height: 100px;
     border-radius: 50%;
     position: relative;
-    margin-left: 12px;
+    margin-left: 10px;
     margin-top: 5vh;
     margin-right: 10px;
   }

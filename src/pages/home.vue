@@ -18,6 +18,7 @@
         animated
         navigation
         infinite
+        height="400px"
         :autoplay="autoplay"
         @mouseenter="autoplay = false"
         @mouseleave="autoplay = true"
@@ -834,7 +835,9 @@ export default {
   height: calc(100% - 180px);
   padding-bottom: 130px;
 }
-.carousel .q-carousel__navigation{
-  bottom: -40px;
+.q-carousel__navigation{
+  bottom: -10px;
+  padding: 0;
 }
+
 </style>

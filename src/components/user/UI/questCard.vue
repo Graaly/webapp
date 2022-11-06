@@ -1,5 +1,5 @@
 <template>
-  <q-card class="my-card" :style="cssVars" @click="$router.push('/quest/play/' + quest.questId)" :class="info ? '' : 'cursor-pointer'">
+  <q-card class="my-card" :style="cssVars" @click="!info ? $router.push('/quest/play/' + quest.questId) : ''" :class="info ? '' : 'cursor-pointer'">
     <div v-if="!quest" class="flex items-center justify-center full-height">
       <q-spinner-dots
         :color="color"
@@ -10,6 +10,7 @@
     <q-card-section class="q-pa-none relative-position section-up" :style="'background: url(' + getThumbImage() + ' ) center center /cover no-repeat; height: 250px;'">
       <div class="quest-rating">
         <q-rating
+          v-if="ratingValue && ratingValue != 0"
           v-model="ratingValue"
           size="1em"
           :max="5"
@@ -22,7 +23,7 @@
         <p class="quest-price"> {{ getPrice() }} </p>
       </div>
       <div class="inter-bar" :class="direction === 'left' ? 'left' : 'right'"></div>
-      <creator-badge class="creator-badge" :class="direction === 'left' ? 'left' : 'right'" :color="bgColor" :creator="creator"/>
+      <creator-badge class="creator-badge" :class="direction === 'left' ? 'left' : 'right'" :color="bgColor" :creator="creator" :custom="customization"/>
       <div class="score-badge flex items-center justify-center"
            :class="direction === 'right' ? 'right' : 'left'"
            v-if="quest.availablePoints && quest.availablePoints.maxPts && (!quest.customization || !quest.customization.removeScoring)"
@@ -33,17 +34,18 @@
         </div>
       </div>
     </q-card-section>
-    <q-card-section v-if="!info" class="section-down">
+    <q-card-section v-if="!info" class="section-down" style="padding-top:30px;">
       <div class="card-title">{{ quest.title }}</div>
       <div class="card-city"> {{ quest.location.town }} {{ quest.location.zipcode}}</div>
       <div class="card-stats flex">
-        <div class="card-time q-mr-md">{{ $t('label.EstimateTime') }} : {{ quest.duration }}Min</div>
+        <div class="card-time q-mr-md" v-if="quest.duration && quest.duration < 999">{{ $t('label.EstimateTime') }} : {{ quest.duration }} min</div>
         <div class="card-difficult">{{ $t('label.Difficulty') }} : {{ getDifficult() }}</div>
       </div>
     </q-card-section>
     <q-card-section v-if="info" class="section-info">
       <div class="q-mt-lg q-mb-md info-title">{{ quest.title === "" ?  $t('label.NoTitle') : quest.title }}</div>
-      <div v-html="this.quest.description"></div>
+      <div v-html="quest.description" class="info-description"></div>
+
       <div v-if="isUserTooFar && !quest.allowRemotePlay" class="q-pt-md">
         <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.QuestIsFarFromUser')" />
       </div>
@@ -85,9 +87,9 @@
               <span>{{ shop.premiumQuest.priceValue === '0' ? ((quest.premiumPrice && quest.premiumPrice.prices && quest.premiumPrice.prices.fr) ? quest.premiumPrice.prices.fr : '...') : shop.premiumQuest.priceValue }}</span>
             </span>
           </div>
-          <div>
-            <q-rating v-if="quest.rating && quest.rating.rounded" readonly v-model="quest.rating.rounded" color="yellow-8" :max="5" size="0.8em" />
-          </div>
+<!--          <div>-->
+<!--            <q-rating v-if="quest.rating && quest.rating.rounded" readonly v-model="quest.rating.rounded" color="yellow-8" :max="5" size="0.8em" />-->
+<!--          </div>-->
         </div>
         <div v-if="quest.type === 'room' && quest.premiumPrice.manual">
           <img src="statics/images/icon/cost.svg" class="medium-icon" />
@@ -159,6 +161,7 @@ export default {
     return {
       ratingValue: 0,
       creator: null,
+      customization: false,
       serverUrl: process.env.SERVER_URL,
       uploadUrl: process.env.UPLOAD_URL
     }
@@ -168,6 +171,7 @@ export default {
       this.ratingValue = this.quest.rating.value
     }
     this.getCreator()
+    console.log(this.quest)
   },
   computed: {
     bgColor() {
@@ -193,12 +197,16 @@ export default {
     async getCreator() {
       const res = await UserService.getFriend(this.quest.authorUserId)
       this.creator = res.data
+      if (this.quest.customization.logo) {
+        this.creator.picture = this.quest.customization.logo
+        this.customization = true
+      }
     },
     getPrice () {
-      if (this.quest.price === 0) {
+      if (this.quest.premiumPrice && !(this.quest.premiumPrice.androidId && this.quest.premiumPrice.active) && !this.quest.premiumPrice.manual) {
         return this.$t('label.Free')
       } else {
-        return this.quest.price + ' €'
+        return this.$t('label.Paying')
       }
     },
     getDifficult() {
@@ -289,6 +297,7 @@ export default {
       bottom: -37px;
       background: url("../../../statics/images/icon/point.png");
       background-size: cover;
+      font-size: 24px;
       &.left{
         left: 20px;
       }
@@ -305,10 +314,13 @@ export default {
     .info-title{
       font-size: 24px;
     }
+    .info-description{
+      white-space: pre-line;
+    }
   }
   .section-down{
     //height: 100px;
-    padding-top:30px;
+    //padding-top:30px;
     background: var(--bg-darken);
     border-radius: 0 0 20px 20px;
     color: white;

@@ -33,7 +33,6 @@ export default {
     if (this.$route.params.login === 'false') {
       this.fromLogin = false
     }
-    console.log('from login', this.fromLogin)
   },
   methods: {
     /*
@@ -84,9 +83,9 @@ export default {
         if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
           if (code.indexOf('_score') === -1) {
             if (checkStatus.data.questId) {
-              this.playQuest(checkStatus.data.questId)
+              this.$router.push('/quest/play/' + checkStatus.data.questId)
             } else {
-              this.playQuest(code)
+              this.$router.push('/quest/play/' + code)
             }
           } else {
             this.$router.push('/quest/' + (code.substring(0, 24)) + '/end')

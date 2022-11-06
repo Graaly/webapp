@@ -16,7 +16,7 @@
               <div>
                 <userCard :user="user" size="medium" @click="openProfile"></userCard>
               </div>
-              <div class="full-width">
+              <div class="full-width text-white">
                 <div class="subtitle5" v-if="user.name !== '-'">{{ user.name }}</div>
                 <div class="subtitle5" v-if="user.name === '-'">{{ $t('label.AnonymousUser') }}</div>
                 <div class="subtitle6" v-if="user.location && (user.location.country || user.location.postalCode)">
@@ -36,7 +36,7 @@
                 </div>
               </div>
             </div>
-            <div v-if="range === 'quest' && ranking && ranking.length > 0" class="subtitle3 q-pa-md">
+            <div v-if="range === 'quest' && ranking && ranking.length > 0" class="subtitle3 q-pa-md text-white">
               {{ ranking[0].questData.title.fr }}
             </div>
             <div v-if="range === 'quest' && ranking && ranking.length > 0" v-for="(run, index) in ranking" :key="index" class="q-pa-md rank-box text-white">
@@ -44,7 +44,7 @@
                 <!-- here we guess that is should be the first element : TODO : FIX ME-->
                 <userCard :user="run.userData" size="small" @click="openProfile(run.userId[0])"></userCard>
               </div>
-              <div class="full-width">
+              <div class="full-width text-white">
                 <div class="subtitle5">{{ run.userData.name }}</div>
                 <div class="subtitle6" v-if="run.userData.location && (run.userData.location.country || run.userData.location.postalCode)">
                   <span v-if="run.userData.location.postalCode">{{ run.userData.location.postalCode }}</span>

@@ -11,14 +11,14 @@
       <div v-if="type === 'quest'">
         <div class="q-pa-md">
           <q-btn-group spread rounded>
-            <q-btn class="material-icons-outlined"
+            <q-btn
                    color="secondary"
                    :outline="subtype !== 'around'"
                    :label="$t('label.AroundYou')"
                    icon="o_explore"
                    size="sm"
                    @click="selectSubtype('around')"/>
-            <q-btn class="material-icons-outlined"
+            <q-btn
                    color="secondary"
                    :outline="subtype !== 'friends'"
                    :label="$t('label.FriendsQuests')"
