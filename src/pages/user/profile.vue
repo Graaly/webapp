@@ -51,16 +51,16 @@
     <!--====================== PLAYER PROFIL =================================-->
 
     <div class="profil q-px-md q-pb-lg" v-else>
-      <div>
-        <icon-btn-square icon="settings" color="accent" fill @click.native="updateProfile()" class="float-right q-pa-md"/>
-        <icon-btn-square icon="military_tech" color="primary" fill @click.native="$router.push('/user/ranking/level/world')" class="float-right q-pa-md"/>
-      </div>
-      <div class="flex no-wrap items-end justify-start q-pb-md">
+      <icon-btn-square icon="settings" color="accent" fill @click.native="updateProfile()" class="float-right q-pa-md q-pb-lg"/>
+      <icon-btn-square icon="military_tech" color="primary" fill @click.native="$router.push('/user/ranking/level/world')" class="float-right q-pa-md q-pb-lg"/>
+      <div class="float-left no-wrap items-end justify-start q-pb-md">
         <div class="profil-photo-top" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
         </div>
-        <div>
+        
+      </div>
+      <div class="q-pt-md">
           <div v-if="user.name !== ''">
-            <div class="centered subtitle3 q-mt-lg">
+            <div class="subtitle3 q-mt-lg q-pl-md">
               {{ user.name }}
             </div>
 <!--            <div class="centered subtitle6 q-mt-sm" v-if="user.location && (user.location.postalCode || user.location.country)">
@@ -69,12 +69,11 @@
               <span v-if="user.location.country">{{ user.location.country }}</span>
             </div>-->
           </div>
+          <div v-if="user.description" class="q-pa-md subtitle6">
+            {{ user.description }}
+          </div>
         </div>
-      </div>
-      <div v-if="user.description" class="q-pa-md subtitle6">
-        {{ user.description }}
-      </div>
-
+      <div style="clear:both;"></div>
       <div>
         <div class="centered bg-warning q-pa-sm" v-if="warnings.listCreatedQuestsMissing" @click="listCreatedQuests($store.state.user._id)">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}

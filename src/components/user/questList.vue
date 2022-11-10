@@ -2,10 +2,11 @@
   <div class="q-pb-lg">
     <div class="title flex justify-between items-center q-mb-md" v-if="title">
       <div style="text-transform:uppercase;" class="flex items-center">
-      <q-icon :name="icon" class="q-mr-sm material-icons-outlined"/>
-      <span>{{ title }}</span>
+        <q-icon :name="icon" class="q-mr-sm material-icons-outlined"/>
+        <span>{{ title }}</span>
+      </div>
+      <div v-if="readMore" style="font-size: 12px; text-decoration: underline;" @click="readMoreBtn()">{{ $t('label.SeeMore') }}</div>
     </div>
-      <div v-if="readMore" style="font-size: 12px; text-decoration: underline;" @click="readMoreBtn()">{{ $t('label.SeeMore') }}</div></div>
     <div class="quest-list">
       <mini-quest-card
         v-if="index < maxShow"

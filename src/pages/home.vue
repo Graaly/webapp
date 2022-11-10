@@ -78,7 +78,7 @@
         <quest-list
           :quests="invitationQuests"
           :title="$t('label.Invitations')"
-          icon="send_time_extension"
+          icon="badge"
           color="primary"
         />
       </div>

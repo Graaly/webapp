@@ -4,7 +4,7 @@
     <!------------------ HEADER COMPONENT ------------------------>
     <div class="search-component q-pa-md dark-banner fixed-top">
       <div class="flex no-wrap justify-around items-center q-pb-sm">
-        <icon-btn-square :label="$t('label.EscapeGame')" icon="key" color="primary" :fill="type !== 'quest'" @click.native="selectType('quest')"/>
+        <icon-btn-square :label="$t('label.EscapeGame')" icon="casino" color="primary" :fill="type !== 'quest'" @click.native="selectType('quest')"/>
         <icon-btn-square :label="$t('label.Designers')" icon="extension" color="secondary" :fill="type !== 'designer'" @click.native="selectType('designer')"/>
         <icon-btn-square :label="$t('label.Players')" icon="face" color="accent" :fill="type !== 'player'" @click.native="selectType('player')"/>
       </div>
