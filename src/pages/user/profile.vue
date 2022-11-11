@@ -1,49 +1,79 @@
 <template>
-  <div class="scroll background-dark">
-    <div id="teaser q-mb-lg">
-      <div class="q-py-sm q-px-md dark-banner fixed-top">
-        <q-btn flat icon="arrow_back" @click="backToTheMap()" />
-        <q-btn flat v-if="$store.state.user.id === userId" class="float-right" icon="settings" @click="updateProfile()" />
+  <div class="scroll background-profil" >
+
+    <!--====================== FRIENDS / CREATORS QUESTS =================================-->
+
+    <div class="profil friends" v-if="$store.state.user.id !== userId">
+      <div class="profil-photo-center" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
       </div>
-      <div class="centered">
-        <div class="user-card user-card-big main-profile relative-position">
-          <div class="relative-position" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
-            <div v-if="user.statistics && user.statistics.nbQuestsCreated && user.statistics.nbQuestsCreated > 0" class="profile-item-creator">
-              <img src="statics/images/icon/profile-puzzle.svg" />
-            </div>
-            <div v-if="user.statistics && user.statistics.nbQuestsSuccessful && user.statistics.nbQuestsSuccessful > 0" class="profile-item-level">
-              <img :src="'statics/images/icon/level' + user.level + '.svg'" />
-            </div>
-          </div>
-          <div class="centered subtitle3 q-mt-lg">
-            {{ user.name }}
-          </div>
-          <div class="centered subtitle6 q-mt-sm" v-if="user.location && (user.location.postalCode || user.location.country)">
-            <span v-if="user.location.postalCode">{{ user.location.postalCode }}</span>
-            <span v-if="user.location.postalCode && user.location.country">, </span>
-            <span v-if="user.location.country">{{ user.location.country }}</span>
-          </div>
+      <div class="flex column items-center justify-center text-center q-mt-lg">
+        <div v-if="user.statistics && user.statistics.nbQuestsSuccessful && user.statistics.nbQuestsSuccessful > 0" class="item-level">
+          <img :src="'statics/images/icon/level' + user.level + '.svg'" />
+        </div>
+        <div class="subtitle3">{{ user.name }}</div>
+        <div>Score : {{ user.score }}</div>
+        <div v-if="user.description" class="q-pa-md subtitle6">
+          {{ user.description }}
         </div>
       </div>
-      <div v-if="user.description" class="q-pa-md subtitle6">
-        {{ user.description }}
+      <div style="max-width: 300px; margin: 24px auto 0;">
+        <text-btn-square
+          v-if="!user.status || user.status !== 'friend'"
+          class="q-mb-lg"
+          @click.native="follow()"
+          :title="$t('label.Follow')"
+          color="accent"
+          icon="done"
+        />
+        <text-btn-square
+          v-else
+          class="q-mb-lg"
+          @click.native="removeFriend()"
+          :title="$t('label.DoNotFollowAnymore')"
+          color="accent"
+          icon="done"
+        />
       </div>
-      <div class="centered q-pa-md" v-if="$store.state.user.id !== userId">
-        <q-btn
-           v-if="!user.status || user.status !== 'friend'"
-          class="glossy large-btn"
-          color="primary"
-          :label="$t('label.Follow')"
-          @click="follow" />
-        <div v-if="user.status && user.status === 'friend'" class="centered">
-          <q-chip class="glossy" color="primary" text-color="white" icon-right="star">
-            {{ $t('label.Followed') }}
-          </q-chip>
-          <div class="q-pt-sm">
-            <a @click="removeFriend">{{ $t('label.DoNotFollowAnymore') }}</a>
+
+      <!--====================== QUESTS CREATED BY OTHER USER =================================-->
+
+      <div v-if="$store.state.user.id !== userId && quests && quests.built && quests.built.length > 0">
+        <quest-list
+          :quests="quests.built"
+          :title="$t('label.EscapeGame')"
+          icon="extension"
+          :max-show="250"
+          color="accent"
+        />
+      </div>
+    </div>
+
+    <!--====================== PLAYER PROFIL =================================-->
+
+    <div class="profil q-px-md q-pb-lg" v-else>
+      <icon-btn-square icon="settings" color="accent" fill @click.native="updateProfile()" class="float-right q-pa-md q-pb-lg"/>
+      <icon-btn-square icon="military_tech" color="primary" fill @click.native="$router.push('/user/ranking/level/world')" class="float-right q-pa-md q-pb-lg"/>
+      <div class="float-left no-wrap items-end justify-start q-pb-md">
+        <div class="profil-photo-top" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
+        </div>
+        
+      </div>
+      <div class="q-pt-md">
+          <div v-if="user.name !== ''">
+            <div class="subtitle3 q-mt-lg q-pl-md">
+              {{ user.name }}
+            </div>
+<!--            <div class="centered subtitle6 q-mt-sm" v-if="user.location && (user.location.postalCode || user.location.country)">
+              <span v-if="user.location.postalCode">{{ user.location.postalCode }}</span>
+              <span v-if="user.location.postalCode && user.location.country">, </span>
+              <span v-if="user.location.country">{{ user.location.country }}</span>
+            </div>-->
+          </div>
+          <div v-if="user.description" class="q-pa-md subtitle6">
+            {{ user.description }}
           </div>
         </div>
-      </div>
+      <div style="clear:both;"></div>
       <div>
         <div class="centered bg-warning q-pa-sm" v-if="warnings.listCreatedQuestsMissing" @click="listCreatedQuests($store.state.user._id)">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
@@ -51,7 +81,7 @@
       </div>
       <!--<div v-if="$store.state.user.id === userId">
         <div v-if="quests.built.rejected && quests.built.rejected.length > 0">
-          <!--====================== MY QUESTS REJECTED =================================--
+          --====================== MY QUESTS REJECTED =================================--
 
           <titleBar :title="{text: $t('label.YourRejectedQuests'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
 
@@ -59,7 +89,7 @@
 
         </div>
         <div v-if="quests.built.tovalidate && quests.built.tovalidate.length > 0">
-          <!--====================== MY QUESTS TO VALIDATE =================================--
+          --====================== MY QUESTS TO VALIDATE =================================--
 
           <titleBar :title="{text: $t('label.YourUnderValidationQuests'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
 
@@ -67,7 +97,7 @@
 
         </div>
         <div>
-          <!--====================== MY QUESTS DRAFT =================================--
+          --====================== MY QUESTS DRAFT =================================--
 
           <titleBar :title="{text: $t('label.YourDraftQuests'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
 
@@ -75,7 +105,7 @@
 
         </div>
         <div v-if="quests.built.published && quests.built.published.length > 0">
-          <!--====================== MY QUESTS PUBLISHED =================================--
+          --====================== MY QUESTS PUBLISHED =================================--
 
           <titleBar :title="{text: $t('label.YourPublishedQuests'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
 
@@ -83,41 +113,57 @@
 
         </div>
       </div>-->
+
+      <!--====================== QUESTS CREATED BY CURRENT USER =================================-->
+
       <div v-if="$store.state.user.id === userId">
-        <!--====================== QUESTS CREATED BY CURRENT USER =================================-->
-
-        <titleBar :title="{text: $t('label.EscapeGames'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
-
-        <questsList format="small" color="red" :add="true" :quests="quests.built"></questsList>
+          <quest-list
+            :quests="quests.built"
+            :title="$t('label.EscapeGames')"
+            icon="extension"
+            read-more
+            v-on:readMore="readMoreQuestPublished()"
+            color="secondary"
+          />
       </div>
-      <div v-if="$store.state.user.id !== userId && quests && quests.built && quests.built.length > 0">
-        <!--====================== QUESTS CREATED BY OTHER USER =================================-->
 
-        <titleBar :title="{text: $t('label.EscapeGames'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
+      <!--====================== QUESTS CREATED BY CURRENT USER =================================-->
 
-        <questsList format="big" color="red" :quests="quests.built"></questsList>
-      </div>
+      <text-btn-square
+        class="q-mb-lg"
+        @click.native="readMoreQuestPublished()"
+        :title="$t('label.AllQuests')"
+        color="secondary"
+        icon="extension"
+      />
+
+      <!--====================== BADGES WON =================================-->
+
       <div v-if="badges === null || badges.length > 0">
-        <!--====================== BADGES WON =================================-->
-
-        <titleBar :title="{text: $t('label.Badges'), type: 'badge'}" :link="{text: $t('label.SeeMore')}" @click="readMoreBadges"></titleBar>
-
-        <badgesList format="scroll" :badges="badges"></badgesList>
+        <badge-list :badges="badges" :title="$t('label.Badges')" icon="military_tech"/>
       </div>
+
+      <!--====================== QUESTS PLAYED =================================-->
+
       <div v-if="quests.played === null || quests.played.length > 0">
-        <!--====================== QUESTS PLAYED =================================-->
-
-        <titleBar :title="{text: $t('label.SolvedQuests'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPlayed"></titleBar>
-
-        <questsList format="small" :quests="quests.played"></questsList>
+        <quest-list
+          :quests="quests.played"
+          :title="$t('label.SolvedQuests')"
+          icon="task_alt"
+          read-more
+          v-on:readMore="readMoreQuestPlayed()"
+          color="#1a4567"
+          no-rating
+          no-price
+        />
       </div>
-      <div v-if="friends.list === null || friends.list.length > 0 || $store.state.user.id === userId">
-        <!--====================== FRIENDS =================================-->
 
-        <titleBar :title="{text: $t('label.YouFollowThem'), type: 'friend'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAllFriends"></titleBar>
+      <!--====================== FRIENDS =================================-->
 
-        <usersList format="scroll" :add="$store.state.user.id === userId ? true : false" :users="friends.list" @refresh="loadFriends"></usersList>
+      <div v-if="friends.list === null || friends.list.length > 0 && $store.state.user.id === userId">
+        <user-list :users="friends.list" horizontal color="accent" :title="$t('label.YouFollowThem')" icon="group"/>
       </div>
+
       <div v-if="$store.state.user.id === userId">
         <div class="centered q-mt-xl q-mb-sm cursor-pointer"><a @click="disconnect()">{{ $t('label.SignOut') }}</a></div>
         <div class="centered q-mb-sm cursor-pointer"><a @click="removeOfflineData()">{{ $t('label.RemoveOfflineData') }}</a></div>
@@ -133,18 +179,21 @@ import UserService from 'services/UserService'
 import QuestService from 'services/QuestService'
 import Notification from 'boot/NotifyHelper'
 import utils from 'src/includes/utils'
-import titleBar from 'components/titleBar'
-import questsList from 'components/quest/questsList'
-import usersList from 'components/user/usersList'
-import badgesList from 'components/user/badgesList'
 import Vue from 'vue'
+
+import iconBtnSquare from "components/user/UI/iconBtnSquare";
+import textBtnSquare from "components/user/UI/textBtnSquare";
+import questList from "components/user/questList";
+import badgeList from "components/user/badgeList";
+import userList from "components/user/userList";
 
 export default {
   components: {
-    titleBar,
-    questsList,
-    usersList,
-    badgesList
+    iconBtnSquare,
+    textBtnSquare,
+    questList,
+    badgeList,
+    userList
   },
   data () {
     return {
@@ -287,6 +336,7 @@ export default {
         formatedResults.push({
           questId: results[i].questId,
           picture: results[i].questData.picture,
+          thumb: results[i].questData.thumb,
           title: results[i].questData.title,
           location: {
             town: results[i].questData.town
@@ -426,7 +476,7 @@ console.log("CHECK OFFLINE 5")
             // get pictures
             for (var i = 0; i < tempQuestList.length; i++) {
 console.log("CHECK OFFLINE 6")
-              await utils.removeDirectory(tempQuestList[i].questId)  
+              await utils.removeDirectory(tempQuestList[i].questId)
             }
           }
         }
@@ -455,3 +505,45 @@ console.log("CHECK OFFLINE 6")
   }
 }
 </script>
+<style scoped lang="scss">
+.background-profil {
+  background-image: url('../../statics/new/h-top-background.jpg');
+  background-position: center 0px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.profil{
+  max-width: 450px;
+  margin: 0 auto;
+  color: white;
+  &.friends{
+    .profil-photo-center{
+      width: 100px;
+      height: 100px;
+      position: relative;
+      margin: 12vh auto 0;
+      border-radius: 50%;
+    }
+    .item-level{
+      height: 40px;
+      width: 40px;
+    }
+  }
+
+  .profil-photo-top{
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    position: relative;
+    margin-left: 10px;
+    margin-top: 5vh;
+    margin-right: 10px;
+  }
+  .subtitle{
+    position: relative;
+    top: -10px;
+    margin-bottom: 5vh;
+  }
+}
+</style>

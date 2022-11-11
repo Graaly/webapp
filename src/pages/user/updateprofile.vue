@@ -1,28 +1,21 @@
 <template>
-  <div class="scroll background-dark">
-    <div id="teaser q-mb-lg">
-      <div class="q-py-sm q-px-md dark-banner fixed-top">
-        <q-btn flat icon="arrow_back" @click="backToProfile()" />
-      </div>
-      <div class="centered">
-        <div class="user-card user-card-big main-profile centered relative-position">
-          <div class="relative-position no-overflow" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
-            <div class="edit-bar centered">
-              <label @click="$refs['uploadfile'].click()">
-                <q-icon name="camera_alt" />
-              </label>
-              <input @change="uploadImage" ref="uploadfile" name="picturefile" id="picturefile" type="file" accept="image/*" hidden />
-            </div>
-          </div>
+  <div class="scroll background-profil">
+    <div class="profil">
+      <div class="flex no-wrap items-end justify-start">
+        <div class="profil-photo-top" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
+          <icon-btn-square color="secondary" fill icon="camera_alt" @click.native="$refs['uploadfile'].click()" class="absolute" style="top: -10px;right: -25px;"/>
+          <input @change="uploadImage" ref="uploadfile" name="picturefile" id="picturefile" type="file" accept="image/*" hidden />
+        </div>
+        <div>
           <div v-if="profile.form.name !== ''">
             <div class="centered subtitle3 q-mt-lg">
               {{ profile.form.name }}
             </div>
-            <div class="centered subtitle6 q-mt-sm" v-if="profile.form.location && (profile.form.location.postalCode || profile.form.location.country)">
-              <span v-if="profile.form.location.postalCode">{{ profile.form.location.postalCode }}</span>
-              <span v-if="profile.form.location.postalCode && profile.form.location.country">, </span>
-              <span v-if="profile.form.location.country">{{ profile.form.location.country }}</span>
-            </div>
+<!--            <div class="centered subtitle6 q-mt-sm" v-if="profile.form.location && (profile.form.location.postalCode || profile.form.location.country)">-->
+<!--              <span v-if="profile.form.location.postalCode">{{ profile.form.location.postalCode }}</span>-->
+<!--              <span v-if="profile.form.location.postalCode && profile.form.location.country">, </span>-->
+<!--              <span v-if="profile.form.location.country">{{ profile.form.location.country }}</span>-->
+<!--            </div>-->
           </div>
         </div>
       </div>
@@ -36,206 +29,306 @@
           </div>
         </div>
       </div>
-      <form class="q-mt-lg q-pa-md q-ma-md background-lighter rounded" @submit.prevent="submitProfileChanges()">
-
-        <q-input
-          dark
-          v-model="profile.form.name"
-          :label="$t('label.YourName')"
-          placeholder="John Doe"
-          @blur="$v.profile.form.name.$touch"
-          bottom-slots
-          :error="$v.profile.form.name.$error"
-          :error-message="$t('label.PleaseEnterYourName')"
+      <form>
+      <q-stepper
+        v-model="step"
+        ref="stepper"
+        color="primary"
+        alternative-labels
+        animated
+        flat
+        class="bg-transparent"
+      >
+        <q-step
+          :name="1"
+          :title="displayPassword ? $t('label.CreateAccount') : $t('label.ModifyAccount')"
+          icon="face"
+          color="secondary"
+          :done="displayPassword ? !errorStepOne : false"
+          done-icon="done"
+          done-color="positive"
+          style="min-height: 200px;"
+        >
+          <q-input
+            dark
+            v-model="profile.form.name"
+            :label="$t('label.YourName')"
+            placeholder="John Doe"
+            @blur="$v.profile.form.name.$touch"
+            bottom-slots
+            :error="$v.profile.form.name.$error"
+            :error-message="$t('label.PleaseEnterYourName')"
           />
 
-        <q-input
-          dark
-          v-model="profile.form.email"
-          :label="$t('label.YourEmail')"
-          placeholder="john.doe@gmail.com"
-          @blur="$v.profile.form.email.$touch"
-          bottom-slots
-          :error="$v.profile.form.email.$error"
-          :error-message="$t('label.PleaseEnterAValidEmailAddress')"
+          <q-input
+            dark
+            v-model="profile.form.email"
+            :label="$t('label.YourEmail')"
+            placeholder="john.doe@gmail.com"
+            @blur="$v.profile.form.email.$touch"
+            bottom-slots
+            lazy-rules
+            :rules="[
+                val => val.length !== 0 || $t('label.PleaseEnterYourEmailAddress'),
+                val => $v.profile.form.email.email || $t('label.PleaseEnterAValidEmailAddress'),
+                displayPassword ? emailRules : ''
+              ]"
           />
 
-        <q-input
-          dark
+          <q-input
+            dark
+            v-if="displayPassword"
+            type="password"
+            v-model="profile.form.password"
+            :label="$t('label.YourPassword')"
+            @blur="$v.profile.form.password.$touch"
+            bottom-slots
+            :error="$v.profile.form.password.$error"
+            :error-message="!$v.profile.form.password.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.profile.form.password.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
+          />
+
+          <q-input
+            dark
+            v-model="profile.form.description"
+            :label="$t('label.YourPresentation')"
+            bottom-slots
+            type="textarea"
+            :min-rows="3"
+          />
+          <q-stepper-navigation>
+            <div class="flex no-wrap">
+              <icon-btn-square v-if="!displayPassword" class="q-mr-lg" color="primary" icon="arrow_forward" @click.native="() => nextStep()"/>
+              <text-btn-square
+                class="q-mb-lg"
+                @click.native="() => { displayPassword ? nextStep() : saveProfileChanges('one') }"
+                :title="displayPassword ? $t('label.Next') : $t('label.Save')"
+                color="secondary"
+                :icon="displayPassword ? 'arrow_forward' : 'save'"
+              />
+            </div>
+          </q-stepper-navigation>
+        </q-step>
+
+        <q-step
+          :name="2"
+          :title="$t('label.AccountInfo')"
+          icon="info"
+          color="primary"
+          :done="!errorStepTwo"
+          done-icon="done"
+          done-color="positive"
+          style="min-height: 200px;"
+
+        >
+          <div class="flex no-wrap justify-between items-center">
+            <div class="full-width q-pr-md">
+              <q-select
+                dark
+                :label="$t('label.YourCountry')"
+                v-model="profile.form.country"
+                :options="countries"
+                emit-value
+                map-options
+                bottom-slots
+                @blur="getLocation"
+                :error="$v.profile.form.country.$error"
+                :error-message="$t('label.PleaseSelectYourCountry')">
+                <template v-slot:after>
+
+                </template>
+              </q-select>
+
+              <q-input
+                dark
+                v-model="profile.form.zipCode"
+                :label="$t('label.YourZipCode')"
+                placeholder="38500"
+                bottom-slots
+                @blur="getLocation"
+                :error="$v.profile.form.zipCode.$error"
+                :error-message="$t('label.PleaseEnterYourZipCode')">
+              </q-input>
+
+              <q-select
+                dark
+                :label="$t('label.YourLanguage')"
+                v-model="profile.form.language"
+                :options="languages"
+                emit-value
+                map-options
+                @input="changeLanguage" />
+
+              <q-select
+                dark
+                :label="$t('label.YourSex')"
+                v-model="profile.form.sex"
+                :options="sexes"
+                emit-value
+                map-options
+                bottom-slots>
+              </q-select>
+
+              <q-select
+                dark
+                :label="$t('label.YourAge')"
+                v-model="profile.form.age"
+                :options="ages"
+                emit-value map-options
+                @blur="$v.profile.form.age.$touch"
+                bottom-slots
+                :error="$v.profile.form.age.$error"
+                :error-message="$t('label.PleaseSelectYourAge')">
+              </q-select>
+
+              <q-input
+                dark
+                v-model="profile.form.phone"
+                :label="$t('label.YourPhoneNumber')"
+                :placeholder="$t('label.phoneExample')">
+              </q-input>
+            </div>
+
+          </div>
+          <q-stepper-navigation>
+            <div class="flex no-wrap">
+            <icon-btn-square class="q-mr-lg" color="primary" icon="arrow_back" @click.native="() => { step = 1 }"/>
+            <text-btn-square
+              class="q-mb-lg"
+              :type="displayPassword ? 'button' : 'submit'"
+              @click.native="() => { displayPassword ? validationStep() : saveProfileChanges('two') }"
+              :title="displayPassword ? $t('label.Next') : $t('label.Save')"
+              color="primary"
+              :icon="displayPassword ? 'arrow_forward' : 'save'"
+            />
+            </div>
+          </q-stepper-navigation>
+        </q-step>
+
+        <q-step
+          :name="3"
           v-if="displayPassword"
-          type="password"
-          v-model="profile.form.password"
-          :label="$t('label.YourPassword')"
-          @blur="$v.profile.form.password.$touch"
-          bottom-slots
-          :error="$v.profile.form.password.$error"
-          :error-message="!$v.profile.form.password.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.profile.form.password.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
-          />
+          :title="$t('label.ValidateAccount')"
+          icon="person_add"
+          color="accent"
+          style="min-height: 200px;"
+        >
+          <div class="row">
+            <div class="col-2">
+              <q-checkbox dark v-model="profile.form.terms"/>
+            </div>
+            <div class="col secondary-font-small text-white">
+              <span v-html="$t('label.IAgreeTheTermsAndConditions')"/>
+              <div class="q-field-bottom" v-if="$v.profile.form.terms.$error">
+                <div class="q-field-error">{{ $t('label.PleaseAgreeTheTermsAndConditions') }}</div>
+              </div>
+            </div>
+          </div>
 
-        <q-input
-          dark
-          v-model="profile.form.description"
-          :label="$t('label.YourPresentation')"
-          bottom-slots
-          type="textarea"
-          :min-rows="3"
-          />
+          <div class="row">
+            <div class="col-2">
+              <q-checkbox dark v-model="profile.form.privacy"/>
+            </div>
+            <div class="col secondary-font-small text-white">
+              <span v-html="$t('label.IAgreeThePrivacyPolicy')"/>
+              <div class="q-field-bottom" v-if="$v.profile.form.privacy.$error">
+                <div class="q-field-error">{{ $t('label.PleaseAgreeThePrivacyPolicy') }}</div>
+              </div>
+            </div>
+          </div>
+          <q-stepper-navigation>
+            <div class="flex no-wrap">
+              <icon-btn-square class="q-mr-lg" color="accent" icon="arrow_back" @click.native="() => { step = 2 }"/>
+              <text-btn-square
+                :disable="!profile.form.terms || !profile.form.privacy"
+                class="q-mb-lg"
+                type="submit"
+                :title="$t('label.CreateAccount')"
+                color="accent"
+                icon="person_add"
+                @click.native="createNewAccount"
+              />
+            </div>
+          </q-stepper-navigation>
+        </q-step>
+        <template v-slot:message>
+<!--          <q-banner v-if="step === 1" class="bg-secondary text-white q-px-lg">-->
+<!--            <span v-if="!displayPassword">Vous pouvez modifié votre compte ici</span>-->
+<!--            <span v-else>Commencez par remplir ces champs</span>-->
+<!--          </q-banner>-->
+          <q-banner v-if="step === 2" class="bg-orange-8 text-white q-px-lg">
+            {{ $t('label.HowWeUseYourData') }}
+            <q-btn round dense flat icon="help" @click="helpFields" size="md"/>
+          </q-banner>
+<!--          <q-banner v-if="step === 3" class="bg-accent text-white q-px-lg">-->
+<!--            C'est la dernière étape pour la création de votre profil-->
+<!--          </q-banner>-->
+        </template>
+      </q-stepper>
+      </form>
+      <form v-if="!displayPassword">
+        <div class="q-px-lg">
+            <q-input
+              dark
+              type="password"
+              v-model="profile.form.oldPassword"
+              :label="$t('label.CurrentPassword')"
+              @blur="$v.profile.form.oldPassword.$touch"
+              bottom-slots
+              :error="$v.profile.form.oldPassword.$error"
+              :error-message="!$v.profile.form.oldPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.profile.form.oldPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
+            />
 
-        <q-select
-          dark
-          :label="$t('label.YourCountry')"
-          v-model="profile.form.country"
-          :options="countries"
-          emit-value
-          map-options
-          bottom-slots
-          @blur="getLocation"
-          :error="$v.profile.form.country.$error"
-          :error-message="$t('label.PleaseSelectYourCountry')">
-          <template v-slot:after>
-            <q-btn round dense flat icon="help" @click="helpFields" />
-          </template>
-        </q-select>
+            <q-input
+              dark
+              type="password"
+              v-model="profile.form.newPassword"
+              :label="$t('label.NewPassword')"
+              @blur="$v.profile.form.newPassword.$touch"
+              bottom-slots
+              :error="$v.profile.form.newPassword.$error"
+              :error-message="!$v.profile.form.newPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.profile.form.newPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
+            />
+          <div>
+            <text-btn-square
+              class="q-mb-lg"
+              type="submit"
+              :title="$t('label.Save')"
+              color="primary"
+              icon="save"
+              @click.native="submitChangePassword"
+            />
+          </div>
 
-        <q-input
-          dark
-          v-model="profile.form.zipCode"
-          :label="$t('label.YourZipCode')"
-          placeholder="38500"
-          bottom-slots
-          @blur="getLocation"
-          :error="$v.profile.form.zipCode.$error"
-          :error-message="$t('label.PleaseEnterYourZipCode')">
-          <template v-slot:after>
-            <q-btn round dense flat icon="help" @click="helpFields" />
-          </template>
-        </q-input>
-
-        <q-select
-          dark
-          :label="$t('label.YourLanguage')"
-          v-model="profile.form.language"
-          :options="languages"
-          emit-value
-          map-options
-          @input="changeLanguage" />
-
-        <q-select
-          dark
-          :label="$t('label.YourSex')"
-          v-model="profile.form.sex"
-          :options="sexes"
-          emit-value
-          map-options
-          bottom-slots>
-          <template v-slot:after>
-            <q-btn round dense flat icon="help" @click="helpFields" />
-          </template>
-        </q-select>
-
-        <q-select
-          dark
-          :label="$t('label.YourAge')"
-          v-model="profile.form.age"
-          :options="ages"
-          emit-value map-options
-          @blur="$v.profile.form.age.$touch"
-          bottom-slots
-          :error="$v.profile.form.age.$error"
-          :error-message="$t('label.PleaseSelectYourAge')">
-          <template v-slot:after>
-            <q-btn round dense flat icon="help" @click="helpFields" />
-          </template>
-          </q-select>
-
-        <q-input
-          dark
-          v-model="profile.form.phone"
-          :label="$t('label.YourPhoneNumber')"
-          :placeholder="$t('label.phoneExample')">
-          <template v-slot:after>
-            <q-btn round dense flat icon="help" @click="helpFields" />
-          </template>
-        </q-input>
-
-        <div class="q-pt-md centered">
-          <q-btn
-            color="primary"
-            class="glossy large-btn"
-            @click="submitProfileChanges()"
-            :label="$t('label.Save')" />
-          <q-btn
-             v-if="$store.state.user.name === ''"
-            color="primary"
-            class="q-pt-md"
-            flat
-            @click="backToMap()"
-            :label="$t('label.MaybeLater')" />
         </div>
       </form>
-
-      <form class="q-mt-lg q-pa-md q-ma-md background-lighter rounded" v-if="!displayPassword" @submit.prevent="submitProfileChanges()">
-        <div class="centered">{{ $t('label.ChangeYourPassword') }}</div>
-
-        <q-input
-          dark
-          type="password"
-          v-model="profile.form.oldPassword"
-          :label="$t('label.CurrentPassword')"
-          @blur="$v.profile.form.oldPassword.$touch"
-          bottom-slots
-          :error="$v.profile.form.oldPassword.$error"
-          :error-message="!$v.profile.form.oldPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.profile.form.oldPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
-          />
-
-        <q-input
-          dark
-          type="password"
-          v-model="profile.form.newPassword"
-          :label="$t('label.NewPassword')"
-          @blur="$v.profile.form.newPassword.$touch"
-          bottom-slots
-          :error="$v.profile.form.newPassword.$error"
-          :error-message="!$v.profile.form.newPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.profile.form.newPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
-          />
-
-        <div class="q-pt-md centered">
-          <q-btn
-            color="primary"
-            class="glossy large-btn"
-            @click="submitChangePassword()"
-            :label="$t('label.Save')" />
-        </div>
-      </form>
-
-      <div class="q-mt-lg q-pa-md q-ma-md background-lighter rounded">
+      <div class="q-mt-lg q-pa-md q-ma-md" v-if="!displayPassword">
         <div class="centered">{{ $t('label.RemoveYourAccount') }}</div>
         <p class="subtitle6">{{ $t('label.RemoveYourAccountDesc') }}</p>
-        <div class="centered">
-          <q-btn class="q-my-md glossy" color="negative" :label="$t('label.IConfirmIWantToRemoveMyAccount')" @click="removeAccount()" />
-        </div>
+        <text-btn-square
+          class="q-mb-lg"
+          @click.native="removeAccount()"
+          :title="$t('label.RemoveYourAccount')"
+          color="#DB2828"
+          icon="delete"
+        />
       </div>
-      <div>
-        <div class="centered q-mt-xl q-mb-sm cursor-pointer"><a @click="disconnect()">{{ $t('label.SignOut') }}</a></div>
+      <div class="q-pb-xl">
+        <div class="centered q-mt-lg q-mb-sm cursor-pointer"><a @click="disconnect()">{{ $t('label.SignOut') }}</a></div>
         <div class="centered q-mb-sm" v-html="$t('label.TermsAndConditionsLink')"></div>
         <div class="centered q-mb-xl" v-html="$t('label.PrivacyPolicyLink')"></div>
       </div>
     </div>
-    <!--<gmap-autocomplete id="destination" :placeholder="$t('label.Address')" class="col q-input-target text-left" @input="value = $event.target.value" />-->
+    <gmap-autocomplete id="destination" style="opacity: 0" :placeholder="$t('label.Address')" class="col q-input-target text-left" @input="value = $event.target.value" />
 
     <!------------------ REWARDS POPUP ------------------------>
-
     <q-dialog v-model="showHelpPopup">
-      <q-card>
-        <q-card-section class="popup-header centered">
+      <q-card class="help-dialog-card">
+        <q-card-section class="row items-center">
           {{ $t('label.HowWeUseYourData') }}
-          <q-btn class="float-right" icon="close" flat round dense v-close-popup />
+          <q-space/>
+          <icon-btn-square color="accent" icon="close" rotation fill v-close-popup/>
         </q-card-section>
-
-        <q-separator />
-
-        <q-card-section class="subtitle5">
-          <!--{{ $t('label.AllTheseDataAreOptional') }} -->
+        <q-card-section>
           <ul>
             <li >{{ $t('label.DataCountry') }}</li>
             <li >{{ $t('label.DataZipcode') }}</li>
@@ -246,26 +339,57 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <!------------------ DELETE POPUP ------------------------>
+    <q-dialog v-model="deleteDialog">
+      <q-card class="help-dialog-card">
+        <q-card-section class="row items-center">
+          {{ $t('label.ConfirmDeleteAccount') }}
+          <q-space/>
+          <icon-btn-square color="accent" icon="close" rotation fill v-close-popup/>
+        </q-card-section>
+
+        <q-card-section>
+          <div>{{ $t('label.AreYouSureYouWantToRemoveYourAccount') }}</div>
+        </q-card-section>
+        <q-card-section>
+          <text-btn-square
+            class="q-mb-lg"
+            @click.native="confirmDelete()"
+            :title="$t('label.RemoveYourAccount')"
+            color="#DB2828"
+            icon="delete"
+          />
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script>
 import AuthService from 'services/AuthService'
-import { required, minLength, email } from 'vuelidate/lib/validators'
+import {required, minLength, email, sameAs} from 'vuelidate/lib/validators'
 import Notification from 'boot/NotifyHelper'
 import checkPasswordComplexity from 'boot/PasswordComplexity'
 import languages from 'data/languages.json'
 import utils from 'src/includes/utils'
 
+import iconBtnSquare from "components/user/UI/iconBtnSquare";
+import textBtnSquare from "components/user/UI/textBtnSquare";
+
 import countriesFR from 'data/countries_fr.json'
 import countriesEN from 'data/countries_en.json'
 
 export default {
+  components: {
+    iconBtnSquare, textBtnSquare
+  },
   data () {
     return {
+      step: 1,
       profile: {
         form: {
-          name: "--",
+          name: "",
           description: "",
           picture: "",
           phone: "",
@@ -276,7 +400,9 @@ export default {
           age: "",
           password: "",
           oldPassword: "",
-          newPassword: ""
+          newPassword: "",
+          terms: false,
+          privacy: false
         }
       },
       position: null,
@@ -286,8 +412,13 @@ export default {
       languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
       displayPassword: false,
       showHelpPopup: false,
+      deleteDialog: false,
       serverUrl: process.env.SERVER_URL,
-      uploadUrl: process.env.UPLOAD_URL
+      uploadUrl: process.env.UPLOAD_URL,
+      // Error Step
+      isBadMail: true,
+      errorStepOne: false,
+      errorStepTwo: true
     }
   },
   mounted() {
@@ -302,13 +433,101 @@ export default {
       country: this.$store.state.user.location.country ? this.$store.state.user.location.country : '',
       sex: this.$store.state.user.sex ? this.$store.state.user.sex : '',
       age: this.$store.state.user.age ? this.$store.state.user.age : '',
-      language: this.$store.state.user.language
+      language: this.$store.state.user.language,
+      terms: false,
+      privacy: false
     }
     if (this.$store.state.user.missingPassword) {
       this.displayPassword = true
     }
   },
   methods: {
+    checkStepOne() {
+      if (this.displayPassword) {
+        if (!this.$v.profile.form.name.$error && !this.$v.profile.form.email.$error && !this.$v.profile.form.password.$error && !this.isBadMail) {
+          this.errorStepOne = false
+          return true
+        } else {
+          this.errorStepOne = true
+          return false
+        }
+      } else {
+        if (this.profile.form.name !== '' && this.profile.form.email !== '') {
+          this.errorStepOne = false
+          return true
+        } else {
+          this.errorStepOne = true
+          return false
+        }
+      }
+    },
+    checkStepTwo() {
+      if (!this.$v.profile.form.country.$error && !this.$v.profile.form.zipCode.$error && !this.$v.profile.form.age.$error) {
+        return true
+      } else {
+        return false
+      }
+    },
+    nextStep() {
+      this.$v.profile.form.name.$touch()
+      this.$v.profile.form.email.$touch()
+      if (this.displayPassword) {
+        this.$v.profile.form.password.$touch()
+      }
+      if (this.checkStepOne()) {
+        this.step = 2
+      }
+    },
+    validationStep() {
+      console.log("validation")
+      if (this.displayPassword) {
+        this.$v.profile.form.country.$touch()
+        this.$v.profile.form.zipCode.$touch()
+        this.$v.profile.form.age.$touch()
+        if (this.checkStepTwo()) {
+          this.step = 3
+        }
+      }
+    },
+    /*
+    * Email Verification and return Message
+    */
+    emailRules() {
+      return new Promise(async(resolve, reject) => {
+        const userExisting = await this.checkUserIsExisting(this.profile.form.email)
+        if (userExisting && userExisting.status) {
+          if (userExisting.status === 'active') {
+            Notification(this.$t('label.EmailAlreadyUsed'), 'error')
+            this.isBadMail = true
+            resolve(false || this.$t('label.RejectedEmail'))
+          }
+          else if (userExisting.status === 'blocked') {
+            Notification(this.$t('label.YourAccountIsBlocked'), 'warning')
+            this.isBadMail = true
+            resolve(false || this.$t('label.RejectedEmail'))
+          }
+          else {
+            this.isBadMail = false
+            resolve(true)
+          }
+        }
+      })
+    },
+    /**
+     * Check if this email is already existing in DB
+     * @param email
+     * @returns {Promise<{error: string}|{status}|{status: string}>}
+     */
+    async checkUserIsExisting(email) {
+      let userStatus = await AuthService.checkEmail(email)
+      if (userStatus && userStatus.data && userStatus.data.hasOwnProperty('existing') && userStatus.data.existing === true) {
+        return {status: userStatus.data.status}
+      } else if (userStatus && userStatus.data && userStatus.data.hasOwnProperty('existing') && userStatus.data.existing === false) {
+        return {status: 'missing'}
+      } else {
+        return {error: 'technical issue'}
+      }
+    },
     /*
      * get profile image
      */
@@ -324,11 +543,52 @@ export default {
     /*
      * Submit account changes
      */
-    async submitProfileChanges() {
-      if (!this.$v.profile.form.name.$error &&
-        !this.$v.profile.form.email.$error &&
-        !(this.$v.profile.form.password.$error && this.displayPassword)
-      ) {
+    async saveProfileChanges(step) {
+      if (step === 'one') {
+        this.$v.profile.form.name.$touch()
+        this.$v.profile.form.email.$touch()
+        if (!this.checkStepOne()) {
+          Notification(this.$t('label.ErrorAccount'), 'error')
+          return
+        }
+      }
+      if (step === 'two') {
+        this.$v.profile.form.country.$touch()
+        this.$v.profile.form.zipCode.$touch()
+        this.$v.profile.form.age.$touch()
+        if (!this.checkStepTwo()) {
+          Notification(this.$t('label.ErrorAccount'), 'error')
+          return
+        }
+      }
+      console.log('UPDATE')
+      let modifications = {
+        name: this.profile.form.name,
+        email: this.profile.form.email,
+        description: this.profile.form.description,
+        password: this.profile.form.password,
+        phone: this.profile.form.phone ? this.profile.form.phone : "",
+        zipCode: this.profile.form.zipCode,
+        country: this.profile.form.country,
+        language: this.profile.form.language,
+        age: this.profile.form.age,
+        sex: this.profile.form.sex
+      }
+      if (this.position) {
+        modifications.position = this.position
+      }
+      this.$q.loading.show()
+      let modificationStatus = await AuthService.modifyAccount(modifications)
+      this.$q.loading.hide()
+
+      if (modificationStatus.status >= 300 && modificationStatus.data && modificationStatus.data.message) {
+        Notification(this.$t('label.' + modificationStatus.data.message), 'warning')
+      } else {
+        Notification(this.$t('label.AccountModified'), 'positive')
+        this.backToProfile()
+      }
+
+      /*if (!this.$v.profile.form.name.$error && !this.$v.profile.form.email.$error && !(this.$v.profile.form.password.$error && this.displayPassword)) {
         // TODO keep the original route which required authentification
         // & redirect user to it when he clicks on the 'verify' link in email
         let modifications = {
@@ -355,6 +615,37 @@ export default {
         } else {
           this.backToProfile()
         }
+      }*/
+    },
+    async createNewAccount() {
+      console.log('CREATE')
+      if (!this.profile.form.terms || !this.profile.form.privacy) {
+        return
+      }
+      let modifications = {
+        name: this.profile.form.name,
+        email: this.profile.form.email,
+        description: this.profile.form.description,
+        password: this.profile.form.password,
+        phone: this.profile.form.phone ? this.profile.form.phone : "",
+        zipCode: this.profile.form.zipCode,
+        country: this.profile.form.country,
+        language: this.profile.form.language,
+        age: this.profile.form.age,
+        sex: this.profile.form.sex
+      }
+      if (this.position) {
+        modifications.position = this.position
+      }
+      this.$q.loading.show()
+      let modificationStatus = await AuthService.modifyAccount(modifications)
+      this.$q.loading.hide()
+
+      if (modificationStatus.status >= 300 && modificationStatus.data && modificationStatus.data.message) {
+        Notification(this.$t('label.' + modificationStatus.data.message), 'warning')
+      } else {
+        Notification(this.$t('label.AccountCreated'), 'positive')
+        this.backToProfile()
       }
     },
     /*
@@ -379,9 +670,9 @@ export default {
      * Submit account changes
      */
     async submitChangePassword() {
-      if (!this.$v.profile.form.oldPassword.$error &&
-          !this.$v.profile.form.newPassword.$error
-        ) {
+      this.$v.profile.form.oldPassword.$touch()
+      this.$v.profile.form.newPassword.$touch()
+      if (!this.$v.profile.form.oldPassword.$error && !this.$v.profile.form.newPassword.$error) {
         let modifications = {
           oldPassword: this.profile.form.oldPassword,
           newPassword: this.profile.form.newPassword
@@ -393,7 +684,10 @@ export default {
         if (modificationStatus.status >= 300 && modificationStatus.data && modificationStatus.data.message) {
           Notification(this.$t('label.' + modificationStatus.data.message), 'warning')
         } else {
-          this.backToProfile()
+          Notification(this.$t('label.PasswordChangeSuccess'), 'positive')
+          this.profile.form.oldPassword = null
+          this.profile.form.newPassword = null
+          this.$v.$reset()
         }
       }
     },
@@ -456,9 +750,10 @@ export default {
      * Remove user account
      */
     async removeAccount() {
-      var _this = this; // workaround for closure scope quirks
+      this.deleteDialog = true
+      //var _this = this; // workaround for closure scope quirks
 
-      this.$q.dialog({
+      /*this.$q.dialog({
         dark: true,
         message: this.$t('label.AreYouSureYouWantToRemoveYourAccount'),
         ok: true,
@@ -472,7 +767,18 @@ export default {
         } else {
           Notification(_this.$t('label.ErrorStandardMessage'), 'error')
         }
-      })
+      })*/
+    },
+    async confirmDelete() {
+      const _this = this; // workaround for closure scope quirks
+      const removeAccountStatus = await AuthService.removeAccount()
+
+      if (removeAccountStatus) {
+        Notification(_this.$t('label.YourAccountIsRemoved'), 'info')
+        await _this.disconnect()
+      } else {
+        Notification(_this.$t('label.ErrorStandardMessage'), 'error')
+      }
     }
   },
   validations: {
@@ -485,9 +791,50 @@ export default {
         password: { required, minLength: minLength(8), checkPasswordComplexity },
         oldPassword: { required, minLength: minLength(8), checkPasswordComplexity },
         newPassword: { required, minLength: minLength(8), checkPasswordComplexity },
-        age: { required }
+        age: { required },
+        terms: {
+          sameAs: sameAs(() => true)
+        },
+        privacy: {
+          sameAs: sameAs(() => true)
+        }
       }
     }
   }
 }
 </script>
+<style scoped lang="scss">
+
+.background-profil {
+  background-image: url('../../statics/new/h-top-background.jpg');
+  background-position: center 0px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.profil, .password{
+  max-width: 450px;
+  margin: 0 auto;
+  color: white;
+
+  .profil-photo-top{
+    width: 100px;
+    height: 100px;
+    position: relative;
+    margin-left: 12px;
+    margin-top: 5vh;
+    margin-right: 10px;
+    border-radius: 50%;
+  }
+  .subtitle{
+    position: relative;
+    top: -10px;
+    margin-bottom: 5vh;
+  }
+}
+.help-dialog-card{
+  width: 90vw;
+  max-width: 400px;
+  background: linear-gradient(180deg, rgb(7,39,90), rgb(4,20,45));
+}
+
+</style>

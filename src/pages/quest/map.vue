@@ -1,10 +1,10 @@
 <template>
   <div class="column" ref="div-column">
-    
+
     <!--====================== MAP PAGE =================================-->
-    
-    <div class="row fullscreen" ref="map" v-if="user.position !== null">
-      
+
+    <div class="row fullscreen" ref="map" v-if="user.position !== null" style="z-index: 20;">
+
       <gmap-map
         v-if="isMounted"
         :center="map.center"
@@ -36,28 +36,34 @@
             <p v-if="currentQuest && currentQuest.displayPrice">
               {{ currentQuest.displayPrice }}
             </p>
-            <q-btn @click="playQuest(currentQuest ? currentQuest.questId : '')" color="primary" class="glossy normal-button">{{ $t('label.Play') }}</q-btn>
+            <text-btn-square
+              color="primary"
+              :title="$t('label.Play')"
+              icon="play_arrow"
+              @click.native="playQuest(currentQuest ? currentQuest.questId : '')"
+            />
           </div>
         </gmap-info-window>
       </gmap-map>
     </div>
-    
+
     <!------------------ GEOLOCATION COMPONENT ------------------------>
-    
+
     <geolocation ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError()" />
-      
+
     <!--====================== HEADER =================================-->
-    
-    <div class="q-py-sm q-px-md dark-banner fixed-top over-map">
+
+<!--    <div class="q-py-sm q-px-md dark-banner fixed-top over-map">
       <q-btn flat icon="arrow_back" @click="backToHome" />
-    </div>
+    </div>-->
   </div>
 </template>
 
 <script>
 import QuestService from 'services/QuestService'
-
+import backBar from "components/user/UI/backBar";
 import geolocation from 'components/geolocation'
+import textBtnSquare from "components/user/UI/textBtnSquare";
 
 import { gmapApi } from 'vue2-google-maps'
 
@@ -65,7 +71,7 @@ import utils from 'src/includes/utils'
 
 export default {
   components: {
-    geolocation
+    geolocation, backBar, textBtnSquare
   },
   data () {
     return {
@@ -85,7 +91,7 @@ export default {
           content: '',
           location: { lat: 0, lng: 0 },
           isOpen: false,
-          options: { pixelOffset: { width: 0, height: -47 } }
+          options: { pixelOffset: { width: 0, height: -47 } },
         },
         loaded: false
       },
@@ -145,14 +151,14 @@ export default {
       let infoWindow = this.map.infoWindow
       let questCoordinates = { lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }
       this.map.infoWindow.location = questCoordinates
-      
+
       if (!(this.currentQuestIndex === idx && infoWindow.isOpen)) {
         // bounce marker animation
         let markerObject = this.$refs.questMarkers[idx].$markerObject
         markerObject.setAnimation(google.maps.Animation.BOUNCE)
         utils.setTimeout(() => { markerObject.setAnimation(null) }, 700) // found at https://stackoverflow.com/a/18411125/488666
       }
-      
+
       //check if its the same marker that was selected if yes toggle
       if (this.currentQuestIndex === idx) {
         infoWindow.isOpen = !infoWindow.isOpen
@@ -166,7 +172,7 @@ export default {
         // center map on last clicked quest
         this.panTo(questCoordinates)
       }
-      
+
       // get Quest price from store
       if (!quest.premiumPrice || !quest.premiumPrice.androidId || quest.premiumPrice.androidId === 'free') {
         this.currentQuest.displayPrice = this.$t('label.Free')
@@ -229,35 +235,35 @@ export default {
      */
     async getQuests(type) {
       //this.showBottomMenu = false
-      
+
       if (this.user.position === null) {
         Notification(this.$t('label.LocationSearching'), 'warning')
         return
       }
-      
+
       if (!type) {
         this.map.filter = 'all'
       } else {
         this.map.filter = type
       }
-      
+
       this.$q.loading.show()
       let response = await QuestService.listAllForCountry()
       this.$q.loading.hide()
-      
+
       if (!response || !response.data) {
         Notification(this.$t('label.TechnicalIssue'), 'error')
         return
       }
-      
+
       if (!response.data.message || response.data.message !== 'No quest') {
         this.questList = response.data
       }
-      
+
       // if no quest, enlarge to all quests
       if (this.questList.length === 0 && this.map.filter !== 'world') {
         return this.getQuests('world')
-      }     
+      }
     },
     /*
      * Get the level of each quest in the map
@@ -266,15 +272,15 @@ export default {
       let level = utils.getById(questLevels, id)
       return level === null ? '' : level.name
     },
-    
+
     // ------------- Map manipulation functions ----------------
-    
+
     // from https://stackoverflow.com/a/3817835/488666
-    panTo (position) {      
+    panTo (position) {
       // do not name <gmap-map> reference as 'map', otherwise $mapObject becomes undefined (!)
       this.$refs.mapRef.$mapObject.panTo(position)
     },
-    
+
     updateCenter (ev) {
       let newLat = ev.lat();
       let newLng = ev.lng();
@@ -282,7 +288,7 @@ export default {
         this.map.centerTmp = { lng: newLng, lat: newLat }
       }
     },
-    
+
     dragEnd(ev) {
       // mapCenter is not automatically updated by <gmap-map>
       // new center coordinates are not available in event data
@@ -292,7 +298,7 @@ export default {
     closeInfoWindows() {
       this.map.infoWindow.isOpen = false
     },
-    
+
     /*
      * Display title based on language
      * @param   {object}    quest            quest data
@@ -310,7 +316,7 @@ export default {
         return this.$t('label.NoTitle')
       }
     },
-    
+
     setMapIcon(quest) {
       if (quest) {
         return {
@@ -348,7 +354,7 @@ export default {
     playQuest(questId) {
       this.$router.push('/quest/play/' + questId)
     },
-    
+
     /*
      * back to home page
      */
@@ -359,6 +365,15 @@ export default {
 }
 </script>
 
-<style>
+<style scoped lang="scss">
+
+.infoWindow{
+  background: linear-gradient(180deg, rgb(7,39,90), rgb(4,20,45));
+  padding: 20px 20px 30px;
+  min-width: 200px;
+  max-width: 300px;
+  color: white;
+  font-weight: bold;
+}
 
 </style>

@@ -365,7 +365,7 @@ a.no-underline {
 }
 .platform-android .q-btn__content div, .platform-android .q-btn__content span {
   /*min-height: 30px;*/
-  padding-bottom: 10px;
+  /*padding-bottom: 10px;*/
 }
 .large-btn, .large-button {
   min-width: 70%;
@@ -1929,6 +1929,9 @@ body .desktop {
 .score-bar img {
   height: 20px;
 }
+.score-badge>div {
+  padding-bottom: 10px;
+}
 .q-list .score {
   font-size: 1rem;
   white-space: nowrap;
@@ -1993,3 +1996,28 @@ WARNING: introduces bad scrolling behaviors on iOS webapp (Safari) & hybrid
 .memory .card {
   background: url(../statics/icons/game/card-back.png) #1a4567 no-repeat;
 }
+
+  // NEW DESIGN
+.q-stepper__header--alternative-labels .q-stepper__tab{
+  padding: 24px 0!important;
+
+}
+
+/*style the box of the map*/
+.gm-style .gm-style-iw {
+  min-width: 200px !important;
+  max-width: 300px !important;
+  background-color: #04142d !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius 12px;
+  display: block !important;
+}
+.gm-style .gm-style-iw-d{
+  overflow: hidden !important;
+}
+.gm-style .gm-style-iw-tc::after{
+  background-color: #04142d
+}
+
+

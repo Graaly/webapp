@@ -1,15 +1,15 @@
 <template>
-  <div class="wrapper background-map">
+  <div class="wrapper background-team">
     <div class="page-content" style="padding-bottom: 100px">
 
       <!------------------ TITLE AREA ------------------------>
 
-      <div class="centered q-pt-lg q-pb-md">
-        <img src="statics/images/logo/logo-home.png" class="logo-top" style="width: 30%; max-width: 200px; margin-bottom: 0px; margin-top: 20px;" />
-      </div>
+<!--      <div class="centered q-pt-lg q-pb-md">-->
+<!--        <img src="statics/images/logo/logo-home.png" class="logo-top" style="width: 30%; max-width: 200px; margin-bottom: 0px; margin-top: 20px;" />-->
+<!--      </div>-->
 
-      <div class="q-pa-md">
-        <div class="centered title2 q-mb-lg">{{ $t('label.Welcome') }}</div>
+      <div class="q-pa-md team">
+        <div class="centered title2 q-mb-lg text-white">{{ $t('label.Welcome') }}</div>
 
         <!------------------ FORM AREA ------------------------>
         <form @submit.prevent="formSubmit">
@@ -56,24 +56,39 @@
               />
           </div>
           <div class="text-center">
-            <q-btn
+<!--            <q-btn-->
+<!--              type="submit"-->
+<!--              class="glossy large-btn"-->
+<!--              color="primary"-->
+<!--              :label="$t('label.Start')"-->
+<!--              :loading="submitting"-->
+<!--              />-->
+            <text-btn-square
+              class="q-mb-lg"
               type="submit"
-              class="glossy large-btn"
-              color="primary"
-              :label="$t('label.Start')"
               :loading="submitting"
-              />
+              :title="$t('label.Start')"
+              color="primary"
+              icon="arrow_forward"
+            />
           </div>
           <div class="text-center" v-if="$route.query.redirect && $route.query.redirect !== ''">
-            <q-btn 
-              flat
-              class="large-btn"
-              color="primary" 
-              :label="$t('label.Back')"
-              @click="redirect()" 
-              />
+<!--            <q-btn-->
+<!--              flat-->
+<!--              class="large-btn"-->
+<!--              color="primary"-->
+<!--              :label="$t('label.Back')"-->
+<!--              @click="redirect()"-->
+<!--              />-->
+            <text-btn-square
+              class="q-mb-lg"
+              :title="$t('label.Back')"
+              @click.native="redirect()"
+              color="secondary"
+              icon="arrow_back"
+            />
           </div>
-          
+
         </form>
 
         <div class="centered smaller version secondary-font">
@@ -205,3 +220,15 @@ export default {
   }
 }
 </script>
+<style scoped lang="scss">
+.background-team {
+  background-image: url('../../statics/new/h-center-background-logo.jpg');
+  background-position: center 0px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.team{
+  max-width: 450px;
+  margin: 0 auto;
+}
+</style>

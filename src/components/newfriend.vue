@@ -40,31 +40,32 @@
         <!-- ========================================== ADD FRIEND MANUALLY ====================================== -->
 
         <div v-if="newFriendMode === 'addFriend' || (loadingContacts === false && (!validatedContacts || validatedContacts.length === 0))">
-          <form @submit.prevent="formSubmit()" class="q-pt-md">
-
-            {{ $t('label.FindWithEmail') }}
-            <div class="row q-pb-md">
-              <div class="col-8">
-                <q-input dark color="secondary" type="email" :label="$t('label.Email')" v-model="form.email" @blur="$v.form.email.$touch()" />
-                <div class="q-field-bottom" v-if="$v.form.email.$error">
-                  <div class="q-field-error" v-if="!$v.form.email.email">{{ $t('label.EmailIsNotValid') }}</div>
+          <form @submit.prevent="formSubmit()">
+            <div class="q-pb-lg">
+              <q-icon name="mail" class="q-mr-sm"/>{{ $t('label.FindWithEmail') }}
+              <div class="flex justify-between items-center no-wrap">
+                <div class="full-width relative-position">
+                  <q-input dark color="secondary" type="email" :label="$t('label.Email')" v-model="form.email" @blur="$v.form.email.$touch()" />
+                  <div class="absolute" v-if="$v.form.email.$error">
+                    <div class="text-negative" v-if="!$v.form.email.email" style="font-size: 14px;">{{ $t('label.EmailIsNotValid') }}</div>
+                  </div>
                 </div>
-              </div>
-              <div class="col-4 centered">
-                <q-btn color="primary" :label="$t('label.Add')" @click="formSubmit" />
-              </div>
+<!--            <q-btn color="primary" :label="$t('label.Add')" @click="formSubmit" />-->
+                <icon-btn-square class="q-ml-md" color="secondary" icon="search" fill @click.native="formSubmit"/>
             </div>
-            {{ $t('label.FindWithPhone') }}
-            <div class="row">
-              <div class="col-8">
+            </div>
+            <div class="q-pb-lg">
+              <q-icon name="phone" class="q-mr-sm"/>{{ $t('label.FindWithPhone') }}
+            <div class="flex justify-between items-center no-wrap">
+              <div class="full-width relative-position">
                 <q-input dark color="secondary" :label="$t('label.PhoneNumber')" v-model="form.phone" @blur="$v.form.phone.$touch()" />
-                <div class="q-field-bottom" v-if="$v.form.phone.$error">
-                  <div class="q-field-error" v-if="!$v.form.phone.checkPhone">{{ $t('label.InvalidPhoneNumber') }}</div>
+                <div class="absolute" v-if="$v.form.phone.$error">
+                  <div class="text-negative" v-if="!$v.form.phone.checkPhone" style="font-size: 14px;">{{ $t('label.InvalidPhoneNumber') }}</div>
                 </div>
               </div>
-              <div class="col-4 centered">
-                <q-btn color="primary" :label="$t('label.Add')" @click="formSubmit" />
-              </div>
+<!--              <q-btn color="primary" :label="$t('label.Add')" @click="formSubmit" />-->
+              <icon-btn-square class="q-ml-md" color="secondary" icon="search" fill @click.native="formSubmit"/>
+            </div>
             </div>
           </form>
         </div>
@@ -77,8 +78,10 @@ import UserService from 'services/UserService'
 import { email } from 'vuelidate/lib/validators'
 import Notification from 'boot/NotifyHelper'
 import checkPhone from 'boot/CheckPhone'
+import iconBtnSquare from "./user/UI/iconBtnSquare";
 
 export default {
+  components: {iconBtnSquare},
   data() {
     return {
       form: {

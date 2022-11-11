@@ -59,6 +59,17 @@ export default {
       });
   },
   /*
+   * find one Creator for badges
+   * @param   {id}    creatorId
+   */
+  getCreatorFromId(id) {
+    return Api()
+      .get("user/creatorFromId/" + id)
+      .then(function(response) {
+        done(false, response);
+      });
+  },
+  /*
    * list people that follow me
    * @param   {Number}    number              number of results
    */
