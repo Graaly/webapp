@@ -805,7 +805,7 @@ export default {
   background-size: cover;
 }
 .home{
-  max-width: 450px;
+  max-width: 800px;
   margin: 0 auto;
 }
 

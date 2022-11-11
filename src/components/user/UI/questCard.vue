@@ -129,7 +129,7 @@
 <script>
 import { colors } from 'quasar'
 import creatorBadge from "./creatorBadge";
-import UserService from "../../../services/UserService";
+import UserService from "services/UserService";
 
 export default {
   name: "questCard",

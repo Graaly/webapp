@@ -14,7 +14,7 @@
 import qrCodeStream from "components/qrCodeStream"
 import QuestService from 'services/QuestService'
 import Notification from 'boot/NotifyHelper'
-import utils from "includes/utils";
+import utils from 'src/includes/utils'
 import axios from "axios";
 import backBar from "components/user/UI/backBar";
 

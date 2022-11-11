@@ -461,21 +461,15 @@ export default {
       this.$router.push('/user/logout')
     },
     async removeOfflineData() {
-console.log("CHECK OFFLINE 1")
       const offlineQuestsFile = await utils.readFile('', 'quests.json')
-console.log("CHECK OFFLINE 2")
       if (offlineQuestsFile) {
-console.log("CHECK OFFLINE 3")
         const offlineQuestsData = JSON.parse(offlineQuestsFile)
         if (offlineQuestsData && offlineQuestsData.list) {
-console.log("CHECK OFFLINE 4")
           var tempQuestList = offlineQuestsData.list
 
           if (tempQuestList.length > 0) {
-console.log("CHECK OFFLINE 5")
             // get pictures
             for (var i = 0; i < tempQuestList.length; i++) {
-console.log("CHECK OFFLINE 6")
               await utils.removeDirectory(tempQuestList[i].questId)
             }
           }
@@ -514,7 +508,7 @@ console.log("CHECK OFFLINE 6")
 }
 
 .profil{
-  max-width: 450px;
+  max-width: 800px;
   margin: 0 auto;
   color: white;
   &.friends{

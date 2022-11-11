@@ -228,7 +228,7 @@ export default {
   background-size: cover;
 }
 .team{
-  max-width: 450px;
+  max-width: 800px;
   margin: 0 auto;
 }
 </style>

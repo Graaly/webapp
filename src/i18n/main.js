@@ -1247,7 +1247,8 @@ module.exports = {
       CharacterSize: "Picture size (% of screen size)? 60% by default.",
       HideUserProgressionOnEnd: "Hide user progression bar",
       HideAuthorOnEnd: "Hide author",
-      HideObjectCombination: "Hide option to combine objects in inventory"
+      HideObjectCombination: "Hide option to combine objects in inventory",
+      ShakingEffect: "Shaking effect"
     }
   },
   fr: {
@@ -2486,7 +2487,8 @@ module.exports = {
       CharacterSize: "Taille image (% de l'écran). Par défaut : 60%.",
       HideUserProgressionOnEnd: "Cacher la barre de progression du joueur",
       HideAuthorOnEnd: "Cacher l'auteur du jeu",
-      HideObjectCombination: "Cacher l'option de combinaison d'objets"
+      HideObjectCombination: "Cacher l'option de combinaison d'objets",
+      ShakingEffect: "Effet de tremblement"
     }
   }
 }

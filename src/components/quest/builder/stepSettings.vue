@@ -1121,6 +1121,7 @@
             <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
               <q-toggle v-model="selectedStep.form.options.kenBurnsEffect" :label="$t('label.KenBurnsEffect')" /><br />
               <q-toggle v-model="selectedStep.form.options.blurEffect" :label="$t('label.BlurEffect')" />
+              <q-toggle v-model="selectedStep.form.options.shakingEffect" :label="$t('label.ShakingEffect')" />
             </div>
             <div v-if="options.type.code !== 'help' && options.type.code !== 'end-chapter' && options.type.code !== 'increment-counter'">
               <q-toggle v-model="selectedStep.form.options.html" :label="$t('label.UseHtmlInDescription')" />

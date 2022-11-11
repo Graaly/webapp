@@ -611,7 +611,7 @@ export default {
 
 <style scoped lang="scss">
 .login{
-  max-width: 450px;
+  max-width: 800px;
   margin: 0 auto;
 }
 .login-logo-top{

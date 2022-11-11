@@ -4,6 +4,7 @@
     <div id="background-image" v-show="(step.type !== 'image-over-flow' && step.type !== 'locate-marker')" class="step-background" :class="{
       'effect-kenburns': (step.options && step.options.kenBurnsEffect),
       'effect-blur': (step.options && step.options.blurEffect),
+      'effect-shaking': (step.options && step.options.shakingEffect),
       'opacity0': (step.type === 'locate-item-ar' && !stepPlayed),
       'fadeIn': (step.type === 'locate-item-ar' && stepPlayed)
       }">
