@@ -226,11 +226,13 @@
             </offlineLoader>
           </div>
           <div>
-            <div class="q-px-lg q-pb-lg q-pt-md centered subtitle2">
-              {{ $t('label.Warnings') }}
-            </div>
-            <div class="q-pa-md subtitle5">
-              <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.GeneralWarning')" />
+            <div v-if="!quest.customization || !quest.customization.removeWarning">
+              <div class="q-px-lg q-pb-lg q-pt-md centered subtitle2">
+                {{ $t('label.Warnings') }}
+              </div>
+              <div class="q-pa-md subtitle5">
+                <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.GeneralWarning')" />
+              </div>
             </div>
             <div v-if="isRunFinished" class="q-pa-md subtitle5">
               <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.YouAlreadyDidThisQuest')" />
@@ -454,11 +456,11 @@ import utils from 'src/includes/utils'
 import Notification from 'boot/NotifyHelper'
 import gpscalibration from 'components/gpsCalibration'
 import debounce from 'lodash/debounce'
-import qrCodeStream from "../../../components/qrCodeStream";
-import questCard from "../../../components/user/UI/questCard";
-import textBtnSquare from "../../../components/user/UI/textBtnSquare";
-import iconBtnSquare from "../../../components/user/UI/iconBtnSquare";
-import backBar from "../../../components/user/UI/backBar";
+import qrCodeStream from "components/qrCodeStream";
+import questCard from "components/user/UI/questCard";
+import textBtnSquare from "components/user/UI/textBtnSquare";
+import iconBtnSquare from "components/user/UI/iconBtnSquare";
+import backBar from "components/user/UI/backBar";
 
 export default {
   components: {

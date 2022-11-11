@@ -1,6 +1,6 @@
 <template>
   <div class="geolocation-layer" v-if="!isSupported || !isActive">
-    <div v-if="!isActive && nbFails >= 2"> 
+    <div v-if="!isActive && (nbFails >= 2)"> 
       <q-page-sticky position="top-right" style="z-index: 15000;" :offset="[18, 18]">
         <q-btn color="primary" round icon="location_off" style="font-size: 15px;" class="flashing" @click="showHelp = true" />
       </q-page-sticky>
@@ -62,7 +62,7 @@ export default {
   data () {
     return {
       isSupported: true,
-      isActive: true,
+      isActive: false,
       nativeSettingsIsEnabled: (window.cordova && window.cordova.plugins.settings),
       userDeniedGeolocation: false,
       timeoutBetweenFailedAttempts: 5000,
@@ -113,7 +113,9 @@ export default {
         return false;
       }
     },
-    askUserToEnableGeolocation() { return (this.nbFails >= 2 && !this.alreadyWorked) || this.userDeniedGeolocation }
+    askUserToEnableGeolocation() { 
+      return (this.nbFails >= 2 && !this.alreadyWorked) || this.userDeniedGeolocation 
+    }
   },
   mounted() {
     if (!navigator || !navigator.geolocation) {
@@ -131,8 +133,14 @@ export default {
       if (this.disabled) {
         return
       }
-
+      // kill tracking if running
+      this.stopTracking()
+      // MPA 2022-07-08 tried here to use Cordova plugin cordova.plugins.permissions to check if player has allowed
+      // Graaly to retrieve his location, however this is not compatible enough across various Android devices.
+      // For example, a Samsung Galaxy S8 with geolocation enabled will still trigger the "permission denied" behavior 🤯.
+      // I've tried with checkPermission() method on cordova.plugins.permissions.ACCESS_FINE_LOCATION permission.
       if (this.method === 'watchPosition') {
+        this.isActive = true
         this.geolocationWatchId = navigator.geolocation.watchPosition(this.locationSuccess, this.locationError, {
           enableHighAccuracy: true,
           timeout: this.timeoutBetweenFailedAttempts,
@@ -151,7 +159,7 @@ export default {
      * @param   {string}    err            Error string
      */
     locationError(err) {
-      console.warn('Could not get location')
+      console.warn('Could not get location', err)
       // avoids to run this method asynchronously (can happen even after component is set to disabled !)
       if (this.disabled) {
         return
@@ -160,7 +168,10 @@ export default {
       this.isSupported = true
       this.isActive = false
       this.nbFails++
-      this.userDeniedGeolocation = (err.code === 1) // corresponding to PositionError.PERMISSION_DENIED. works only for webapp mode.
+      if (!window.cordova) {
+        // corresponding to PositionError.PERMISSION_DENIED. works only for webapp mode.
+        this.userDeniedGeolocation = (err.code === 1) 
+      }
       this.$emit('error', !this.alreadyWorked)
       
       // still attempt to retrieve user position even if it failed

@@ -26,25 +26,25 @@
     </div>
     <div v-if="!showNonHybridQRReader" :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'" :style="'color: ' + customization.fontColor">
       <!------------------ QUEST TIMER ------------------------>
-      <div v-if="timer && timer.remaining > 0">
+      <div v-if="timer && timer.enabled">
         <q-linear-progress
           size="25px"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
-          :value="timer.remaining"
-          :color="(timer.remaining < 0.1 ? 'negative' : ( timer.remaining < 0.25 ? 'warning' : 'positive'))"
+          :value="Math.abs(timer.remaining)"
+          :color="(timer.remaining < 0 ? 'negative' : ( timer.remaining < 0.25 ? 'warning' : 'positive'))"
           v-if="!isIOs"
         >
           <div class="absolute-full flex flex-center">
-            <q-badge color="white" text-color="black" :label="parseInt(timer.remainingMinutes, 10) + ' ' + $t('label.minutes')" />
+            <q-badge color="white" text-color="black" :label="parseInt(Math.abs(timer.remainingMinutes), 10) + ' ' + $t('label.minutes')" />
           </div>
         </q-linear-progress>
         <div
           style="height: 25px; position: relative;"
-          :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
-          class="bg-positive text-white centered"
+          :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar', 'bg-positive': timer.remaining > 0.25,  'bg-warning': (timer.remaining <= 0.25 && timer.remaining > 0), 'bg-negative': timer.remaining <= 0 }"
+          class="text-white centered"
           v-if="isIOs"
           >
-          <strong>{{ parseInt(timer.remainingMinutes, 10) + ' ' + $t('label.minutes') }}</strong>
+          <strong>{{ parseInt(Math.abs(timer.remainingMinutes), 10) + ' ' + $t('label.minutes') }}</strong>
         </div>
       </div>
       <!------------------ STEP TIMER ------------------------>
@@ -244,9 +244,9 @@
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
-            <img style="vertical-align:bottom" v-if="step.options.character.length < 3" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
-            <img style="vertical-align:bottom;" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : uploadUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
-            <img style="vertical-align:bottom;" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? uploadUrl + '/upload/quest/' + customization.character : customization.character" />
+            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%')" v-if="step.options.character.length < 3" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
+            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%')" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : uploadUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
+            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%')" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? uploadUrl + '/upload/quest/' + customization.character : customization.character" />
           </div>
           <div v-if="step.options && step.options.characterBarColor && step.options.characterBarColor !== ''" class="full-width" :class="(step.options && step.options.characterBarColor) ? '' : 'bg-black'" :style="'height: 68px; ' + ((step.options && step.options.characterBarColor && step.options.characterBarColor !== '') ? 'background-color: ' + step.options.characterBarColor : '')">
           </div>
@@ -263,19 +263,24 @@
              <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
              <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
-          <div class="answers-text q-mt-lg" v-if="answerType === 'text'">
-            <q-btn v-for="(option, key) in step.options.items" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
+          <div class="answers-text q-mt-lg" :class="{'compact-mode': step.options.items.length > 4, 'ultracompact-mode': (step.options.items.length > 6 || (step.options.items.length > 4 && step.options.multipleAnswers))}" v-if="answerType === 'text'">
+            <q-btn v-for="(option, key) in step.options.items" :key="key" class="full-width" :class="option.class" :icon="option.icon" @click="chooseSelectValue(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
               <span :class="'font-' + customization.font" v-if="!option.textLanguage || !option.textLanguage[lang]">{{ option.text }}</span>
               <span :class="'font-' + customization.font" v-if="option.textLanguage && option.textLanguage[lang]">{{ option.textLanguage[lang] }}</span>
             </q-btn>
           </div>
           <div class="answers-images" v-if="answerType === 'image'">
             <div class="images-block">
-              <div v-for="(option, key) in step.options.items" :key="key" :class="option.class" @click="checkAnswer(key)" :test-id="'answer-image-' + key">
+              <div v-for="(option, key) in step.options.items" :key="key" :class="option.class" @click="chooseSelectValue(key)" :test-id="'answer-image-' + key">
                 <img :src="option.imagePath.indexOf('blob:') !== -1 ? option.imagePath : uploadUrl + '/upload/quest/' + step.questId + '/step/choose-image/' + option.imagePath" :class="option.class" />
                 <q-btn v-if="option.class !== null" round :class="option.class" :icon="option.icon" disable />
               </div>
             </div>
+          </div>
+          <div v-if="step.options.multipleAnswers" class="q-pa-md centered">
+            <q-btn class="glossy" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()">
+              <div>{{ $t('label.Confirm') }}</div>
+            </q-btn>
           </div>
           <div v-if="!step.options || !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
@@ -349,14 +354,14 @@
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
-          <div class="color-bubbles" style="margin-top: 5rem;">
+          <div class="color-bubbles" style="margin-top: 10px;">
             <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
           </div>
           <div class="color-bubbles" v-if="rightAnswer">
             <div v-for="(color, index) in rightAnswer" :key="index" :style="'background-color: ' + color" class="shadow-8 right">&nbsp;</div>
           </div>
 
-          <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
+          <div class="actions q-mt-sm q-mx-md" v-show="playerResult === null">
             <div>
               <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
             </div>
@@ -380,7 +385,7 @@
           </div>
           <table>
             <tr>
-              <td v-for="(code, index) in playerCode" :key="index" class="text-center">
+              <td v-for="(code, index) in playerCode" :key="index" class="text-center q-pb-sm">
                 <q-btn :disabled="stepPlayed" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_up" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index" />
               </td>
             </tr>
@@ -396,7 +401,7 @@
             </tr>
             <tr>
               <td v-for="(code, index) in playerCode" :key="index" class="text-center">
-                <q-btn :disabled="stepPlayed" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index" />
+                <q-btn :disabled="stepPlayed" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" style="margin-top: 0px;" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index" />
               </td>
             </tr>
           </table>
@@ -422,10 +427,10 @@
       <!------------------ GEOLOCALISATION STEP AREA ------------------------>
 
       <div class="geolocation" v-if="step.type == 'geolocation'">
-        <div>
+        <div :class="geolocation.mode + 'mode'">
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
-          <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: (geolocation.GPSdistance == 0 ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: ((geolocation.GPSdistance == 0 || geolocation.GPSdistance == null) ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
         </div>
 
         <geolocationStepMap class="geolocation-step-map" :class="'font-' + customization.font" v-show="geolocation.mode === 'map' && playerResult === null" :target-position="geolocation.destinationPosition" :player-position="geolocation.playerPosition" />
@@ -440,13 +445,17 @@
           @click="switchModeForGeolocationStep()" />
       </div>
 
-      <div class="background-map full-width full-height q-pa-md centered" v-if="step.id == 'gpssensor'">
+      <div class="background-map full-width full-height q-pa-md centered" v-if="step.id == 'gpssensor' && geolocation.mode === 'sensor'">
         <div v-if="customization.geolocationMessage && customization.geolocationMessage !== '' && lang">{{ customization.geolocationMessage[lang] }}</div>
         <div v-if="!customization.geolocationMessage || customization.geolocationMessage === '' || !lang">{{ $t('label.FindAllLocationsToStartSteps') }}</div>
         <div class="q-mt-xl centered">
           <q-spinner-orbit :color="geolocation.colorIndicator" size="50vw" />
         </div>
         {{ $t('label.ColorIndicatorExplaination', {distance: geolocation.closestDistance}) }}
+      </div>
+      
+      <div class="background-map full-width full-height q-pa-md centered" v-if="step.id == 'gpssensor' && geolocation.mode === 'map'">
+        <geolocationStepMap class="geolocation-step-map" :class="'font-' + customization.font" :target-position="geolocation.destinationPosition" :player-position="geolocation.playerPosition" />
       </div>
 
       <!------------------ SIMPLE TEXT INPUT STEP AREA ------------------------>
@@ -674,8 +683,7 @@
       </div>
 
       <!------------------ LOCATE ITEM IN AUGMENTED REALITY STEP AREA ------------------------>
-
-      <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
+      <div class="locate-item-ar" v-if="step.type === 'locate-item-ar'" v-show="$refs['geolocation-component'] && $refs['geolocation-component'].isActive">
         <!-- PAS DE CAPTEUR -->
         <div v-if="noSensorFound" class="text text-center" :class="'font-' + customization.font">
           <p class="q-mb-lg">{{ $t('label.noSensorFound') }}</p>
@@ -688,14 +696,14 @@
         </div>
         <div v-else>
           <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-            <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null"></video>
+            <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && geolocation.active && playerResult === null"></video>
           </transition>
           <div v-show="playerResult === null && (this.geolocation.active || isIOs)" class="q-mt-xl">
-            <div class="text" :class="'font-' + customization.font">
+            <div class="text" :class="'font-' + customization.font" @click="resetBackgroundImage">
               <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
               <p v-if="step.options && step.options.html" v-html="getTranslatedText()" />
               <p v-if="!geolocation.active">{{ $t('label.PleaseWaitLoadingAndGPSInit') }}</p>
-              <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: (geolocation.GPSdistance == 0 ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
+              <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: ((geolocation.GPSdistance == 0 || geolocation.GPSdistance == null) ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
               <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
               <p v-if="geolocation.canTouchTarget && geolocation.active" style="color: #f00">{{ $t('label.TouchTheObject') }}</p>
               <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
@@ -930,9 +938,19 @@
       <q-avatar size="140px" font-size="52px" style="margin: auto; margin-bottom: 30px;" color="positive" text-color="white" icon="thumb_up" />
     </div>
 
-    <!-- keep geolocation active during all quest duration -->
+    <!-- keep geolocation active during all quest duration. ! must be started when page is init -->
+    <!--<geolocation v-if="isPageInit" ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />-->
     <geolocation ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />
-
+    
+    <div class="geolocation-issue" v-show="(step.type === 'geolocation' || step.type === 'locate-item-ar') && $refs['geolocation-component'] && ($refs['geolocation-component'].userDeniedGeolocation || !$refs['geolocation-component'].isActive)">
+      <!--<div v-if="$refs['geolocation-component'] && $refs['geolocation-component'].userDeniedGeolocation">DENIED</div>-->
+      <!--<div v-if="$refs['geolocation-component'] && !$refs['geolocation-component'].isActive">NOT ACTIVE</div>-->
+      <div>
+        <p class="bg-warning">{{ $t('label.GeolocationCouldNotBeRetrieved') }}</p>
+        <p>{{ $t('label.GeolocationIssuePleaseSkipThisStep') }}</p>
+      </div>
+    </div>
+    
     <!-- keep orientation detection active during all quest duration -->
     <orientation ref="orientation-component" @success="onNewDeviceOrientation($event)" @error="onDeviceOrientationError($event)" :disabled="!quest.hasGeolocationSteps" />
 
@@ -1101,6 +1119,7 @@ export default {
         controlsAreDisplayed: false,
         isHybrid: window.cordova,
         showNonHybridQRReader: false,
+        showGeolocationIssueMessage: false,
         isIOs: utils.isIOS(),
         isSafari: utils.isSafari(),
         isPageInit: false,
@@ -1126,6 +1145,9 @@ export default {
 
         // for steps type 'code-keypad' & 'code-color'
         playerCode: [],
+        choose: {
+          answers: []
+        },
         keypad: [
           ["1", "2", "3"],
           ["4", "5", "6"],
@@ -1137,7 +1159,7 @@ export default {
 
         // for step types 'geoloc' and 'locate-item-ar'
         geolocation: {
-          active: false,
+          active: false,//geolocationActive,
           distance: null, // target distance (can be changed by accelerometer for 'locate-item-ar')
           GPSdistance: null, // only given by GPS
           // direction
@@ -1147,8 +1169,9 @@ export default {
           // object position relative to device
           position: { x: null, y: null },
           // player position (properties: latitude & longitude, from native call to navigator.geolocation.watchLocation())
-          playerPosition: null,
-          destinationPosition: null,
+          playerPosition: { coords: { longitude: 0, latitude: 0 }, marker: '' },
+          //destinationPosition: { coords: { lat: 0, lng: 0 }, marker: '' },
+          destinationPosition: [], // WARNING : Do not change !
           // for 'locate-item-ar'
           target: null,
           canSeeTarget: false,
@@ -1308,6 +1331,7 @@ export default {
       this.locateMarker = defaultVars.locateMarker
       this.writetext = defaultVars.writetext
       this.puzzle = defaultVars.puzzle
+      this.choose = defaultVars.choose
       this.memory = defaultVars.memory
       this.portrait = defaultVars.portrait
       this.nbItemsFound = defaultVars.nbItemsFound
@@ -1326,6 +1350,7 @@ export default {
       this.rightAnswer = defaultVars.rightAnswer
       this.audio = defaultVars.audio
       this.showNonHybridQRReader = defaultVars.showNonHybridQRReader
+      this.showGeolocationIssueMessage = defaultVars.showGeolocationIssueMessage
       //this.currentcountdown = defaultVars.currentcountdown
     },
     resetEvents () {
@@ -1397,6 +1422,8 @@ export default {
       let background = await document.getElementById('play-view')
       background.style.background = 'none'
       background.style.backgroundColor = 'transparent'
+      document.body.style.background = 'none'
+      document.body.style.backgroundColor = 'transparent'
       let backgroundImage = await document.getElementById('background-image')
       if (backgroundImage) {
         backgroundImage.style.background = 'none'
@@ -1409,9 +1436,9 @@ export default {
      * Init the component data
      */
     async initData () {
-      this.isPageInit = true
       this.resetEvents()
       this.resetData()
+      this.isPageInit = true
       await this.resetBackgroundImage()
       TWEEN.removeAll()
       // wait that DOM is loaded (required by steps involving camera)
@@ -1441,6 +1468,8 @@ export default {
                 backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
               } else {
                 backgroundImage.style.background = 'transparent'
+                document.body.style.background = 'none'
+                document.body.style.backgroundColor = 'transparent'
               }
             }
             // display controls after some seconds to let user see background
@@ -1581,6 +1610,22 @@ export default {
           } else {
             this.geolocation.mode = 'compass'
           }
+          if (this.customization && this.customization.characterOnMap && this.customization.characterOnMap !== "") {
+            this.geolocation.playerPosition.marker = this.customization.characterOnMap.indexOf('blob:') !== -1 ? this.customization.characterOnMap : this.uploadUrl + '/upload/quest/' + this.customization.characterOnMap
+          } 
+        }
+        if (this.step.id === 'gpssensor') {
+          if (this.step.visibles && this.step.visibles.length > 0) {
+            this.geolocation.mode = 'map'
+            for (var i = 0; i < this.step.visibles.length; i++) {
+              this.geolocation.destinationPosition.push({marker: (this.step.visibles[i].marker.indexOf('blob:') !== -1 || this.step.visibles[i].marker === '') ? this.step.visibles[i].marker : this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/geolocation/' + this.step.visibles[i].marker, coords: this.step.visibles[i].coords})
+            }
+          } else {
+            this.geolocation.mode = 'sensor'
+          }
+          if (this.customization && this.customization.characterOnMap && this.customization.characterOnMap !== "") {
+            this.geolocation.playerPosition.marker = this.customization.characterOnMap.indexOf('blob:') !== -1 ? this.customization.characterOnMap : this.uploadUrl + '/upload/quest/' + this.customization.characterOnMap
+          }
         }
 
         // common process to 'geolocation' and 'locate-item-ar'
@@ -1617,8 +1662,8 @@ export default {
                 const call = await this.callPermissionsEvent()
                 console.log(call)
               }
-
-              this.geolocation.showARHelp = true
+              
+              this.geolocation.showARHelp = this.$refs['geolocation-component'].isActive
 
               // ask user to access to his device motion
               requestPermissionResult = await utils.requestDeviceMotionPermission()
@@ -1688,6 +1733,9 @@ export default {
               console.log("calibration tests not working")
             }
           }
+          
+          // force to get location
+          this.$refs['geolocation-component'].startTracking()
         }
 
         if (this.step.type === 'locate-item-ar' && !this.playerResult) {
@@ -1737,7 +1785,7 @@ export default {
             // add offset to make 3D object "sit on the ground" by default (z = 0 at the bottom of the object)
             let box = new THREE.Box3().setFromObject(object)
             let onGroundOffset = (box.max.z - box.min.z) / 2
-            object.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, onGroundOffset))
+            object.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, onGroundOffset))
 
             // compute object size = max(length, width, depth)
             target.size = Math.max(box.max.x - box.min.x, box.max.y - box.min.y, box.max.z - box.min.z)
@@ -1750,7 +1798,7 @@ export default {
             }
 
             // accurate colors for GLTF models, see https://stackoverflow.com/q/50331480/488666
-            this.geolocation.target.renderer.gammaOutput = true
+            this.geolocation.target.renderer.outputEncoding = THREE.sRGBEncoding
           } else {
             // 2D plane with transparent image (user uploaded picture) as texture
             var itemImage = ''
@@ -1922,22 +1970,31 @@ export default {
      * call device permissions event on iOS Fix for RA
      */
     callPermissionsEvent() {
-      if (typeof (DeviceMotionEvent) !== "undefined" && typeof (DeviceMotionEvent.requestPermission) === "function") {
-        return new Promise(resolve => this.$q.dialog({
-          title: this.$t('label.arDialogTitle'),
-          message: this.$t('label.arDialogMessage'),
-          persistent: true
-        })
-          .onOk(() => {
-            resolve()
-          DeviceMotionEvent.requestPermission()
-            .then(response => {
-              console.log("devicePermissions", response)
+      return new Promise((resolve, reject) => {
+        if (typeof (DeviceMotionEvent) !== "undefined" && typeof (DeviceMotionEvent.requestPermission) === "function") {
+          this.$q.dialog({
+            title: this.$t('label.arDialogTitle'),
+            message: this.$t('label.arDialogMessage'),
+            persistent: true
+          })
+            .onOk(() => {
+              DeviceMotionEvent.requestPermission()
+                .then(response => {
+                  console.log("devicePermissions", response)
+                  resolve(response)
+                })
+                .catch((err) => reject(err))
             })
-            .catch(console.error)
-        })
-        )
-      }
+            .onCancel(() => {
+              reject(new Error('User canceled authorization for device motion event'))
+            })
+            .onDismiss(() => {
+              reject(new Error('User dismissed authorization for device motion event'))
+            })
+        } else {
+          resolve()
+        }
+      })
     },
     reloadPage() {
       this.$router.go({
@@ -2047,15 +2104,14 @@ export default {
           if (displaySpinner) {
             this.$q.loading.hide()
           }
-
-          let offlineAnswer = this.checkOfflineAnswer(answerData.answer)
+          let offlineAnswer = await this.checkOfflineAnswer(answerData.answer)
           return offlineAnswer
         }
       } else { // offline mode
         // call web API (non blocking => no await) to attempt to update runs
         StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player, { retries: 0 })
-
-        let offlineAnswer = this.checkOfflineAnswer(answerData.answer)
+        
+        let offlineAnswer = await this.checkOfflineAnswer(answerData.answer)
         return offlineAnswer
       }
     },
@@ -2067,7 +2123,7 @@ export default {
       const type = this.step.type
       if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character' || type === 'help' || type === 'image-over-flow' || type === 'binocular' || type === 'phone-call') {
         return { result: true, answer: true, score: 0, reward: 0, offline: true }
-      } else if (type === 'geolocation' || type === 'locate-item-ar' || type === 'jigsaw-puzzle') {
+      } else if (type === 'geolocation' || type === 'locate-item-ar' || type === 'jigsaw-puzzle' || this.step.id === 'gpssensor') {
         //TODO: find a way to check server side
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
       } else if (type === 'use-item') {
@@ -2130,7 +2186,7 @@ export default {
           }
         }
       } else {
-        if (answer === this.answer) {
+        if (answer == this.answer) { //keep == instead of === because sometime we compare string and numbers
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
       }
@@ -2157,6 +2213,11 @@ export default {
 
       // if generic marker sensor
       if (this.step.id === 'sensor') {
+        // all the QR code needs to be 3 digits long
+        if (!this.locateMarker.markerControls[answer]) {
+          Notification(this.$t('label.QRCodeIsNotPlayingOne'), 'error')
+          return
+        }
         if (!this.locateMarker.markerControls[answer].detected) {
           this.locateMarker.flash = false
           this.locateMarker.flash = true
@@ -2169,7 +2230,7 @@ export default {
       if (this.step.id === 'gpssensor') {
         checkAnswerResult = await this.sendAnswer(this.step.questId, answer.stepId, this.runId, {answer: answer.position, isTimeUp: this.isTimeUp}, false)
 
-        this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true, answer.position)
+        this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true, answer.position, answer.stepId)
         return
       }
 
@@ -2191,27 +2252,34 @@ export default {
           break
 
         case 'choose':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
+          answer = this.choose.answers.sort()
+          let answerStr = answer.join("|")
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answerStr, isTimeUp: this.isTimeUp}, true)
           if (checkAnswerResult.result === true) {
-            let selectedAnswer = this.step.options.items[answer]
-            if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || !this.step.options.rightAnswerMessage[this.lang] || this.step.options.rightAnswerMessage[this.lang] === "")) {
-              selectedAnswer.class = 'rightorwrong'
-            } else {
-              selectedAnswer.icon = 'done'
-              selectedAnswer.class = 'right'
-            }
-            Vue.set(this.step.options.items, answer, selectedAnswer)
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer, answer)
-          } else {
-            if (!this.isTimeUp) {
-              let selectedAnswer = this.step.options.items[answer]
+            for (var i = 0; i < answer.length; i++) {
+              let selectedAnswer = this.step.options.items[answer[i]]
               if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || !this.step.options.rightAnswerMessage[this.lang] || this.step.options.rightAnswerMessage[this.lang] === "")) {
                 selectedAnswer.class = 'rightorwrong'
               } else {
-                selectedAnswer.icon = 'clear' // "x" icon
-                selectedAnswer.class = 'wrong'
+                selectedAnswer.icon = 'done'
+                selectedAnswer.class = 'right'
               }
-              Vue.set(this.step.options.items, answer, selectedAnswer)
+              Vue.set(this.step.options.items, answer[i], selectedAnswer)
+            }
+
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer, answerStr)
+          } else {
+            if (!this.isTimeUp) {
+              for (var i = 0; i < answer.length; i++) {
+                let selectedAnswer = this.step.options.items[answer[i]]
+                if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || !this.step.options.rightAnswerMessage[this.lang] || this.step.options.rightAnswerMessage[this.lang] === "")) {
+                  selectedAnswer.class = 'rightorwrong'
+                } else {
+                  selectedAnswer.icon = 'clear' // "x" icon
+                  selectedAnswer.class = 'wrong'
+                }
+                Vue.set(this.step.options.items, answer[i], selectedAnswer)
+              }
             }
 
             if (this.isTimeUp) {
@@ -2220,17 +2288,20 @@ export default {
             if (this.step.displayRightAnswer === true) {
               // indicate the right answer
               if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
-                let selectedAnswer = this.step.options.items[checkAnswerResult.answer]
-                selectedAnswer.icon = 'done'
-                selectedAnswer.class = 'right'
-                Vue.set(this.step.options.items, checkAnswerResult.answer, selectedAnswer)
+                let returnedAnswers = (checkAnswerResult.answer + "").split("|")
+                for (var i = 0; i < returnedAnswers.length; i++) {
+                  let selectedAnswer = this.step.options.items[returnedAnswers[i]]
+                  selectedAnswer.icon = 'done'
+                  selectedAnswer.class = 'right'
+                  Vue.set(this.step.options.items, returnedAnswers[i], selectedAnswer)
+                }
               }
             }
             this.nbTry++
             if (checkAnswerResult.remainingTrial > 0) {
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
-              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer, answer)
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer, answerStr)
             }
           }
           break
@@ -2434,7 +2505,7 @@ export default {
 
             this.nbTry++
             if (checkAnswerResult.remainingTrial > 0) {
-              Notification(this.$t('label.UseItemNothingHappens'), 'error')
+              Notification(this.$t('label.UseItemNothingHappens'), 'warning')
             } else {
               if (this.step.displayRightAnswer) {
                 this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
@@ -2467,15 +2538,20 @@ export default {
               this.nbTry++
               if (remainingTrial > 0) {
                 if (this.step.options.wrongLocationMessage && this.step.options.wrongLocationMessage[this.lang] && this.step.options.wrongLocationMessage[this.lang] !== "") {
-                  Notification(this.step.options.wrongLocationMessage[this.lang], 'error')
+                  Notification(this.step.options.wrongLocationMessage[this.lang], 'warning')
                 } else {
-                  Notification(this.$t('label.FindItemNothingHappens'), 'error')
+                  Notification(this.$t('label.FindItemNothingHappens'), 'warning')
                 }
               } else {
                 checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: false, isTimeUp: this.isTimeUp}, true)
 
                 // show locations to click even if user fail
-                this.showAllFindItemLocation()
+                if (this.step.options && this.step.options.altFile) {
+                  this.step.backgroundImage[this.lang] = this.step.options.altFile
+                  this.hideAllFindItemLocation()
+                } else {
+                  this.showAllFindItemLocation()
+                }
 
                 this.submitWrongAnswer(false, this.step.displayRightAnswer)
               }
@@ -2648,7 +2724,7 @@ export default {
     /*
      * Send good answer
      */
-    submitGoodAnswer(score, offlineMode, showResult, answer) {
+    submitGoodAnswer(score, offlineMode, showResult, answer, forceStepId) {
       /*if (showResult) {
         this.playerResult = true
       } else {
@@ -2669,13 +2745,10 @@ export default {
           this.stopcountdown()
         }
       }
-
       this.stepPlayed = true
 
-      this.$emit('success', score, offlineMode, showResult, answer)
+      this.$emit('success', score, offlineMode, showResult, answer, forceStepId)
       this.$emit('played')
-
-      this.displayReadMoreAlert()
 
       if (showResult || (this.step.options && this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage[this.lang] && this.step.options.rightAnswerMessage[this.lang] !== "")) {
         switch (this.step.type) {
@@ -2719,12 +2792,14 @@ export default {
             break
         }
       }
+      
+      this.displayReadMoreAlert()
 
       // if no display of the answer move to next step
       if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || !this.step.options.rightAnswerMessage[this.lang] || this.step.options.rightAnswerMessage[this.lang] === "")) {
         this.forceNextStep()
       }
-      if (this.step.options.moveToNextStepAutomatically) {
+      if (this.step.options && this.step.options.moveToNextStepAutomatically) {
         if (this.step.options.moveToNextStepAutomaticallyDuration) {
           utils.setTimeout(this.forceNextStep, parseInt(this.step.options.moveToNextStepAutomaticallyDuration, 10) * 1000)
         } else {
@@ -2756,18 +2831,18 @@ export default {
       this.$emit('fail', offlineMode, showResult, answer)
       this.$emit('played')
 
-      this.displayReadMoreAlert()
-
       if (this.isTimeUp === true) {
         this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'), false, false, true)
       } else if (showResult || (this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage[this.lang] && this.step.options.wrongAnswerMessage[this.lang] !== "")) {
         this.displaySuccessMessage(false, this.$t('label.WrongAnswer'), true, false, true)
       }
+      
+      this.displayReadMoreAlert()
 
       // if no display of the answer move to next step
       if (this.step.displayRightAnswer === false && (!this.step.options.wrongAnswerMessage || !this.step.options.wrongAnswerMessage[this.lang] || this.step.options.wrongAnswerMessage[this.lang] === "")) {
         this.forceNextStep()
-      } else if (this.step.options.moveToNextStepAutomatically) {
+      } else if (this.step.options && this.step.options.moveToNextStepAutomatically) {
         utils.setTimeout(this.forceNextStep, 3000)
       } else {
         // advise user to move to next step
@@ -2848,6 +2923,20 @@ export default {
 
       if (realBubbleHeight > '177') {
         this.character.needToScroll = true
+      }
+    },
+    chooseSelectValue(key) {
+      if (this.step.options && this.step.options && this.step.options.multipleAnswers) {
+        if (this.choose.answers.indexOf(key) === -1) {
+          Vue.set(this.step.options.items[key], "class", 'right')
+          this.choose.answers.push(key)
+        } else {
+          Vue.set(this.step.options.items[key], "class", '')
+          this.choose.answers.splice(this.choose.answers.indexOf(key), 1)
+        }
+      } else {
+        this.choose.answers = [key]
+        this.checkAnswer(key)
       }
     },
     /*
@@ -3109,8 +3198,10 @@ export default {
      * @param   {object}    pos            User position (from native call to navigator.geolocation.watchLocation())
      */
     async onNewUserPosition(pos) {
-      if (this.step.id === 'gpssensor') {
+      if (this.step.id === 'gpssensor' || this.step.id === 'map') {
         // treat case when user can find one of several location to find
+        this.geolocation.gpsAccuracy = pos.coords.accuracy
+        this.geolocation.playerPosition.coords = pos.coords
         this.geolocation.active = true
         let current = pos.coords
         let closestDistance = 1000
@@ -3124,6 +3215,7 @@ export default {
           closestDistance = Math.min(closestDistance, parseInt(this.geolocation.GPSdistance, 10))
 
           limitDistance = (this.step.locations[i].distance ? this.step.locations[i].distance : 5)
+          // if a geolocation step is close to the user
           if (this.geolocation.GPSdistance <= limitDistance) {
             //this.$refs['geolocation-component'].disabled = true
             this.geolocation.active = false
@@ -3136,7 +3228,7 @@ export default {
       } else if ((this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') && this.playerResult === null && !this.geolocation.playerTouchedArObject) {
         this.geolocation.gpsAccuracy = pos.coords.accuracy
         this.geolocation.active = true
-        this.geolocation.playerPosition = pos.coords
+        this.geolocation.playerPosition.coords = pos.coords
         let current = pos.coords
 
         // if lat and lng are not set, compute to have the object close to the current user position. frequently used for tests/demos.
@@ -3213,7 +3305,13 @@ export default {
           destinationPosition.lat = options.locations[this.geolocation.currentIndex].lat
           destinationPosition.lng = options.locations[this.geolocation.currentIndex].lng
         }
-        this.geolocation.destinationPosition = destinationPosition
+
+        this.geolocation.destinationPosition = {coords: destinationPosition}
+        
+        // set the marker
+        if (this.step.options.locator && this.step.options.locator !== "") {
+          this.geolocation.destinationPosition.marker = this.step.options.locator.indexOf('blob:') !== -1 ? this.step.options.locator : this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/geolocation/' + this.step.options.locator
+        }
 
         // compute distance between two coordinates
         // note: current.accuracy contains the result accuracy in meters
@@ -4220,7 +4318,7 @@ export default {
       pivot.multiplyScalar(-1)
 
       let pivotObj = new THREE.Object3D();
-      object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
+      object.applyMatrix4(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
       pivotObj.add(object)
       pivotObj.up = new THREE.Vector3(0, 0, 1)
       object = pivotObj
@@ -4318,6 +4416,9 @@ export default {
     */
     readMore() {
       if (this.step.extraText) {
+        // save that this readmore is read
+        this.$emit('readMoreRead')
+        
         this.story.step = 6
         this.story.data = {
           readMore: utils.replaceBreakByBR(this.step.extraText),
@@ -4404,7 +4505,7 @@ export default {
      * @params: (event)
      **/
     checkPhoneVertically(event) {
-      if (this.$refs && this.$refs.raVerticallyDialog) {
+      if (this.$refs && this.$refs.raVerticallyDialog && this.$refs['geolocation-component'].isActive) {
         if (event.beta < 50 || event.beta > 130) {
           this.$refs.raVerticallyDialog.show()
         } else {
@@ -4957,6 +5058,13 @@ export default {
     text-align: right;
   }
 
+  .answers-text.compact-mode .q-btn {
+    margin-top: 0px;
+    padding: 0px;
+  }
+  .answers-text.ultracompact-mode .q-btn {
+    font-size: 1rem;
+  }
   /* text/image choice specific */
 
   .answers-text { flex-grow: 1; display: flex; flex-flow: column nowrap; justify-content: center; padding: 0 1rem; }
@@ -4990,11 +5098,17 @@ export default {
   .code-image td .q-icon { font-size: 2em }
 
   /* geolocation specific */
-  .geolocation .text { margin-bottom: 0.5rem; position: relative; z-index: 10; }
+  .geolocation .text { margin-bottom: 0.5rem; /*position: relative; z-index: 10;*/ } /* MPA 2022-06-21 z-index removed, otherwise translucent background of <div> geolocation-issue is not fully applied, seems to have no impact */
   .geolocation #mode-switch { position: absolute; bottom: 6rem; right: 2.6rem; }
   .geolocation-step-map { position: absolute; opacity: 1; top: 0; left: 0; width: 100%; height: 100%; background-color: yellow; }
   .geolocation .q-btn { box-shadow: none; }
   .low-gps-accuracy-warning { z-index: 200; position: absolute; top: 0; left: 0; right: 0; }
+  .geolocation .mapmode { position: absolute; z-index: 5000; }
+  /* make something like <q-dialog> but without being "modal" (e.g. does not prevent clicking on navigation buttons) */
+  .geolocation-issue { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color:rgba(255, 255, 255, 0.75); }
+  .geolocation-issue > div { z-index: 1900; margin: 6rem 2rem 2rem 2rem; border: 1px solid black; background: white; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); }
+  .geolocation-issue > div > p.bg-warning { color: white; }
+  .geolocation-issue > div > p { padding: 1rem; margin: 0; }
 
   /* jigsaw puzzle specific */
 
@@ -5054,7 +5168,7 @@ export default {
   .locate-marker { position: relative; }
   .locate-marker video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
   .locate-marker img.locate-marker-answer { width: 60vw; margin: 30vw auto; }
-  .locate-marker .q-btn { margin-bottom: 17vw; margin-left: 4vw; z-index: 50; }
+  .locate-marker .q-btn { margin-bottom: 17vw; z-index: 50; }
   .locate-marker .q-btn span { font-size: 36px; }
 
   /* memory specific */

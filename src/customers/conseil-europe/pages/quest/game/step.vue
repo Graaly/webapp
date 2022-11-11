@@ -10,6 +10,9 @@
             />
           </div>
           <div class="centered q-py-lg">{{ $t('label.NetwordkErrorReloadPage') }}</div>
+          <div class="text-grey" v-if="warnings.questDataMissing">Error 103.21</div>
+          <div class="text-grey" v-if="warnings.stepDataMissing">Error 103.22</div>
+          <div class="text-grey" v-if="warnings.runDataMissing">Error 103.23</div>
         </q-card-section>
       </q-card>
     </div>
@@ -55,11 +58,12 @@
         @suggestNext="alertOnNext"
         @hideButtons="hideFooterButtons"
         @showButtons="showFooterButtons"
+        @openInventory="zoomOrUse"
         @msg="trackMessage">
       </stepPlay>
     </div>
 
-    <!------------------ STARS PAGE AREA ------------------------>
+    <!------------------ SPECIFIC COE : STARS PAGE AREA ------------------------>
 
     <transition name="slideInBottom">
       <div v-show="inventory.isOpened" class="bg-graaly-blue-dark text-white inventory panel-bottom">
@@ -191,7 +195,7 @@
     <!--====================== HINT =================================-->
 
     <div class="mobile-fit over-map" :class="'font-' + info.quest.customization.font" v-if="hint.isOpened">
-      <story step="hint" :data="{hint: hint.label, character: (info.quest.customization && info.quest.customization.character && info.quest.customization.character !== '') ? (info.quest.customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + info.quest.customization.character : info.quest.customization.character) : '3'}" @next="askForHint()"></story>
+      <story step="hint" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? info.quest.customization.color : 'primary'" :data="{hint: hint.label, character: (info.quest.customization && info.quest.customization.character && info.quest.customization.character !== '') ? (info.quest.customization.character.indexOf('blob:') === -1 ? uploadUrl + '/upload/quest/' + info.quest.customization.character : info.quest.customization.character) : '3'}" @next="askForHint()"></story>
     </div>
 
     <!--====================== STORY =================================-->
@@ -229,7 +233,7 @@
       </div>
     </q-dialog>
 
-    <!------------------ FOOTER AREA ------------------------>
+    <!------------------ SPECIFIC COE : FOOTER AREA ------------------------>
 
     <div v-show="footer.show" class="step-menu step-menu-fixed fixed-bottom">
       <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
@@ -298,17 +302,23 @@
         </div>
       </div>
     </div>
+    <!------------------ COMMON COMPONENTS ------------------>
+    <div v-if="step && step.options && (step.options.displayTime || step.options.displayGoodAnswers)" style="position: absolute; left: 0; bottom: 70px; background-color: #000; color: #fff;" class="subtitle-5">
+      <span v-if="step.options.displayTime">{{currentDate}}&nbsp;</span>
+      <span v-if="step.options.displayGoodAnswers">&nbsp;{{ $t('label.Score')}} {{ score.nbGoodAnwers }}/{{ score.nbQuestions }}</span>
+    </div>
   </div>
 </template>
 
 <script>
-// specific for COE
+// SPECIFIC COE
 import AuthService from 'services/AuthService'
 
 import RunService from 'services/RunService'
 import StepService from 'services/StepService'
 import QuestService from 'services/QuestService'
 import UserService from 'services/UserService'
+// SPECIFIC COE
 import chat from "components/chat";
 //import colorsForCode from 'data/colorsForCode.json'
 //import questItems from 'data/questItems.json'
@@ -316,18 +326,20 @@ import stepPlay from 'components/quest/game/stepPlay'
 import Notification from 'boot/NotifyHelper'
 import story from 'components/story'
 import utils from 'src/includes/utils'
+import Moment from "moment"
 
 //import GMMS from 'services/GameMasterMonitoringService_mqtt'
 
 import { Notify } from 'quasar'
 
 import Vue from 'vue'
-import Sortable from 'sortablejs'
+// MPA 2021-12-14 seems not used
+/*import Sortable from 'sortablejs'
 Vue.directive('sortable', {
   inserted: function (el, binding) {
     return new Sortable(el, binding.value || {})
   }
-})
+})*/
 
 export default {
   components: {
@@ -365,10 +377,12 @@ export default {
             isOpened: false,
             url: '',
             zoom: 1
-          }
+          },
+          selectedItems: []
         },
         hint: {
           isOpened: false,
+          isFirst: true,
           label: "",
           suggest: false,
           show: false,
@@ -413,13 +427,15 @@ export default {
         //cameraStreamEnabled: false,
         isHybrid: window.cordova,
         serverUrl: process.env.SERVER_URL,
+        uploadUrl: process.env.UPLOAD_URL,
         nbTry: 0,
         controlsAreDisplayed: false,
         lang: this.$route.params.lang,
         offline: {
           active: true,
           answer: null,
-          steps: []
+          steps: [],
+          force: false
         },
         warnings: {
           inventoryMissing: false,
@@ -447,6 +463,11 @@ export default {
         },
         // for step type 'use-item'
         selectedItem: null,
+        currentDate: null,
+        score: {
+          nbGoodAnwers: 0,
+          nbQuestions: 0
+        },
 
         starCounter: 0
       }
@@ -474,18 +495,17 @@ export default {
       try {
         this.info.quest = await QuestService.getByIdForStep(this.questId, 999, this.lang)
       } catch (err) {
-console.log("QUEST DATA MISSING")
         console.error(err)
         this.$q.loading.hide()
         this.warnings.questDataMissing = true
         this.reloadPageInAWhile()
         return
       }
-      
+
       this.isMultiplayer = this.info.quest.playersNumber && this.info.quest.playersNumber > 1
-            
+
       this.initOfflineMode()
-      
+
       // Start audio
       this.getAudioSound()
 
@@ -544,8 +564,10 @@ console.log("QUEST DATA MISSING")
 
       // load component data
       this.loadStepData = true
+      
+      this.refreshCurrentDate()
 
-      // get stars number
+      // SPECIFIC COE : get stars number
       this.starCounter = this.getStarsNumber()
     },
     /*sendDataToGameMaster() {
@@ -602,10 +624,15 @@ console.log("QUEST DATA MISSING")
     async moveToStep(forceStepId) {
       // keeping stepId info is required when network is interrupted & quest is played in online mode
       this.navigatingToStepId = forceStepId
-      
+
       utils.clearAllRunningProcesses()
       this.resetData()
       this.$q.loading.show()
+
+      // hack if language not set
+      if (this.lang === "undefined") {
+        this.lang = this.$t('label.shortLang')
+      }
 
       this.loadStepData = false
 
@@ -648,7 +675,15 @@ console.log("QUEST DATA MISSING")
 
       // load component data
       this.loadStepData = true
+      
+      this.refreshCurrentDate()
+      
+      // compute stats
+      this.computeGoodAnswers()
+      //reset hint
+      this.hint.isFirst = true
 
+      // SPECIFIC COE
       this.starCounter = this.getStarsNumber()
     },
     /*
@@ -659,22 +694,23 @@ console.log("QUEST DATA MISSING")
      */
     async getRun() {
       this.warnings.runDataMissing = false
-
+      
       var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
       var dataSharedWithPartner = (this.$route.query.hasOwnProperty('sharepartner') && this.$route.query.sharepartner === 'true')
       let offlineRun
 
       // check if a run is created on offline mode
       const isRunOfflineLoaded = await this.checkIfRunIsAlreadyLoaded(this.questId)
+
       if (isRunOfflineLoaded) {
         // read the run
         offlineRun = await this.loadOfflineRun(this.questId)
       }
-      
-      if (!this.offline.active || this.run.currentChapter === 0) {
+
+      if (!this.offline.active || (this.run.currentChapter === 0 && !this.offline.force)) {
         // List all run for this quest for current user
         var runs = await RunService.listForAQuest(this.questId)
-        
+
         // check if run is accessable from server
         if (runs && runs.data) {
           for (var i = 0; i < runs.data.length; i++) {
@@ -742,6 +778,8 @@ console.log("QUEST DATA MISSING")
             this.info.score = this.run.tempScore
           }
         } else {
+          this.offline.active = true
+          this.offline.force = true
           this.warnings.runDataMissing = true
           this.reloadPageInAWhile()
           return false
@@ -786,21 +824,20 @@ console.log("QUEST DATA MISSING")
      * Get the step data
      * @param    {String}    forceStepId    optional - Id of a specific step to load
      */
-    async getStep (forceStepId) {
+    async getStep (forceStepId, extra) {
       let stepId, response
-      
+
       if (this.warnings.questDataMissing || this.warnings.runDataMissing) {
         return false
       }
-      
-      this.warnings.stepDataMissing = false
-      
-      // --- load step Id ---
 
-      if (typeof forceStepId !== 'undefined') {
+      this.warnings.stepDataMissing = false
+
+      // --- load step Id ---
+      if (typeof forceStepId !== 'undefined' && forceStepId !== null) {
         stepId = forceStepId
       } else if (!this.offline.active) {
-        response = await RunService.getNextStep(this.questId, this.player)
+        response = await RunService.getNextStep(this.questId, this.player, extra)
 
         if (response && response.data && response.status === 200) {
           // check if a step is triggered
@@ -817,12 +854,17 @@ console.log("QUEST DATA MISSING")
                 id: "gpssensor",
                 locations: response.data.extra.locations,
                 steps: response.data.extra.geosteps,
+                visibles: response.data.extra.visibles,
                 questId: this.questId,
                 version: this.questVersion
               }
               return false
             } else {
               stepId = response.data.next
+              // if combine objects return stepId
+              if (extra && extra.type === "combine") {
+                return stepId
+              }
             }
             // check if history must be remove
             if (response.data.extra && response.data.extra === 'removehistory') {
@@ -852,8 +894,7 @@ console.log("QUEST DATA MISSING")
         }
       } else {
         // use offline content
-        const stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player)
-
+        const stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player, extra)
         if (!stepIdResponse || !stepIdResponse.id) {
           // if no step is triggered, display the waiting screen
           if (this.isMultiplayer) {
@@ -863,6 +904,10 @@ console.log("QUEST DATA MISSING")
           return false
         } else {
           stepId = stepIdResponse.id
+          // if combine objects return stepId
+          if (extra && extra.type === "combine") {
+            return stepId
+          }
         }
         if (stepId === 'locationMarker') {
           // QR Code scanner step
@@ -877,13 +922,13 @@ console.log("QUEST DATA MISSING")
             id: "gpssensor",
             locations: stepIdResponse.extra.locations,
             steps: stepIdResponse.extra.geosteps,
+            visibles: stepIdResponse.extra.visibles,
             questId: this.questId,
             version: this.questVersion
           }
           return false
         }
       }
-
       if (stepId === 'end') {
         return this.$router.push('/quest/' + this.questId + '/end')
       }
@@ -898,6 +943,10 @@ console.log("QUEST DATA MISSING")
           } else {
             this.step = response2.data
             this.step.id = this.step.stepId
+            // if combine objects return stepId
+            if (extra && extra.type === "combine") {
+              return this.step.stepId
+            }
             // get previous button redirect
             this.getPreviousStep()
             if (this.step.hint) {
@@ -906,7 +955,6 @@ console.log("QUEST DATA MISSING")
             return true
           }
         } else {
-console.log("STEP DATA MISSING")
           this.warnings.stepDataMissing = true
           this.reloadPageInAWhile()
           return false
@@ -1014,6 +1062,14 @@ console.log("STEP DATA MISSING")
               this.warnings.stepDataMissing = true
             }
           }
+          if (tempStep.type === 'geolocation' && tempStep.options && tempStep.options.locator && tempStep.options.locator !== '') {
+            const locatorPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.locator)
+            if (locatorPictureUrl) {
+              tempStep.options.locator = locatorPictureUrl
+            } else {
+              this.warnings.stepDataMissing = true
+            }
+          }
           if (tempStep.type === 'new-item' && tempStep.options && tempStep.options.picture && tempStep.options.picture !== '') {
             let itemImageUrl
             // check if a translated picture is proposed
@@ -1065,6 +1121,10 @@ console.log("STEP DATA MISSING")
       } catch (e) {
         console.log(e)
       }
+    },
+    refreshCurrentDate () {
+      let date = new Date()
+      this.currentDate = Moment(date).format('DD/MM/YYYY, k:mm')
     },
     /*
      * Show waiting page
@@ -1130,12 +1190,11 @@ console.log("STEP DATA MISSING")
         // compute minutes remaining based on start & duration
         const timeSpent = utils.getDurationFromNow(this.run.dateCreated)
         const remainingDuration = this.info.quest.duration - timeSpent.m
-        if (remainingDuration > 0) {
-          this.countDownTime.enabled = true
-          this.countDownTime.remainingMinutes = remainingDuration
-          this.countDownTime.remaining = remainingDuration / this.info.quest.duration
-          setTimeout(this.startCountDown, 60000)
-        } else {
+        this.countDownTime.enabled = true
+        this.countDownTime.remainingMinutes = remainingDuration
+        this.countDownTime.remaining = remainingDuration / this.info.quest.duration
+        setTimeout(this.startCountDown, 60000)
+        if (remainingDuration <= 0) {
           if (this.info.quest.countDownTime.stopGame) {
             return this.$router.push('/quest/' + this.questId + '/end')
           }
@@ -1323,9 +1382,9 @@ console.log("STEP DATA MISSING")
       } else if (picture && picture.indexOf('blob:') !== -1) {
         return picture
       } else if (picture) {
-        return this.serverUrl + '/upload/quest/' + picture
+        return this.uploadUrl + '/upload/quest/' + picture
       } else {
-        return 'statics/images/quest/default-quest-picture.jpg'
+        return ''
       }
     },
     /*
@@ -1335,7 +1394,17 @@ console.log("STEP DATA MISSING")
       if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo.indexOf('blob:') !== -1) {
         return this.info.quest.customization.logo
       } else {
-        return this.serverUrl + '/upload/quest/' + this.info.quest.customization.logo
+        return this.uploadUrl + '/upload/quest/' + this.info.quest.customization.logo
+      }
+    },
+    /*
+     * get map locator image
+     */
+    getMapCharacterMarkerImage () {
+      if (this.info.quest.customization && this.info.quest.customization.characterOnMap && this.info.quest.customization.characterOnMap.indexOf('blob:') !== -1) {
+        return this.info.quest.customization.characterOnMap
+      } else {
+        return this.serverUrl + '/upload/quest/' + this.info.quest.customization.characterOnMap
       }
     },
     /*
@@ -1354,7 +1423,7 @@ console.log("STEP DATA MISSING")
         if (this.info.quest.customization.audio[finalLang].indexOf('blob:') !== -1) {
           this.info.audio = this.info.quest.customization.audio[finalLang]
         } else {
-          this.info.audio = this.serverUrl + '/upload/quest/' + this.info.quest.customization.audio[finalLang]
+          this.info.audio = this.uploadUrl + '/upload/quest/' + this.info.quest.customization.audio[finalLang]
         }
       } else {
         this.info.audio = null
@@ -1371,7 +1440,6 @@ console.log("STEP DATA MISSING")
       // if moving in history
       if (this.$store.state.history.items && this.$store.state.history.index < this.$store.state.history.items.length) {
         await this.moveToStep(this.$store.state.history.items[this.$store.state.history.index])
-        //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
         return
       }
       // reload step to remove notifications
@@ -1382,10 +1450,9 @@ console.log("STEP DATA MISSING")
         if (force) {
           await this.passStep()
         } else {
-          let confirmPass = (this.$t('label.shortLang') === 'fr' ? "Êtes-vous sûr de passer ? S'il y a une étoile à gagner, vous ne la gagnerez pas !": "Are you sure you will pass? If there is a star to be won, you won't win it!")
           this.$q.dialog({
             dark: true,
-            message: confirmPass,
+            message: this.$t('label.ConfirmPass'),
             ok: this.$t('label.Ok'),
             cancel: this.$t('label.Cancel')
           }).onOk(async () => {
@@ -1444,7 +1511,7 @@ console.log("STEP DATA MISSING")
       }
     },
     /*
-     * Ask for a hint
+     * SPECIFIC COE : Ask for a hint
      */
     async askForHint() {
       if (!this.isHintAvailable()) {
@@ -1561,7 +1628,7 @@ console.log("STEP DATA MISSING")
       }
     },
     /*
-     * Open the info box
+     * SPECIFIC COE : Open the info box
      */
     async openInfo() {
       // if menu is disabled for the game
@@ -1672,23 +1739,47 @@ console.log("STEP DATA MISSING")
      * Select an item in the inventory
      * @param   {object}    item            Item selected
      */
-    selectItem(item) {
-      this.inventory.detail.zoom = 1
-      if (this.step.type !== 'use-item') {
-        this.inventory.detail.isOpened = true
-        if (item.pictures && item.pictures[this.lang] && item.pictures[this.lang] !== '') {
-          this.inventory.detail.url = ((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
-        } else {
-          this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
-        }
-        if (item.titles && item.titles[this.lang] && item.titles[this.lang] !== '') {
-          this.inventory.detail.title = item.titles[this.lang]
-        } else {
-          this.inventory.detail.title = item.title
-        }
+    zoomOrUse(item) {
+      if (this.step.type === 'use-item') {
+        this.useItem(item)
       } else {
+        this.zoomItem(item)
+      }
+    },
+    useItem(item) {
+      if (this.step.type === 'use-item') {
         this.selectedItem = item
         this.closeAllPanels()
+      }
+    },
+    selectItem(item) {
+      if (this.inventory.selectedItems.indexOf(item.picture) === -1) {
+        this.inventory.selectedItems.push(item.picture)
+      } else {
+        this.inventory.selectedItems.splice(this.inventory.selectedItems.indexOf(item.picture), 1)
+      }
+    },
+    zoomItem(item) {
+      this.inventory.detail.zoom = 1
+      this.inventory.detail.isOpened = true
+      this.inventory.detail.url = ((item.picture.indexOf('statics/') !== -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.uploadUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
+      if (item.titles && item.titles[this.lang] && item.titles[this.lang] !== '') {
+        this.inventory.detail.title = item.titles[this.lang]
+      } else {
+        this.inventory.detail.title = item.title
+      }    
+    },
+    async combineItems() {
+      const stepId = await this.getStep(null, {type: "combine", items: this.inventory.selectedItems})
+      if (stepId) {
+        if (stepId === 'end') {
+          return this.$router.push('/quest/' + this.questId + '/end')
+        } else {
+          this.inventory.isOpened = false
+          this.moveToStep(stepId)
+        }
+      } else {
+        Notification(this.$t('label.NothingOccurs'), 'info')
       }
     },
     closeInventoryDetail() {
@@ -1739,7 +1830,7 @@ console.log("STEP DATA MISSING")
     /*
      * Check if Step is already saved in file
      */
-    async checkIfStepIsAlreadyLoaded(id) {
+    /*async checkIfStepIsAlreadyLoaded(id) {
       if (!window.cordova) {
         return false
       }
@@ -1751,7 +1842,7 @@ console.log("STEP DATA MISSING")
       } else {
         return false
       }
-    },
+    },*/
     /*
      * Check if run is already saved in file
      */
@@ -1864,7 +1955,7 @@ console.log("STEP DATA MISSING")
             conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player)
           }
         } else {*/
-          conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player)
+          conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player, answer)
         /*}*/
         ended = true
 
@@ -1885,7 +1976,7 @@ console.log("STEP DATA MISSING")
             conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player)
           }
         } else {*/
-          conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player)
+          conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player, answer)
         /*}*/
       }
 
@@ -1991,7 +2082,7 @@ console.log("STEP DATA MISSING")
      */
     async getNextOfflineStep(questId, markerCode, player, extra) {
       //var steps = []
-      let conditionsDone = this.run.conditionsDone
+      let conditionsDone = this.run.conditionsDone || []
 
       if (!player) {
         player = 'P1'
@@ -2038,7 +2129,7 @@ console.log("STEP DATA MISSING")
             }
 
             // check if the step is not already done
-            if (this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone_' + markersSteps[i].stepId) === -1) {
+            if (this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone' + player + '_' + markersSteps[i].stepId) === -1) {
               if (markersSteps[i].conditions && markersSteps[i].conditions.length > 0) {
                 for (var j = 0; j < markersSteps[i].conditions.length; j++) {
                   // if one of the conditions of the step i not ok, continue with next step
@@ -2079,6 +2170,8 @@ console.log("STEP DATA MISSING")
           this.run.conditionDone = conditionsDone
           this.run.currentStep = stepId
         }
+        // reset markerCode
+        markerCode = false
       }
 
       // list the steps for the chapter
@@ -2095,14 +2188,20 @@ console.log("STEP DATA MISSING")
       }
 
       if (stepsofChapter && stepsofChapter.length > 0) {
+        let combineFound = 0
         stepListFor:
         for (i = 0; i < stepsofChapter.length; i++) {
+          combineFound = 0
           // check if the step is not already done
           if (conditionsDone && conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
             if (stepsofChapter[i].conditions && stepsofChapter[i].conditions.length > 0) {
               for (j = 0; j < stepsofChapter[i].conditions.length; j++) {
-                // check if counter condition
-                if (stepsofChapter[i].conditions[j].indexOf('countergreater_') === -1 && stepsofChapter[i].conditions[j].indexOf('counterlower_') === -1) {
+                // check if a standard condition (not a counter condition)
+                if (stepsofChapter[i].conditions[j].indexOf('countergreater_') === -1 
+                  && stepsofChapter[i].conditions[j].indexOf('counterlower_') === -1
+                  && stepsofChapter[i].conditions[j].indexOf('haveobject_') === -1
+                  && stepsofChapter[i].conditions[j].indexOf('nothaveobject_') === -1
+                  && stepsofChapter[i].conditions[j].indexOf('combineobject_') === -1) {
                   // if one of the conditions of the step i not ok, continue with next step
                   if (conditionsDone.indexOf(stepsofChapter[i].conditions[j]) === -1) {
                     continue stepListFor
@@ -2119,6 +2218,33 @@ console.log("STEP DATA MISSING")
                   if (stepsofChapter[i].conditions[j].indexOf('counterlower_') !== -1) {
                     const upperCounter = parseInt(stepsofChapter[i].conditions[j].replace('counterlower_', ''), 10)
                     if (counter >= upperCounter) {
+                      continue stepListFor
+                    }
+                  }
+                  // if object is in inventory value
+                  if (stepsofChapter[i].conditions[j].indexOf('haveobject_') !== -1) {
+                    let objectToCheck = stepsofChapter[i].conditions[j].replace('haveobject_', '')
+                    if (conditionsDone.indexOf('objectWon_' + objectToCheck) === -1) {
+                      continue stepListFor
+                    }                    
+                  }
+                  // if object is not in inventory value
+                  if (stepsofChapter[i].conditions[j].indexOf('nothaveobject_') !== -1) {
+                    let objectToCheck = stepsofChapter[i].conditions[j].replace('nothaveobject_', '')
+                    if (conditionsDone.indexOf('objectWon_' + objectToCheck) !== -1) {
+                      continue stepListFor
+                    }                    
+                  }
+                  // if counter greater than counterlower value
+                  if (stepsofChapter[i].conditions[j].indexOf('combineobject_') !== -1) {
+                    // If not checking combination, move to next step conditions step
+                    if (extra && extra.type === "combine") {
+                      let objectToCheck = stepsofChapter[i].conditions[j].replace('combineobject_', '')
+                      if (extra.items.indexOf(objectToCheck) === -1) {
+                        continue stepListFor
+                      }
+                      combineFound++
+                    } else {
                       continue stepListFor
                     }
                   }
@@ -2140,8 +2266,12 @@ console.log("STEP DATA MISSING")
                 if (stepsofChapter[i].options && stepsofChapter[i].options.locations && stepsofChapter[i].options.locations.length > 0) {
                   if (!extra.locations) {
                     extra.locations = []
+                    extra.visibles = []
                   }
                   extra.locations.push({lat: stepsofChapter[i].options.locations[0].lat, lng: stepsofChapter[i].options.locations[0].lng, distance: stepsofChapter[i].options.distance})
+                  if (stepsofChapter[i].options && stepsofChapter[i].options.mode && stepsofChapter[i].options.mode === "map") {
+                    extra.visibles.push({marker: stepsofChapter[i].options.locator ? stepsofChapter[i].options.locator : '', coords: {lat: stepsofChapter[i].options.locations[0].lat, lng: stepsofChapter[i].options.locations[0].lng, distance: stepsofChapter[i].options.distance}})
+                  }
                 }
                 continue stepListFor
               }
@@ -2176,7 +2306,7 @@ console.log("STEP DATA MISSING")
 
               // if no step triggered, call getnextstep again
               if (!nextStepId) {
-                const secondStepProcess1 = await this.getNextOfflineStep(questId, user, markerCode, player, extra)
+                const secondStepProcess1 = await this.getNextOfflineStep(questId, markerCode, player, extra)
                 nextStepId = secondStepProcess1.id
                 extra = secondStepProcess1.extra
               }
@@ -2185,7 +2315,7 @@ console.log("STEP DATA MISSING")
 
             //if (!locationMarkerFound && !geolocationFound) {
             // if step is end of chapter
-            if (stepsofChapter[i].type === 'end-chapter') {
+            if (stepsofChapter[i].type === 'end-chapter' && !(extra && extra.type === "combine")) {
               if (stepsofChapter[i].options && stepsofChapter[i].options.resetHistory) {
                 this.removeHistory()
               }
@@ -2194,9 +2324,24 @@ console.log("STEP DATA MISSING")
               if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
                 this.removeAllConditionsOfAChapter(this.offline.steps, conditionsDone, stepsofChapter[i].chapterId)
               } else {
-                nextStepId = await this.moveToNextChapter()
+                // reset progression of this chapter
+                if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgressionAndMoveNext) {
+                  this.removeAllConditionsOfAChapter(this.offline.steps, conditionsDone, stepsofChapter[i].chapterId)
+                }
+                if (stepsofChapter[i].options && stepsofChapter[i].options.chapterId && stepsofChapter[i].options.chapterId != "") {
+                  nextStepId = await this.moveToChapter(stepsofChapter[i].options.chapterId)
+                } else {
+                  nextStepId = await this.moveToNextChapter()
+                }
               }
               if (nextStepId !== 'end') {
+                if (!stepsofChapter[i].options || !stepsofChapter[i].options.resetChapterProgression) {
+                  // save that chapter-end is done, except if reset chapter progression
+                  conditionsDone.push('stepDone_' + stepsofChapter[i].stepId.toString())
+                  conditionsDone.push('stepDone' + this.player + '_' + stepsofChapter[i].stepId.toString())
+                  this.run.conditionDone = conditionsDone
+                }
+
                 // get next step by running the process again for new chapter
                 let response = await this.getNextOfflineStep(questId, markerCode, player, extra)
                 nextStepId = response.id
@@ -2205,9 +2350,18 @@ console.log("STEP DATA MISSING")
               return {id: nextStepId, extra: extra}
             } else { // if (markerCode || stepsofChapter[i].type !== 'locate-marker') { // if locate marker, do not start the step until user flash the marker
               // return step if no condition or all conditions met
-              let nextStepId = stepsofChapter[i].stepId
-              //await this.addStepToHistory(nextStepId)
-              return {id: nextStepId, extra: extra}
+              if (extra && extra.type === "combine") {
+                if (combineFound >1) {
+                  let nextStepId = stepsofChapter[i].stepId
+                  return {id: nextStepId, extra: extra}
+                }
+              } else {
+                let nextStepId = stepsofChapter[i].stepId
+                /*if (nextStepId !== 'end' && nextStepId !== '') {
+                  await addStepToHistory(run, nextStepId)
+                }*/
+                return {id: nextStepId, extra: extra}
+              }
             }
             //}
           }
@@ -2215,7 +2369,7 @@ console.log("STEP DATA MISSING")
       }
 
       // if no next step, check if the type of the quest is simple => end quest
-      if (this.info.quest && this.info.quest.editorMode === 'simple' && !locationMarkerFound) {
+      if (this.info.quest && this.info.quest.editorMode === 'simple' && !locationMarkerFound && !(extra && extra.type === "combine")) {
         let nextStepId = await this.moveToNextChapter()
         if (nextStepId !== 'end') {
           // get next step by running the process again for new chapter
@@ -2320,7 +2474,11 @@ console.log("STEP DATA MISSING")
                     pictureUrl = await utils.readBinaryFile(this.questId, stepData.options.picture)
                   }
                 } else {
-                  pictureUrl = stepData.options.picture
+                  if (stepData.options.pictures && stepData.options.pictures[this.lang] && stepData.options.pictures[this.lang] !== '') {
+                    pictureUrl = stepData.options.pictures[this.lang]
+                  } else {
+                    pictureUrl = stepData.options.picture
+                  }
                 }
                 results.push({step: stepWithObjectId, picture: pictureUrl, originalPicture: stepData.options.picture, title: stepData.options.title, pictures: stepData.options.pictures, titles: stepData.options.titles})
               }
@@ -2355,7 +2513,7 @@ console.log("STEP DATA MISSING")
      *
      * WARNING : this function is a duplicate for server function "updateConditions" of run.js controller
      */
-    updateConditions(currentConditions, stepId, isSuccess, stepType, addStepDone, player) {
+    updateConditions(currentConditions, stepId, isSuccess, stepType, addStepDone, player, extraData) {
       if (!stepId) {
         return currentConditions
       }
@@ -2398,6 +2556,11 @@ console.log("STEP DATA MISSING")
           }
         }
       }
+      // assign answer number for QCM
+      if (stepType == 'choose' && currentConditions.indexOf('stepAnswerNb_' + stepId + '_' + extraData) === -1) {
+        currentConditions.push('stepAnswerNb_' + stepId + '_' + (parseInt(extraData, 10) + 1))
+      }
+      
       return currentConditions
     },
     /*
@@ -2511,6 +2674,13 @@ console.log("STEP DATA MISSING")
       return nextChapter
     },
     /*
+     * Move to a defined chapter
+     */
+    async moveToChapter(chapterId) {
+      this.run.currentChapter = chapterId
+      return chapterId
+    },
+    /*
      * cut sound
      */
     cutSound () {
@@ -2527,15 +2697,29 @@ console.log("STEP DATA MISSING")
       }
     },
     /*
+     * reduce sound
+     */
+    reduceVolume () {
+      var audio = document.getElementById("background-music")
+      if (audio) {
+        audio.volume = 0.2;
+      }
+    },
+    resetVolume() {
+      var audio = document.getElementById("background-music")
+      if (audio) {
+        audio.volume = 1;
+      }
+    },
+    /*
      * cut audio for video or step with audio
      */
     manageAudio () {
       // audio available for current step ? (either for current language or main quest language)
       let hasAudioForCurrentStep = this.step.audioStream && ((this.step.audioStream[this.lang] && this.step.audioStream[this.lang] !== '') || (this.step.audioStream[this.info.quest.mainLanguage] && this.step.audioStream[this.info.quest.mainLanguage] !== ''))
-
+      this.resetVolume();
       if (this.step.type === 'info-video' || hasAudioForCurrentStep) {
-        this.cutSound()
-        this.sound.tempMute = true
+        this.reduceVolume()
       } else if (this.sound.tempMute) {
         this.cutSound()
       }
@@ -2548,6 +2732,7 @@ console.log("STEP DATA MISSING")
         document.addEventListener("deviceready", this.swithFullscreenMode, false)
       }
     },
+    // SPECIFIC COE
     getStarsNumber() {
       let counter = 0
       let conditionsDone = this.run.conditionsDone
@@ -2566,9 +2751,29 @@ console.log("STEP DATA MISSING")
       let forceOnlineQuestOption = this.info.quest.customization && this.info.quest.customization.forceOnline
       let userIsAuthor = this.$store.state.user._id === this.info.quest.authorUserId
       let userIsEditor = Array.isArray(this.info.quest.editorsUserId) && this.info.quest.editorsUserId.includes(this.$store.state.user._id)
-      
       this.offline.active = !(this.isMultiplayer || forceOnlineQuestOption || !this.isHybrid || userIsAuthor || userIsEditor || this.$store.state.user.isAdmin)
     },
+    /*
+     * Compute number of good answers
+     */
+    computeGoodAnswers() {
+      if (this.run.conditionsDone) {
+        const conditionsDone = this.run.conditionsDone
+        let nbQuestions = 0
+        let nbGoodAnwers = 0
+        for (var i = 0; i < conditionsDone.length; i++) {
+          if (conditionsDone[i].indexOf('stepSuccess_') !== -1) {
+            nbQuestions++
+            nbGoodAnwers++
+          } else if (conditionsDone[i].indexOf('stepFail_') !== -1) {
+            nbQuestions++
+          }
+        }
+        this.score.nbQuestions = nbQuestions
+        this.score.nbGoodAnwers = nbGoodAnwers
+      }
+    },
+    // SPECIFIC COE
     async changeLanguage(lang) {
       let modifications = {
         language: lang
@@ -2664,6 +2869,7 @@ console.log("STEP DATA MISSING")
 
 </style>
 <style>
+/* SPECIFIC COE */
   .bg-primary {
     background-color: rgb(86, 156, 210) !important;
   }

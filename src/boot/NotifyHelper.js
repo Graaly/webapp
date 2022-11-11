@@ -28,7 +28,7 @@ export default (message, type, actions, duration, customColor) => {
         icon: "info",
         color: customColor ? customColor : "positive",
         timeout: 0,
-        position: isHybrid ? "bottom" : "top-right"
+        position: "bottom"
       };
       defaultSettings.actions = [{ icon: "close" }]
       break;
@@ -45,7 +45,9 @@ export default (message, type, actions, duration, customColor) => {
   );
   
   // Clear remaining notifications
-  utils.clearAllNotifications()
+  if (type !== "readMore") {
+    utils.clearAllNotifications()
+  }
 
   utils.notificationsArr.push(newNotification)
 

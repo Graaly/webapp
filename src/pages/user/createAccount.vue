@@ -16,7 +16,7 @@
 
 <script>
 
-import createProfilStepper from "../../components/user/createProfilStepper";
+import createProfilStepper from "components/user/createProfilStepper";
 
 export default {
   components: {

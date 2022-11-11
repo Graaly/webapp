@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "06fd5bc04fa5c2e19067",
-    "url": "css/app.6bd28dcc.css"
+    "revision": "e61404bcea3b6f6aae9e",
+    "url": "css/app.04272c88.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -72,7 +72,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "83c788c36ee22631df2ac80ca366d515",
+    "revision": "e60a275ef88083327feb0747051f080f",
     "url": "index.html"
   },
   {
@@ -80,12 +80,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2.5af11629.js"
   },
   {
-    "revision": "06fd5bc04fa5c2e19067",
-    "url": "js/app.81770e50.js"
+    "revision": "e61404bcea3b6f6aae9e",
+    "url": "js/app.0639c8a4.js"
   },
   {
-    "revision": "5b15a5d0542c18444147",
-    "url": "js/vendor.5b15a5d0.js"
+    "revision": "02b82f71a5d92ff8108d",
+    "url": "js/vendor.02b82f71.js"
   },
   {
     "revision": "19e941eacef1fc70e8b70479c2cb66cb",
@@ -316,6 +316,86 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/cars/nose-3.png"
   },
   {
+    "revision": "104f531b4d2cc1134f1280e791738a64",
+    "url": "statics/cea/eye-0.png"
+  },
+  {
+    "revision": "b7a5731127ea6c96e65b886375498f24",
+    "url": "statics/cea/eye-1.png"
+  },
+  {
+    "revision": "cbd97e23d0ea6c753f3ad608223a2e1b",
+    "url": "statics/cea/eye-2.png"
+  },
+  {
+    "revision": "82c3a602c24174bfb767315d44bab535",
+    "url": "statics/cea/eye-3.png"
+  },
+  {
+    "revision": "85013efbafaa9c50f3c81e98d1197353",
+    "url": "statics/cea/eye-4.png"
+  },
+  {
+    "revision": "04a52c88f7f0b0fbe3eef9f6ebd77291",
+    "url": "statics/cea/face-0.png"
+  },
+  {
+    "revision": "d39bfa54e1704d4367537b4ff32271f7",
+    "url": "statics/cea/face-1.png"
+  },
+  {
+    "revision": "1e9cc4ff29d7b2f99df9109d0ef8fa0b",
+    "url": "statics/cea/face-2.png"
+  },
+  {
+    "revision": "c97458b373ca4efdcdd5526097642f78",
+    "url": "statics/cea/face-3.png"
+  },
+  {
+    "revision": "f4db4552bf15b22010b314888e619a33",
+    "url": "statics/cea/face-4.png"
+  },
+  {
+    "revision": "1455e85597f5fa060421b279c9ee5213",
+    "url": "statics/cea/hair-0.png"
+  },
+  {
+    "revision": "e50c450b44b0e232e32b37db4232a646",
+    "url": "statics/cea/hair-1.png"
+  },
+  {
+    "revision": "0ad1421d241cec2c1d2be0aa4936d44b",
+    "url": "statics/cea/hair-2.png"
+  },
+  {
+    "revision": "76e16daa993f1c05f509eab531e2c08e",
+    "url": "statics/cea/hair-3.png"
+  },
+  {
+    "revision": "3c37a9813c1719e193732734a150cd2d",
+    "url": "statics/cea/hair-4.png"
+  },
+  {
+    "revision": "06f104d4e2d269fb562ebe43fac16100",
+    "url": "statics/cea/hat-0.png"
+  },
+  {
+    "revision": "0771e542fe9393c71d89259bea80a7ea",
+    "url": "statics/cea/hat-1.png"
+  },
+  {
+    "revision": "2eec3bef60be54dad5741afa3b569370",
+    "url": "statics/cea/hat-2.png"
+  },
+  {
+    "revision": "cd8bdcaf9b90694824c441d55ed877c7",
+    "url": "statics/cea/hat-3.png"
+  },
+  {
+    "revision": "96058d205ee01ca07bed525d96e3b22f",
+    "url": "statics/cea/hat-4.png"
+  },
+  {
     "revision": "2f72e442866ab7c9a882b31a4d2abe5a",
     "url": "statics/colors/colors1.png"
   },
@@ -446,6 +526,26 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "95885fcb6d82c60fc4c07c8c053280f5",
     "url": "statics/customers/conseil-europe/images/visites_en.png"
+  },
+  {
+    "revision": "45f21302fab9ceaf6439793b7bd353ef",
+    "url": "statics/customers/iconicube/bouton1.png"
+  },
+  {
+    "revision": "5fe639423836954e5312a0c3e3bd1ae1",
+    "url": "statics/customers/iconicube/bouton2.png"
+  },
+  {
+    "revision": "9cbb508eeeed1dd9758ed959f124e8f4",
+    "url": "statics/customers/iconicube/bouton3.png"
+  },
+  {
+    "revision": "14ae5e88f404e95d652b85838a838b0c",
+    "url": "statics/customers/iconicube/bouton4.png"
+  },
+  {
+    "revision": "6e9cee58fbd24a30aabe753413f97e06",
+    "url": "statics/customers/iconicube/bouton5.png"
   },
   {
     "revision": "3fe7549904127ab02d1bf894e49382ef",
@@ -761,6 +861,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   },
   {
     "revision": "76a48f2d69d9c0cbba570e605a3ce644",
+    "url": "statics/icons/story/sticker-bottom-old.png"
+  },
+  {
+    "revision": "f4d54ababfbec457c9928cf9189047ac",
     "url": "statics/icons/story/sticker-bottom.png"
   },
   {
@@ -2552,7 +2656,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/sncf/nose-2.png"
   },
   {
-    "revision": "9010e0d416ad0bd351d2142248b57971",
+    "revision": "41563389b343bdcfe13e1b3064eddf63",
     "url": "statics/sncf/nose-3.png"
   },
   {

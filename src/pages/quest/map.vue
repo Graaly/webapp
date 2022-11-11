@@ -61,9 +61,9 @@
 
 <script>
 import QuestService from 'services/QuestService'
-import backBar from "../../components/user/UI/backBar";
+import backBar from "components/user/UI/backBar";
 import geolocation from 'components/geolocation'
-import textBtnSquare from "../../components/user/UI/textBtnSquare";
+import textBtnSquare from "components/user/UI/textBtnSquare";
 
 import { gmapApi } from 'vue2-google-maps'
 
@@ -344,7 +344,7 @@ export default {
     },
     onUserPositionError(ret) {
       // reset position only if localization never worked, else keep current location
-      if (ret) {
+      if (!this.$refs['geolocation-component'].alreadyWorked) {
         this.user.position = null
       }
     },

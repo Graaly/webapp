@@ -374,8 +374,8 @@ import checkPasswordComplexity from 'boot/PasswordComplexity'
 import languages from 'data/languages.json'
 import utils from 'src/includes/utils'
 
-import iconBtnSquare from "../../components/user/UI/iconBtnSquare";
-import textBtnSquare from "../../components/user/UI/textBtnSquare";
+import iconBtnSquare from "components/user/UI/iconBtnSquare";
+import textBtnSquare from "components/user/UI/textBtnSquare";
 
 import countriesFR from 'data/countries_fr.json'
 import countriesEN from 'data/countries_en.json'

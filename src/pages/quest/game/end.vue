@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll text-white" :class="quest && quest.customization && quest.customization.endColor ? '' : 'background-dark'" :style="(quest && quest.customization && quest.customization.endColor && quest.customization.endColor !== '') ? 'background-color: ' + quest.customization.endColor : ''">
+  <div class="scroll text-white" style="height: 100vh;" :class="quest && quest.customization && quest.customization.endColor ? '' : 'background-dark'" :style="(quest && quest.customization && quest.customization.endColor && quest.customization.endColor !== '') ? 'background-color: ' + quest.customization.endColor : ''">
     <!------------------ NO NETWORK AREA ------------------------>
     <div v-if="warnings.noNetwork">
       <div class="bg-primary">
@@ -35,7 +35,7 @@
       <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
     </div>
 
-    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
+    <div class="q-pa-md" v-if="!warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
       <div v-if="run && run._id">
         <div class="relative-position header-point-box">
           <div class="full-width centered header-point absolute">
@@ -46,7 +46,7 @@
           <div style="padding-top: 100px">
             <div style="padding-top: 35px" class="rounded background-lighter2 centered full-width">
               <h2 class="text-center title2 q-mt-xl q-mb-sm q-mx-xl text-uppercase">{{ $t('label.YouWin') }}</h2>
-              <div class="relative-position progress-box">
+              <div class="relative-position progress-box" v-if="!(quest.customization && quest.customization.hideUserProgressionOnEnd)">
                 <div class="progress-bar">
                   <div class="progress" :style="'width: ' + Math.floor(level.progress * 100) + '%'">
                   </div>
@@ -85,38 +85,40 @@
 
         <!------------------ SUGGESTION AREA ------------------------>
 
-        <div class="centered q-mt-md subtitle5">{{ $t('label.YouLikedThisQuest') }}</div>
-        <div class="centered q-px-md">
-          <span v-show="quest && quest.type !== 'discovery' && run.score > 0 && quest && quest.access === 'public'">
-            <a class="small" @click="openChallengeBox">{{ $t('label.ChallengeYourFriends') }}</a> <span class="secondary-font-very-small"> {{ $t('label.or') }} </span>
-          </span>
-          <a class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
-        </div>
-        <div v-if="author" class="centered q-mt-lg">
-          <div class="user-card user-card-small relative-position" style="margin: 0px;">
-            <div class="relative-position" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
-              <div v-if="author.statistics && author.statistics.nbQuestsCreated && author.statistics.nbQuestsCreated > 0" class="profile-item-creator">
-                <img src="statics/images/icon/profile-puzzle.svg" />
-              </div>
-              <div v-if="author.statistics && author.statistics.nbQuestsSuccessful && author.statistics.nbQuestsSuccessful > 0" class="profile-item-level">
-                <img :src="'statics/images/icon/level' + author.level + '.svg'" />
+        <div v-if="!(quest.customization && quest.customization.hideAuthorOnEnd)">
+          <div class="centered q-mt-md subtitle5">{{ $t('label.YouLikedThisQuest') }}</div>
+          <div class="centered q-px-md">
+            <span v-show="quest && quest.type !== 'discovery' && run.score > 0 && quest && quest.access === 'public'">
+              <a class="small" @click="openChallengeBox">{{ $t('label.ChallengeYourFriends') }}</a> <span class="secondary-font-very-small"> {{ $t('label.or') }} </span>
+            </span>
+            <a class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
+          </div>
+          <div v-if="author" class="centered q-mt-lg">
+            <div class="user-card user-card-small relative-position" style="margin: 0px;">
+              <div class="relative-position" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
+                <div v-if="author.statistics && author.statistics.nbQuestsCreated && author.statistics.nbQuestsCreated > 0" class="profile-item-creator">
+                  <img src="statics/images/icon/profile-puzzle.svg" />
+                </div>
+                <div v-if="author.statistics && author.statistics.nbQuestsSuccessful && author.statistics.nbQuestsSuccessful > 0" class="profile-item-level">
+                  <img :src="'statics/images/icon/level' + author.level + '.svg'" />
+                </div>
               </div>
             </div>
-          </div>
-          <div class="centered subtitle3">
-            {{ author.name }}
-          </div>
-          <div class="centered q-pt-sm" v-if="$store.state.user.id !== author._id">
-            <q-btn
-               v-if="!author.status || author.status !== 'friend'"
-              class="glossy normal-button"
-              color="primary"
-              :label="$t('label.Follow')"
-              @click="follow" />
-            <div v-if="author.status && author.status === 'friend'" class="centered">
-              <q-chip class="glossy" color="primary" text-color="white" icon-right="star">
-                {{ $t('label.Followed') }}
-              </q-chip>
+            <div class="centered subtitle3">
+              {{ author.name }}
+            </div>
+            <div class="centered q-pt-sm" v-if="$store.state.user.id !== author._id">
+              <q-btn
+                 v-if="!author.status || author.status !== 'friend'"
+                class="glossy normal-button"
+                color="primary"
+                :label="$t('label.Follow')"
+                @click="follow" />
+              <div v-if="author.status && author.status === 'friend'" class="centered">
+                <q-chip class="glossy" color="primary" text-color="white" icon-right="star">
+                  {{ $t('label.Followed') }}
+                </q-chip>
+              </div>
             </div>
           </div>
         </div>
@@ -127,7 +129,7 @@
 
     </div>
 
-    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork">
+    <div class="q-pa-md" v-if="!warnings.noNetwork">
       <div>
         <!------------------ REVIEW AREA ------------------------>
 
@@ -160,7 +162,7 @@
       </div>
     </div>
 
-    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
+    <div class="q-pa-md" v-if="!warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
       <div v-if="run && run._id">
         <!------------------ RANKING AREA ------------------------>
 
@@ -371,7 +373,9 @@ export default {
     this.endDate = Moment(date).format('DD/MM/YYYY, k:mm')
     
     // After 6 seconds, show the notation box to increase the number of comments on games
-    utils.setTimeout(this.showNotationBox, 7000)
+    if (!this.isUserAuthor && !this.isUserAdmin) {
+      utils.setTimeout(this.showNotationBox, 7000)
+    }
   },
   methods: {
     /*
@@ -427,9 +431,7 @@ export default {
         const offlineRunData = await this.getOfflineRunData()
         if (offlineRunData) {
           this.run = offlineRunData
-        }
-console.log("OFFLINE RUN DATA")
-console.log(offlineRunData)        
+        }      
          
          // compute good answers
         await this.computeGoodAnswers()
@@ -759,8 +761,6 @@ console.log(offlineRunData)
      * Compute number of good answers
      */
     async computeGoodAnswers() {
-console.log("COMPUTE GOOD ANSWERS")
-console.log(this.run)
       const conditionsDone = this.run.conditionsDone
       let nbQuestions = 0
       let nbGoodAnwers = 0

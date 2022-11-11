@@ -115,9 +115,9 @@ import questList from 'components/user/questList'
 import usersList from 'components/user/usersList'
 import geolocation from 'components/geolocation'
 
-import iconBtnSquare from "../components/user/UI/iconBtnSquare";
-import CreatorList from "../components/user/creatorList";
-import UserList from "../components/user/userList";
+import iconBtnSquare from "components/user/UI/iconBtnSquare";
+import CreatorList from "components/user/creatorList";
+import UserList from "components/user/userList";
 
 export default {
   components: {
@@ -374,7 +374,7 @@ export default {
     },
     onLocationError(ret) {
       // reset position only if localization never worked, else keep current location
-      if (ret) {
+      if (!this.$refs['geolocation-component'].alreadyWorked) {
         this.user.position = null
       }
     },

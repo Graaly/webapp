@@ -181,11 +181,11 @@ import Notification from 'boot/NotifyHelper'
 import utils from 'src/includes/utils'
 import Vue from 'vue'
 
-import iconBtnSquare from "../../components/user/UI/iconBtnSquare";
-import textBtnSquare from "../../components/user/UI/textBtnSquare";
-import questList from "../../components/user/questList";
-import badgeList from "../../components/user/badgeList";
-import userList from "../../components/user/userList";
+import iconBtnSquare from "components/user/UI/iconBtnSquare";
+import textBtnSquare from "components/user/UI/textBtnSquare";
+import questList from "components/user/questList";
+import badgeList from "components/user/badgeList";
+import userList from "components/user/userList";
 
 export default {
   components: {

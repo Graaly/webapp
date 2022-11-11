@@ -411,9 +411,9 @@ export default {
     },
     closeBubble() {
       // only for read more
-      if (this.currentStep.id === 6) {
-        this.$emit('next', this.nextStep)
-      }
+      //if (this.currentStep.id === 6) {
+      //  this.$emit('next', this.nextStep)
+      //}
     },
     async linkAction() {
       if (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].link.hasOwnProperty("action")) {

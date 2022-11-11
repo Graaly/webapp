@@ -77,7 +77,7 @@ export default {
       cameraStreamEnabled: false,
       imageCapture: null,
       cameraUsed: 'user',
-      iOSCameraUsed : '',
+      iOSCameraUsed: '',
       takingSnapshot: false,
       isHybrid: window.cordova,
       isIOs: utils.isIOS(),
@@ -103,6 +103,7 @@ export default {
       }
     },
     async prepareSnapshot() {
+      this.$q.loading.show()
       this.takingSnapshot = true
       // if red filter, do not hide buttons
       if (!(this.isIOs && this.step.options && this.step.options.redFilter)) {
@@ -141,10 +142,9 @@ export default {
           let blob = await this.imageCapture.takePhoto()
           image.src = URL.createObjectURL(blob)
         }
-        this.takingSnapshot = false
+
         // CREATE A MIX WITH IMAGE OVERLAY
         image.onload = async () => {
-          this.$q.loading.hide()
           // build image with camera capture + overlay in a canvas
           let c = document.createElement('canvas')
           let context = c.getContext('2d')
@@ -154,26 +154,41 @@ export default {
           // fit image to canvas, center horizontally & vertically & keep aspect ratio (like CSS 'cover')
           draw.drawImageProp(context, image)
           //let imgOverflow = this.$refs['imageOverflowForCapture']
-          let imgOverflow = new Image()
-          imgOverflow.crossOrigin = 'anonymous'
-          imgOverflow.src = this.getBackgroundImage()
-          imgOverflow.onload = async () => {
-            try { // Added by EMA when no picture added, it breaks
-              draw.drawImageProp(context, imgOverflow)
-            } catch (e) {
-              console.log("picture missing")
+          if (this.getBackgroundImage() != null) {
+            let imgOverflow = new Image()
+            imgOverflow.crossOrigin = 'anonymous'
+            imgOverflow.src = this.getBackgroundImage()
+            imgOverflow.onload = async () => {
+              try { // Added by EMA when no picture added, it breaks
+                draw.drawImageProp(context, imgOverflow)
+              } catch (e) {
+                console.log("picture missing")
+              }
+              // CREATE A BLOB OBJECT FROM CANVAS
+              let finalBlob
+              finalBlob = await new Promise(resolve => c.toBlob(resolve, 'image/jpeg'))
+
+              // OPEN DIALOG WITH OPTIONS
+              this.takingSnapshot = false
+              this.$q.loading.hide()
+              if (this.isHybrid) {
+                this.openDialog(true, finalBlob, snapshotFilename, c)
+              } else { // WEBAPP
+                this.openDialog(false, finalBlob, snapshotFilename, c)
+              }
             }
-            // CREATE A BLOB OBJECT FROM CANVAS
+          } else {
             let finalBlob
             finalBlob = await new Promise(resolve => c.toBlob(resolve, 'image/jpeg'))
-
-            // OPEN DIALOG WITH OPTIONS
+            this.takingSnapshot = false
+            this.$q.loading.hide()
             if (this.isHybrid) {
               this.openDialog(true, finalBlob, snapshotFilename, c)
             } else { // WEBAPP
               this.openDialog(false, finalBlob, snapshotFilename, c)
             }
           }
+
         }
       } catch (err) {
         Notification(this.$t('label.SnapshotTakenIssue'), 'error');
@@ -297,7 +312,7 @@ export default {
     },
     getBackgroundImage () {
       if (!this.step.backgroundImage) {
-        return ""
+        return null
       }
       let backgroundImage = this.step.backgroundImage[this.lang] ? this.step.backgroundImage[this.lang] : this.step.backgroundImage[this.quest.mainLanguage]
       if (backgroundImage && backgroundImage[0] === "_") {
@@ -305,7 +320,11 @@ export default {
       } else if (backgroundImage && backgroundImage.indexOf('blob:') !== -1) {
         return backgroundImage
       } else {
-        return this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
+        if (backgroundImage != null) {
+          return this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
+        } else {
+          return null
+        }
       }
     }
   },

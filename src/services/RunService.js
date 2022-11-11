@@ -78,10 +78,9 @@ export default {
    * @param   {String}    questId                ID of the quest
    * @param   {String}    player                 Player number ('P1', 'P2', ...)
    */
-  getNextStep(questId, player) {
+  getNextStep(questId, player, extra) {
     return Api()
-      .get("run/" + questId + "/step/next/player/" + player)
-      .catch(error => console.log(error.request));
+      .post("run/" + questId + "/step/next/player/" + player, extra).catch(error => console.log(error.request));
   },
   /*
    * check if a market launch a new step
@@ -254,6 +253,16 @@ export default {
   passStep(id, stepId, player) {
     return Api()
       .put("run/" + id + "/passstep/" + stepId + "/player/" + player)
+      .catch(error => console.log(error.request));
+  },
+  /*
+   * Set a readmore as read
+   * @param   {String}    id                  ID of the run
+   * @param   {String}    stepId              ID of the step
+   */
+  SetReadMoreAsRead(id, stepId) {
+    return Api()
+      .put("run/" + id + "/step/" + stepId + "/readmore/viewed")
       .catch(error => console.log(error.request));
   },
   /*

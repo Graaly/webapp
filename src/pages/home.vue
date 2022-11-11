@@ -192,13 +192,13 @@ import UserService from 'services/UserService'
 import AppStoreRatingService from 'services/AppStoreRatingService'
 
 import geolocation from 'components/geolocation'
-import homeMenu from "../components/user/UI/homeMenu";
-import questCard from "../components/user/UI/questCard";
-import questList from "../components/user/questList";
-import creatorList from "../components/user/creatorList";
-import iconBtnSquare from "../components/user/UI/iconBtnSquare";
-import textBtnSquare from "../components/user/UI/textBtnSquare";
-import createProfilDialog from "../components/user/Dialog/createProfilDialog";
+import homeMenu from "components/user/UI/homeMenu";
+import questCard from "components/user/UI/questCard";
+import questList from "components/user/questList";
+import creatorList from "components/user/creatorList";
+import iconBtnSquare from "components/user/UI/iconBtnSquare";
+import textBtnSquare from "components/user/UI/textBtnSquare";
+import createProfilDialog from "components/user/Dialog/createProfilDialog";
 
 import utils from 'src/includes/utils'
 import { QSpinnerDots, QInfiniteScroll } from 'quasar'
@@ -396,6 +396,11 @@ export default {
      */
     /*async checkCode(code) {
       code = utils.removeUnusedUrl(code)
+      // if code is 3 digits => this is a game QR code, not to be flashed here
+      if (code.length == 3) {
+        Notification(this.$t('label.QRCodeIsNotStartingOne'), 'error')
+        return
+      }
       let checkStatus = await QuestService.checkQRCode(code, this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
         this.closeQRCodeReader()
@@ -461,7 +466,8 @@ export default {
 
         if (!response.data.message || response.data.message !== 'No quest') {
           if (response.data.best) {
-            this.bestQuest = response.data.best
+            this.bestQuest = []
+            this.bestQuest.push(response.data.best[0])
           }
           if (response.data.nearests) {
             this.nearestQuests = response.data.nearests
