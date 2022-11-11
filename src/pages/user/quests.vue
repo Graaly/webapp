@@ -1,45 +1,76 @@
 <template>
-  <div class="scroll background-dark">
-    <div id="teaser q-mb-lg q-pt-xl">
-      <div style="margin-top: 120px">
-        <q-infinite-scroll @load="loadPlayed" :offset="250" v-if="tab === 'played'">
-          <questsList format="big" :quests="quests.played"></questsList>
+  <div class="scroll background-quests">
+    <div id="teaser" class="quests">
+      <div style="margin-top: 80px">
+        <q-infinite-scroll @load="loadPlayed" :offset="10" v-if="tab === 'played'">
+          <quest-list
+            :quests="quests.played"
+            :title="$t('label.SolvedQuests')"
+            icon="task_alt"
+            color="#1a4567"
+            :max-show="100"
+            no-price
+          />
         </q-infinite-scroll>
         <div v-if="tab === 'created' && $route.params.id !== $store.state.user.id">
-          <questsList format="big" color="red" :quests="quests.built"></questsList>
+          <quest-list
+            :quests="quests.built"
+            :title="$t('label.SolvedQuests')"
+            icon="task_alt"
+            color="accent"
+            no-rating
+            no-price
+            :max-show="1000"
+          />
         </div>
         <div v-if="tab === 'created' && $route.params.id === $store.state.user.id">
+
+          <!--====================== MY QUESTS REJECTED =================================-->
+
           <div v-if="quests.built && quests.built.rejected && quests.built.rejected.length > 0">
-            <!--====================== MY QUESTS REJECTED =================================-->
-
-            <div class="subtitle4 q-pa-md">{{ $t('label.YourRejectedQuests') }}</div>
-
-            <questsList format="big" color="red" :quests="quests.built.rejected"></questsList>
-
+            <quest-list
+              :quests="quests.built.rejected"
+              :title="$t('label.YourRejectedQuests')"
+              icon="block"
+              color="#DB2828"
+              :max-show="1000"
+            />
           </div>
+
+          <!--====================== MY QUESTS TO VALIDATE =================================-->
+
           <div v-if="quests.built && quests.built.tovalidate && quests.built.tovalidate.length > 0">
-            <!--====================== MY QUESTS TO VALIDATE =================================-->
-
-            <div class="subtitle4 q-pa-md">{{ $t('label.YourUnderValidationQuests') }}</div>
-
-            <questsList format="big" color="red" :quests="quests.built.tovalidate"></questsList>
-
+            <quest-list
+              :quests="quests.built.tovalidate"
+              :title="$t('label.YourUnderValidationQuests')"
+              icon="checklist"
+              color="secondary"
+              :max-show="1000"
+            />
           </div>
+
+          <!--====================== MY QUESTS DRAFT =================================-->
+
           <div v-if="quests.built && quests.built.draft">
-            <!--====================== MY QUESTS DRAFT =================================-->
-
-            <div class="subtitle4 q-pa-md">{{ $t('label.YourDraftQuests') }}</div>
-
-            <questsList format="big" color="red" :add="true" :quests="quests.built.draft"></questsList>
-
+            <quest-list
+              :quests="quests.built.draft"
+              :title="$t('label.YourDraftQuests')"
+              icon="edit"
+              color="accent"
+              :max-show="1000"
+            />
           </div>
+
+          <!--====================== MY QUESTS PUBLISHED =================================-->
+
           <div v-if="quests.built && quests.built.published && quests.built.published.length > 0">
-            <!--====================== MY QUESTS PUBLISHED =================================-->
-
-            <div class="subtitle4 q-pa-md">{{ $t('label.YourPublishedQuests') }}</div>
-
-            <questsList format="big" color="red" :quests="quests.built.published"></questsList>
-
+            <quest-list
+              :quests="quests.built.published"
+              :title="$t('label.YourPublishedQuests')"
+              icon="task_alt"
+              color="primary"
+              :max-show="1000"
+            />
           </div>
         </div>
         <div v-if="tab === 'played' && quests.played && quests.played.length === 0" class="centered">
@@ -52,8 +83,7 @@
 
       <!------------------ HEADER COMPONENT ------------------------>
 
-      <div class="q-py-sm q-px-md dark-banner opaque-banner fixed-top">
-        <q-btn flat icon="arrow_back" @click="backToTheMap()" />
+      <div class="q-py-sm q-px-md fixed-top quests-component">
         <div class="row q-pa-sm">
           <div class="col-6" @click="selectTab('played')" :class="{'tab-unselected': (tab !== 'played')}">
             <div class="tab-button subtitle5 centered">
@@ -73,11 +103,13 @@
 
 <script>
 import QuestService from 'services/QuestService'
-import questsList from 'components/quest/questsList'
+import questList from "../../components/user/questList";
+import backBar from "../../components/user/UI/backBar";
 
 export default {
   components: {
-    questsList
+    questList,
+    backBar
   },
   data () {
     return {
@@ -112,6 +144,7 @@ export default {
             self.quests.played.push({
               questId: response.data[i].questId,
               picture: response.data[i].questData.picture,
+              thumb: response.data[i].questData.thumb,
               title: response.data[i].questData.title,
               location: {
                 town: response.data[i].questData.town
@@ -182,3 +215,23 @@ export default {
   }
 }
 </script>
+<style scoped lang="scss">
+.background-quests {
+  background-image: url('../../statics/new/h-center-background-logo.jpg');
+  background-position: center 0px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.quests, .quests-component{
+  max-width: 450px;
+  margin: 0 auto;
+}
+.quests-component{
+  z-index: 5;
+  max-width: 450px;
+  right: 0;
+  left: 0;
+  background: linear-gradient(180deg, rgb(7,39,90) 65%, rgb(4,20,45) 100%);
+  border-radius: 0  0 20px 20px;
+}
+</style>

@@ -1,11 +1,13 @@
 <template>
   <q-layout view="lHh lpr lfr" :right-breakpoint="1100">
+
     <!------------------ MAIN PAGE AREA ------------------------>
     <q-page-container>
       <router-view id="main-view" :key="$route.fullPath" />
     </q-page-container>
 
     <!------------------ IF NOT A MOBILE DEVICE ------------------------>
+
     <div id="screen-too-large">
       <h5 class="text-center">
         {{ $t("label.GraalyIsOptimizedForSmallerScreens") }}
