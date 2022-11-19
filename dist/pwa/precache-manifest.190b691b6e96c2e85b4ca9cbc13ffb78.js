@@ -1,7 +1,11 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "ce40c8c640cea3a9707c",
-    "url": "css/app.7a21e835.css"
+    "revision": "10e7fdcee25018c5d44d",
+    "url": "css/2.0cf6c528.css"
+  },
+  {
+    "revision": "37531905e628ec29376e",
+    "url": "css/app.b7fd9a49.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -64,28 +68,48 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.c8685531.woff2"
   },
   {
+    "revision": "20fa3469548a7db43fe2954bb6e07226",
+    "url": "fonts/gok-H7zzDkdnRel8-DQ6KAXJ69wP1tGnf4ZGhUcY.bb9eb244.woff"
+  },
+  {
+    "revision": "038a9ca3281e45a97d0e15214244d94d",
+    "url": "fonts/gok-H7zzDkdnRel8-DQ6KAXJ69wP1tGnf4ZGhUcel5euIg.bba5e49b.woff2"
+  },
+  {
     "revision": "839a5f4e833b20507650b76bbbd58948",
     "url": "img/background-map.2f11b47b.png"
+  },
+  {
+    "revision": "e862fed62775e359841a8c06bad221c7",
+    "url": "img/h-center-background-logo.9dc0b480.jpg"
+  },
+  {
+    "revision": "4be2fee99542be21b7ab5fe89e98038d",
+    "url": "img/h-center-background.30235f50.jpg"
+  },
+  {
+    "revision": "3fbf9029a71462f8bb8952360aefdb17",
+    "url": "img/h-top-background.6084f2bc.jpg"
   },
   {
     "revision": "9d8eecdbc231f23d5f30a6b3547c2fef",
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "947faf4e6c8310b1522449a994b06c7a",
+    "revision": "fa9f9059f12a99b8c0c67f13ddd182a3",
     "url": "index.html"
   },
   {
-    "revision": "5af1162920faf149bfa2",
-    "url": "js/2.5af11629.js"
+    "revision": "10e7fdcee25018c5d44d",
+    "url": "js/2.10e7fdce.js"
   },
   {
-    "revision": "ce40c8c640cea3a9707c",
-    "url": "js/app.a43e9f77.js"
+    "revision": "37531905e628ec29376e",
+    "url": "js/app.71a13301.js"
   },
   {
-    "revision": "0bb3045f085339315aed",
-    "url": "js/vendor.0bb3045f.js"
+    "revision": "c564f34108bfa9a46f35",
+    "url": "js/vendor.c564f341.js"
   },
   {
     "revision": "19e941eacef1fc70e8b70479c2cb66cb",
@@ -2166,6 +2190,26 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "f8fc27335e2e1ede55bc6de672c5291f",
     "url": "statics/markers/kanji.patt"
+  },
+  {
+    "revision": "8a5b42381a19492f9f8125c53529cf65",
+    "url": "statics/new/graaly-icon-white.png"
+  },
+  {
+    "revision": "e862fed62775e359841a8c06bad221c7",
+    "url": "statics/new/h-center-background-logo.jpg"
+  },
+  {
+    "revision": "4be2fee99542be21b7ab5fe89e98038d",
+    "url": "statics/new/h-center-background.jpg"
+  },
+  {
+    "revision": "3fbf9029a71462f8bb8952360aefdb17",
+    "url": "statics/new/h-top-background.jpg"
+  },
+  {
+    "revision": "b31fa69d0feaab24a0f0c1770e2e9f74",
+    "url": "statics/new/logo-color-white.png"
   },
   {
     "revision": "af3fdc4e2ec6ca13ea7534d154c94f43",

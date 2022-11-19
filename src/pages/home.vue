@@ -427,11 +427,11 @@ export default {
       const isNetworkAvailable = utils.isNetworkAvailable()
       this.warnings.noNetwork = !isNetworkAvailable
       this.offline.active = !isNetworkAvailable
-      if (previousOfflineValue !== this.offline.active) {
-        this.questList = []
-        await this.loadQuests()
-        this.questList[0].description = 'CachedQuests'
-      }
+      // REMOVED EMA - QUESTS MUST BE DISPLAYED EVENT IF NO LOCATION if (previousOfflineValue !== this.offline.active) {
+      this.questList = []
+      await this.loadQuests()
+      this.questList[0].description = 'CachedQuests'
+      //}
 
       utils.setTimeout(this.checkNetwork, 5000)
     },
@@ -453,9 +453,9 @@ export default {
         if (this.user.position === null) {
           Notification(this.$t('label.LocationSearching'), 'warning')
           this.isQuestsLoaded = false
-          return
+          //return
         }
-        let response = await QuestService.listHomeQuests({ lng: this.user.position.longitude, lat: this.user.position.latitude })
+        let response = await QuestService.listHomeQuests({ lng: this.user.position ? this.user.position.longitude : 0, lat: this.user.position ? this.user.position.latitude : 0 })
 
         if (!response || !response.data) {
           Notification(this.$t('label.TechnicalIssue'), 'error')

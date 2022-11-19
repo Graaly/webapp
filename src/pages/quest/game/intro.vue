@@ -141,7 +141,7 @@
                 :title="$t('label.OpeningHours')"
                 icon="schedule"
               />
-              <div class="q-mb-lg">{{ $t('label.QuestIsNotPlayableNow') }}</div>
+              <div class="q-mb-lg text-white">{{ $t('label.QuestIsNotPlayableNow') }}</div>
             </span>
           </div>
           <p v-if="canReplay !== 'yes'">

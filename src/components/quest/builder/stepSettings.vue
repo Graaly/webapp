@@ -273,7 +273,7 @@
           v-model="selectedStep.form.answers"
           :label="$t('label.Code')"
           min-length="2"
-          max-length="6"
+          max-length="10"
           @blur="$v.selectedStep.form.answers.$touch"
           @input="$v.selectedStep.form.answers.$touch"
           bottom-slots
@@ -3620,7 +3620,7 @@ export default {
       case 'code-keypad':
         fieldsToValidate.answers = { required,
           function(value) {
-            let regexp = new RegExp("^([0-9*#]{2,6})$", "g")
+            let regexp = new RegExp("^([0-9*#]{2,10})$", "g")
             return regexp.test(value)
           }
         }

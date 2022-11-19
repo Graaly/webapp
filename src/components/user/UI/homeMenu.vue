@@ -4,7 +4,9 @@
     <q-list class="nav flex justify-between no-wrap">
       <q-item class="q-pa-none menu-btn graaly" clickable manual-focus :active="link === 'graaly'" active-class="active" @click="goToHome()">
         <q-item-section class="flex justify-center items-center">
-          <q-icon class="btn-icon" :name="link === 'graaly' ? 'svguse:../../../statics/new/graaly-icon-color.svg#color' : 'svguse:../../../statics/new/graaly-icon-color.svg#white'" />
+          <q-avatar size="lg">
+            <img :src="link === 'graaly' ? 'statics/icons/app-logo/icon-48x48.png' : 'statics/new/graaly-icon-white.png'" />
+          </q-avatar>
         </q-item-section>
       </q-item>
       <q-item class="q-pa-none menu-btn" clickable manual-focus :active="link === 'search'" active-class="active" @click="openSearch()">

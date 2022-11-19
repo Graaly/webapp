@@ -40,9 +40,7 @@
     <div v-if="title && quests && quests.length === 0">
       <div class="centered q-pa-md text-white">
         <span v-if="around">{{ $t('label.NoQuestAroundYou') }}</span>
-        <span>{{ $t('label.NoQuestCreated') }}</span>
         <div>
-          <a v-if="around" class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
           <a class="small" @click="$router.push('/quest/create/welcome')">{{ $t('label.CreateYourQuest') }}</a>
         </div>
       </div>

@@ -274,7 +274,8 @@ export default {
           if (checkStatus.data.user) {
             window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
             axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
-            this.$router.push('/quest/play/6321e08cc4301449ca6092d9')
+            // BOSCH SPECIFIC - Mini
+            this.$router.push('/quest/play/637237cd2bb7ab2eb96aea76')
           }
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
