@@ -4,9 +4,8 @@
       <div class="page-content" style="padding-bottom: 100px">
 
         <!------------------ TITLE AREA ------------------------>
-
         <div class="centered">
-          <q-img src="statics/new/logo-color-white.png" class="login-logo-top"/>
+          <img src="statics/new/logo-color-white.png" class="login-logo-top"/>
         </div>
 
         <div class="q-pa-lg login-form">
@@ -611,13 +610,12 @@ export default {
 
 <style scoped lang="scss">
 .login{
-  max-width: 450px;
+  max-width: 800px;
   margin: 0 auto;
 }
 .login-logo-top{
   width: 25vh;
   margin-top: 10vh;
-  margin-bottom: 5vh;
 }
 .login-form{
   max-width: 400px;

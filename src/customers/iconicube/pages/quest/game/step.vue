@@ -294,10 +294,9 @@
         <div class="col centered">
           <q-btn
             flat
-            v-show="hint.show"
             @click="askForHint()">
             <img src="statics/customers/iconicube/bouton3.png" style="height: 60px" />
-            <q-badge v-if="this.step && this.step.hint" color="red" floating rounded>{{ this.hint.remainingNumber }}</q-badge>
+            <q-badge v-if="hint.show && this.step && this.step.hint" color="red" floating rounded>{{ this.hint.remainingNumber }}</q-badge>
           </q-btn>
         </div>
         <div class="col centered">

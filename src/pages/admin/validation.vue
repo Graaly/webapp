@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper">
-    <div class="page-content top-padding-middle" v-if="quest && quest.title">
+    <div class="page-content top-padding-middle" v-if="quest">
       <!------------------ MAIN INFORMATION AREA ------------------------>
       <p>
         Validation of the quest <strong>{{ quest.title }}</strong>

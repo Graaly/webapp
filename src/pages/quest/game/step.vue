@@ -873,6 +873,13 @@ export default {
       //if (typeof forceStepId !== 'undefined' && forceStepId !== null && forceStepId !== 'geolocation') {
       if (typeof forceStepId !== 'undefined' && forceStepId !== null) {
         stepId = forceStepId
+        if (stepId === 'locationMarker') {
+          // QR Code scanner step
+          this.step = {
+            id: "sensor"
+          }
+          return false
+        }
       } else if (!this.offline.active) {
         response = await RunService.getNextStep(this.questId, this.player, extra)
 
@@ -999,7 +1006,6 @@ export default {
       } else {
         // get quest data from device storage
         const step = await utils.readFile(this.questId, 'step_' + stepId + '.json')
-        
         if (!step) {
           this.$q.dialog({
             title: this.$t('label.TechnicalProblem')

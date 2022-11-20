@@ -812,7 +812,7 @@ export default {
   background-size: cover;
 }
 .profil, .password{
-  max-width: 450px;
+  max-width: 800px;
   margin: 0 auto;
   color: white;
 

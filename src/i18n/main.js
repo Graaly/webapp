@@ -282,9 +282,9 @@ module.exports = {
       BuilderChooseUserType: "Are you:",
       BuilderAddRoomMessage: "<p>By adding your room, you can benefit from services for free: <ul><li>Visibility in our directory</li><li>Statistics</li><li>Link to your reservation page</li><li>Suggestion of your room to our community</li></ul></p><p>Your customers can benefit also from free services: <ul><li>Find your rooms around them</li><li>Follow escape games played by their friends and challenge them on your rooms</li><li>Save their results and win points to challenge their friends</li></ul></p>",
       AProfessional: "professional",
-      AProfessionalDesc1: "As a professional, you can use advanced Graaly features (statistics, advanced customization, monetization, easy start QR code ...)",
+      AProfessionalDesc1: "As a professional, you can use advanced Graaly features (statistics, advanced customization, monetization, easy start QR code ...).",
       AnIndividual: "individual",
-      AnIndividualDesc1: "As an individual, you can also create public and private games, with all Graaly features you need",
+      AnIndividualDesc1: "As an individual, you can also create public and private games, with all Graaly features you need. You are limited to 30 players.",
       TryForFree: "Test for free",
       FromPrice: "From",
       PaymentOnUsage: "Pay as you go",
@@ -679,9 +679,9 @@ module.exports = {
       PrivateQuestDesc1: "Your game is dedicated to your friends or choosen people, it is not playable by others",
       PublicQuestDesc1: "You want to create a game to present a place, an activity, a company.",
       PublicQuestDesc2: "Once validated by our game master, your game will be visible and playable by every body",
-      PublicProQuestDesc1: "Your game is playable by all users. You pay a small fee by player or you share the revenues with us.<p>Please contact us at contact@graaly.com for more details</p>",
+      PublicProQuestDesc1: "Your game is playable by all Graaly players. As such, we are more demanding on the quality of the game at the time of its publication (visuals, sounds, characters, puzzles, ...).",
       PublicProQuestDesc2: "<p>If your game is not free, you can either use the in-app payment, or manage the payment your self</p><p>For the in-app payment, Google/Apple take 30% of the revenues</p><p>In all cases, Graaly takes 30% of the revenues</p><p>The rest is for you, so from 40% to 70% of the net revenues.</p><p>Graaly will send you money monthly</p><p>If your game is free for the end users, Graaly will charge you monthly 0,25 € (excl. taxes) per player</p><p>You can disable your game when you want</p><p>Please contact us at contact@graaly.com for more details</p>",
-      PrivateProQuestDesc1: "Your game is dedicated to a list of people. You pay a fee by player or you share the revenues with us.<p>Please contact us at contact@graaly.com for more details</p>",
+      PrivateProQuestDesc1: "You invite your players via a generic QR code, or a single-use QR code per participant.",      
       CreatePrivateQuest: "Create a private game",
       BuyPrivateQuest: "Buy a private game",
       OnlyBuyableOnMobile: "Only buyable on mobile",
@@ -1247,7 +1247,8 @@ module.exports = {
       CharacterSize: "Picture size (% of screen size)? 60% by default.",
       HideUserProgressionOnEnd: "Hide user progression bar",
       HideAuthorOnEnd: "Hide author",
-      HideObjectCombination: "Hide option to combine objects in inventory"
+      HideObjectCombination: "Hide option to combine objects in inventory",
+      ShakingEffect: "Shaking effect"
     }
   },
   fr: {
@@ -1521,9 +1522,9 @@ module.exports = {
       BuilderChooseUserType: "Etes-vous :",
       BuilderAddRoomMessage: "<p>En ajoutant votre salle, vous pouvez bénéficier gratuitement des services suivants :<ul><li>Visibilité dans notre annuaire</li><li>Statistiques</li><li>Lien vers votre page de réservation</li><li>Suggestion de votre salle à notre communauté</li></ul></p><p>Vos clients bénéficient aussi de services gratuits : <ul><li>Trouvez vos salles autour d'eux</li><li>Suivre les escape games joués par leurs amis et les défier sur vos salles</li><li>Sauver leurs succès pour gagner des points et défier leurs amis</li></ul></p>",
       AProfessional: "professionnel",
-      AProfessionalDesc1: "En tant que professionnels, vous avez accès à des fonctionnalités avancées de Graaly (statistiques, personnalisation avancée, monétisation, QR code de démarrage rapide ...)",
+      AProfessionalDesc1: "En tant que professionnel, vous avez accès à des fonctionnalités avancées de Graaly (statistiques, personnalisation avancée, monétisation, QR code de démarrage rapide ...)",
       AnIndividual: "particulier",
-      AnIndividualDesc1: "En tant que particulier, vous pouvez aussi créer des jeux, avec tous les types d'énigmes Graaly",
+      AnIndividualDesc1: "En tant que particulier, vous pouvez aussi créer des jeux, avec tous les types d'énigmes Graaly, mais vous êtes limité à 30 participants.",
       TryForFree: "Tester gratuitement",
       FromPrice: "A partir de",
       PaymentOnUsage: "Paiement à l'usage",
@@ -1918,9 +1919,9 @@ module.exports = {
       PrivateQuestDesc1: "Votre jeu est destiné à votre groupe d'amis ou des personnes que vous choisissez, et n'est pas visible par les autres.",
       PublicQuestDesc1: "Vous créez un jeu pour faire découvrir un lieu, une activité, une entreprise.",
       PublicQuestDesc2: "Une fois validé par les games masters, ce jeu sera visible et jouable par tous",
-      PublicProQuestDesc1: "Votre jeu est jouable par tous les joueurs Graaly. Vous payez un petit montant par partie ou partagez les revenus avec nous.<p>Contactez-nous à contact@graaly.com pour plus d'information</p>",
+      PublicProQuestDesc1: "Votre jeu est jouable par tous les joueurs Graaly. A ce titre, nous sommes plus exigeants sur la qualité du jeu au moment de sa publication (visuels, sons, personnages, énigmes, ...).",
       PublicProQuestDesc2: "<p>Si votre jeu est payant pour les joueurs, vous pouvez soit utiliser le système de paiement intégré à Graaly soit gérer vous même le paiement</p><p>Concernant le système de paiement intégré, Google/Apple prennent 30% des revenus</p><p>Dans tous les cas Graaly conserve 30% des revenus</p><p>Le reste est pour vous, soit de 40% à 70% des revenus.</p><p>Graaly vous reverse votre part mensuellement</p><p>Si votre jeu est gratuit pour les joueurs, Graaly vous facture mensuellement 0,25 € HT par joueur, soit moins que le facicule papier que vous devrier acheter sans application mobile</p><p>Vous pouvez désactiver votre jeu à tout moment</p><p>Contactez-nous à contact@graaly.com pour plus d'information</p>",
-      PrivateProQuestDesc1: "Votre jeu est dédié à des joueurs définis. Vous payez un petit montant par partie ou partagez les revenus avec nous. Contactez-nous à contact@graaly.com pour plus d'information",
+      PrivateProQuestDesc1: "C'est vous qui invitez vos joueurs, via un QR code générique, ou un QR code à usage unique par participant.",
       CreatePrivateQuest: "Créer un jeu privé",
       BuyPrivateQuest: "Acheter un jeu privé",
       OnlyBuyableOnMobile: "Seulement disponible sur mobile",
@@ -2486,7 +2487,8 @@ module.exports = {
       CharacterSize: "Taille image (% de l'écran). Par défaut : 60%.",
       HideUserProgressionOnEnd: "Cacher la barre de progression du joueur",
       HideAuthorOnEnd: "Cacher l'auteur du jeu",
-      HideObjectCombination: "Cacher l'option de combinaison d'objets"
+      HideObjectCombination: "Cacher l'option de combinaison d'objets",
+      ShakingEffect: "Effet de tremblement"
     }
   }
 }

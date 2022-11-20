@@ -273,7 +273,7 @@
           v-model="selectedStep.form.answers"
           :label="$t('label.Code')"
           min-length="2"
-          max-length="6"
+          max-length="10"
           @blur="$v.selectedStep.form.answers.$touch"
           @input="$v.selectedStep.form.answers.$touch"
           bottom-slots
@@ -1121,6 +1121,7 @@
             <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
               <q-toggle v-model="selectedStep.form.options.kenBurnsEffect" :label="$t('label.KenBurnsEffect')" /><br />
               <q-toggle v-model="selectedStep.form.options.blurEffect" :label="$t('label.BlurEffect')" />
+              <q-toggle v-model="selectedStep.form.options.shakingEffect" :label="$t('label.ShakingEffect')" />
             </div>
             <div v-if="options.type.code !== 'help' && options.type.code !== 'end-chapter' && options.type.code !== 'increment-counter'">
               <q-toggle v-model="selectedStep.form.options.html" :label="$t('label.UseHtmlInDescription')" />
@@ -2288,6 +2289,10 @@ export default {
         Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.config.choose.minNbAnswers }), 'error')
       } else {
         this.selectedStep.form.options.items.splice(key, 1)
+        // remove answer from selected answers
+        if (this.config.choose.answers.indexOf(key) !== -1) {
+          this.config.choose.answers.splice(this.config.choose.answers.indexOf(key), 1)
+        }
       }
     },
     /*
@@ -3615,7 +3620,7 @@ export default {
       case 'code-keypad':
         fieldsToValidate.answers = { required,
           function(value) {
-            let regexp = new RegExp("^([0-9*#]{2,6})$", "g")
+            let regexp = new RegExp("^([0-9*#]{2,10})$", "g")
             return regexp.test(value)
           }
         }

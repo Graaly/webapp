@@ -379,7 +379,7 @@ export default {
 .header-ranking{
   background: linear-gradient(180deg, rgb(7,39,90), rgb(4,20,45));
   box-shadow: 0px 5px 5px rgba(0,0,0,.5);
-  max-width: 450px;
+  max-width: 800px;
   margin: 0 auto;
 }
 

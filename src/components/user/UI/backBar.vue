@@ -12,6 +12,10 @@ export default {
   name: "backBar",
   components: {iconBtnSquare},
   props: {
+    route: {
+      type: String,
+      default: 'none'
+    },
     color: {
       type: String,
       default: 'primary'
@@ -23,7 +27,11 @@ export default {
   },
   methods: {
     back() {
-      this.$router.go(-1)
+      if (this.route == 'none')  {
+        this.$router.go(-1)
+      } else {
+        this.$router.push('/' + this.route)
+      }
     }
   }
 }

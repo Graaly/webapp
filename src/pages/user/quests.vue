@@ -1,6 +1,6 @@
 <template>
   <div class="scroll background-quests">
-    <div id="teaser" class="quests">
+    <div id="teaser" class="quests q-pa-md">
       <div style="margin-top: 80px">
         <q-infinite-scroll @load="loadPlayed" :offset="10" v-if="tab === 'played'">
           <quest-list
@@ -223,12 +223,12 @@ export default {
   background-size: cover;
 }
 .quests, .quests-component{
-  max-width: 450px;
+  max-width: 800px;
   margin: 0 auto;
 }
 .quests-component{
   z-index: 5;
-  max-width: 450px;
+  max-width: 8000px;
   right: 0;
   left: 0;
   background: linear-gradient(180deg, rgb(7,39,90) 65%, rgb(4,20,45) 100%);

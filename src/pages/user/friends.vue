@@ -175,7 +175,7 @@ export default {
 }
 .friends-component{
   z-index: 5;
-  max-width: 450px;
+  max-width: 800px;
   right: 0;
   left: 0;
   background: linear-gradient(180deg, rgb(7,39,90) 65%, rgb(4,20,45) 100%);

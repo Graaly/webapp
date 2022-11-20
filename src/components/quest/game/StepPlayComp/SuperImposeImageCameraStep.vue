@@ -7,7 +7,7 @@
     <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled" class="full-height full-width"></video>
     <!--</transition>-->
     <div>
-      <div v-if="!takingSnapshot" style="position: absolute; bottom: 78px; right: 8px;z-index: 1990;">
+      <div v-if="!takingSnapshot" style="position: absolute; bottom: 100px; right: 8px;z-index: 1990;">
         <div>
           <q-btn
             v-if="step.options && step.options.snapshotAllowed"

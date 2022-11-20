@@ -46,9 +46,9 @@
         </div>
       </div>
 
-      <!-- =========================== PICTURE & AUTHOR ========================== -->
+      <!-- =========================== BACK BAR && INFOS ========================== -->
 
-      <back-bar color="primary" relative class="q-py-md"/>
+      <back-bar color="primary" route="home" relative class="q-py-md"/>
       <quest-card v-if="quest && quest.status"
                   class="q-mb-lg"
                   :quest="quest"
@@ -141,7 +141,7 @@
                 :title="$t('label.OpeningHours')"
                 icon="schedule"
               />
-              <div class="q-mb-lg">{{ $t('label.QuestIsNotPlayableNow') }}</div>
+              <div class="q-mb-lg text-white">{{ $t('label.QuestIsNotPlayableNow') }}</div>
             </span>
           </div>
           <p v-if="canReplay !== 'yes'">
@@ -1316,7 +1316,7 @@ export default {
   background-size: cover;
 }
 .quest{
-  max-width: 450px;
+  max-width: 800px;
   margin: 0 auto;
 }
 

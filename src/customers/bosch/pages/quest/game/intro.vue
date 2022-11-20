@@ -592,6 +592,9 @@ export default {
     window.addEventListener("batterystatus", this.checkBattery, false);
 
     await this.initQuest()
+    
+    // BOSCH SPECIFIC - Mini
+    await this.playQuestLaunch(this.quest.questId, this.getLanguage())
 
     // reset user history
     this.$store.state.history = {items: [], index: 0}
