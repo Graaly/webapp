@@ -56,13 +56,13 @@
               />
           </div>
           <div class="text-center">
-<!--            <q-btn-->
-<!--              type="submit"-->
-<!--              class="glossy large-btn"-->
-<!--              color="primary"-->
-<!--              :label="$t('label.Start')"-->
-<!--              :loading="submitting"-->
-<!--              />-->
+            <q-btn
+              type="submit"
+              class="glossy large-btn"
+              color="primary"
+              :label="$t('label.Start')"
+              :loading="submitting"
+              />
             <text-btn-square
               class="q-mb-lg"
               type="submit"
@@ -73,13 +73,13 @@
             />
           </div>
           <div class="text-center" v-if="$route.query.redirect && $route.query.redirect !== ''">
-<!--            <q-btn-->
-<!--              flat-->
-<!--              class="large-btn"-->
-<!--              color="primary"-->
-<!--              :label="$t('label.Back')"-->
-<!--              @click="redirect()"-->
-<!--              />-->
+            <q-btn
+              flat
+              class="large-btn"
+              color="primary"
+              :label="$t('label.Back')"
+              @click="redirect()"
+              />
             <text-btn-square
               class="q-mb-lg"
               :title="$t('label.Back')"
