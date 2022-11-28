@@ -1248,7 +1248,10 @@ module.exports = {
       HideUserProgressionOnEnd: "Hide user progression bar",
       HideAuthorOnEnd: "Hide author",
       HideObjectCombination: "Hide option to combine objects in inventory",
-      ShakingEffect: "Shaking effect"
+      ShakingEffect: "Shaking effect",
+      HelpStepMessageCombinate: "Display the object combination help",
+      HelpStepMessageCombinateMessage: "In the inventory, you can combine objects with this button",
+      OrderHaveNotToBeRespected: "Order has not to be respected"
     }
   },
   fr: {
@@ -2488,7 +2491,10 @@ module.exports = {
       HideUserProgressionOnEnd: "Cacher la barre de progression du joueur",
       HideAuthorOnEnd: "Cacher l'auteur du jeu",
       HideObjectCombination: "Cacher l'option de combinaison d'objets",
-      ShakingEffect: "Effet de tremblement"
+      ShakingEffect: "Effet de tremblement",
+      HelpStepMessageCombinate: "Afficher le bouton pour combinaison d'objets",
+      HelpStepMessageCombinateMessage: "Dans l'inventaire, vous pouvez combiner des objets avec ce bouton",
+      OrderHaveNotToBeRespected: "L'ordre n'a pas à être respecté"
     }
   }
 }

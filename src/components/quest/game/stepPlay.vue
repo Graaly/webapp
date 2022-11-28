@@ -148,62 +148,90 @@
       </div>
 
       <!------------------ HELP AREA ------------------------>
-      <div v-if="step.type == 'help'" :class="'font-' + customization.font" style="overflow: auto; margin-bottom: 80px;">
-        <p class="text help-text" v-html="$t('label.HelpStepMessage')"></p>
-        <div v-if="step.options && step.options.helpNext" class="text help-text centered">
-          <div class="white-buttons">
-            <q-btn
-              round
+      <div v-if="step.type == 'help'" :class="'text font-' + customization.font" style="overflow: auto; margin-bottom: 80px;">
+        <p class="text help-text" v-if="getTranslatedText() == ''" v-html="$t('label.HelpStepMessage')"></p>
+        <q-item clickable v-ripple v-if="step.options && step.options.helpNext">
+          <q-item-section side>
+            <q-avatar 
+              rounded 
               size="lg"
+              class="text-white"
               :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
               :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
-              icon="arrow_forward"
-            />
-          </div>
-          <div>{{ $t('label.HelpStepMessageNextMessage') }}</div>
-        </div>
-        <div v-if="step.options && step.options.helpPrevious" class="text help-text centered">
-          <div class="white-buttons">
-            <q-btn
-              round
+              icon="arrow_forward">
+            </q-avatar>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{ $t('label.HelpStepMessageNextMessage') }}</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-ripple v-if="step.options && step.options.helpPrevious">
+          <q-item-section side>
+            <q-avatar 
+              rounded 
               size="lg"
+              class="text-white"
               :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
               :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
-              icon="arrow_back"
-            />
-          </div>
-          <div>{{ $t('label.HelpStepMessagePreviousMessage') }}</div>
-        </div>
-        <div v-if="step.options && step.options.helpInventory" class="text help-text centered">
-          <div class="white-buttons">
-            <q-btn
-              round
+              icon="arrow_back">
+            </q-avatar>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{ $t('label.HelpStepMessagePreviousMessage') }}</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-ripple v-if="step.options && step.options.helpInventory">
+          <q-item-section side>
+            <q-avatar 
+              rounded 
               size="lg"
+              class="text-white"
               :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
               :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
-              icon="work"
-            />
-          </div>
-          <div>{{ $t('label.HelpStepMessageInventoryMessage') }}</div>
-        </div>
-        <div v-if="step.options && step.options.helpHint" class="text help-text centered">
-          <div class="white-buttons">
-            <q-btn
-              round
+              icon="work">
+            </q-avatar>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{ $t('label.HelpStepMessageInventoryMessage') }}</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-ripple v-if="step.options && step.options.helpHint">
+          <q-item-section side>
+            <q-avatar 
+              rounded 
               size="lg"
+              class="text-white"
               :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
               :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
-              icon="lightbulb"
-            />
-          </div>
-          <div>{{ $t('label.HelpStepMessageHintMessage') }}</div>
-        </div>
+              icon="lightbulb">
+            </q-avatar>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{ $t('label.HelpStepMessageHintMessage') }}</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-ripple v-if="step.options && step.options.helpCombinate">
+          <q-item-section side>
+            <q-avatar 
+              rounded 
+              size="lg"
+              class="text-white"
+              :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
+              :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+              icon="merge_type">
+            </q-avatar>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{ $t('label.HelpStepMessageCombinateMessage') }}</q-item-label>
+          </q-item-section>
+        </q-item>
+
         <p class="text help-text" v-html="$t('label.HelpStepMessageEnd')"></p>
       </div>
 
       <!------------------ WIN ITEM STEP AREA ------------------------>
 
-      <div class="new-item" v-if="step.type == 'new-item'">
+      <div class="new-item" v-if="step.type == 'new-item' && !(this.step.options && this.step.options.addInventoryAndPass)">
         <div>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
@@ -364,7 +392,7 @@
 
           <div class="actions q-mt-sm q-mx-md" v-show="playerResult === null">
             <div>
-              <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
+              <q-btn class="glossy large-button q-mb-md" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
             </div>
           </div>
           <div v-if="!step.options || !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
@@ -2175,6 +2203,16 @@ export default {
       } else if (type === 'portrait-robot') {
         if (JSON.stringify(answer) === JSON.stringify(this.answer)) {
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+        }
+      } else if (type === 'code-color') {
+        if (this.step.options && this.step.options.orderHaveNotToBeRespected) {
+          if (utils.orderCharactersOfString(answer) === utils.orderCharactersOfString(this.answer)) {
+            return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+          }
+        } else {
+          if (answer === this.answer) {
+            return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+          }
         }
       } else if (type === 'code-image') {
         if (this.step.options && this.step.options.orderIsNotImportant) {
