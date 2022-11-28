@@ -1,5 +1,5 @@
 <template>
-  <div></div>
+  <div>Loading ...</div>
 </template>
 
 <script>
@@ -62,7 +62,8 @@ export default {
     if (window.cordova) {
       this.showSocialLogin.facebook = true
     }*/
-    this.playAnonymousSpecific();
+    //this.playAnonymousSpecific();
+    setTimeout(this.playAnonymousSpecific, 2000)
   },
   methods: {
     /*

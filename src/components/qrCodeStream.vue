@@ -35,13 +35,11 @@
     </div>
     <!-- MOBILE VERSION -->
     <div v-else>
-      <div class="absolute-bottom q-mr-lg" :style="menu ? 'bottom: 100px;' : 'bottom: 25px;'">
+      <div class="absolute-bottom q-mr-lg" :style="menu ? 'bottom: 125px;' : 'bottom: 125px;'">
         <div class="code-btn flex justify-between">
-          <div>
             <icon-btn-square class="q-ml-lg" @click.native="toggleLight" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" :icon="isLight ? 'flashlight_off' : 'flashlight_on'" :disable="torchNotSupported"/>
             <icon-btn-square @click.native="changeCamera" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" icon="cameraswitch"/>
-          </div>
-          <icon-btn-square @click.native="closeQRCodeReader()" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" icon="close" fill rotation/>
+<!--          <icon-btn-square @click.native="closeQRCodeReader()" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" icon="close" fill rotation/>-->
         </div>
       </div>
     </div>

@@ -332,6 +332,9 @@
             </td>
           </tr>
         </table>
+        <div v-if="selectedStep.form.options" class="q-pb-md">
+          <q-toggle v-model="selectedStep.form.options.orderHaveNotToBeRespected" :label="$t('label.OrderHaveNotToBeRespected')" />
+        </div>
       </div>
 
       <!------------------ STEP : IMAGE CODE ------------------------>
@@ -1078,6 +1081,7 @@
               <q-toggle v-model="selectedStep.form.options.helpHint" :label="$t('label.HelpStepMessageHint')" />
               <q-toggle v-model="selectedStep.form.options.helpPrevious" :label="$t('label.HelpStepMessagePrevious')" />
               <q-toggle v-model="selectedStep.form.options.helpNext" :label="$t('label.HelpStepMessageNext')" />
+              <q-toggle v-model="selectedStep.form.options.helpCombinate" :label="$t('label.HelpStepMessageCombinate')" />
             </div>
             <div v-if="options.type.code === 'image-over-flow'">
               <q-toggle v-model="selectedStep.form.options.fullWidthPicture" :label="$t('label.EnlargePictureToFullWidth')" />
@@ -1863,6 +1867,7 @@ export default {
           this.selectedStep.form.options.helpInventory = true
           this.selectedStep.form.options.helpNext = true
           this.selectedStep.form.options.helpPrevious = true
+          this.selectedStep.form.options.helpCombinate = false
         }
       } else if (this.options.type.code === 'code-color') {
         if (!this.selectedStep.form.options.hasOwnProperty('hideHideButton')) {

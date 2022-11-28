@@ -2,7 +2,7 @@
   <div class="wrapper background-login">
     <div class="page-content" style="padding-bottom: 100px">
       <div class="centered">
-        <q-img src="statics/new/logo-color-white.png" class="login-logo-top"/>
+        <img src="statics/new/logo-color-white.png" class="login-logo-top"/>
       </div>
       <div class="login-form">
         <create-profil-stepper/>
