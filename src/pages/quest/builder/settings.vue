@@ -1162,13 +1162,13 @@
                 <q-item v-for="review in reviews" :key="review._id">
 
                   <q-item-section avatar>
-                    <q-avatar>
+                    <q-avatar v-if="review.userId && review.userId.picture">
                       <img :src="getAvatar(review.userId.picture)" />
                     </q-avatar>
                   </q-item-section>
 
                   <q-item-section>
-                    <q-item-label>
+                    <q-item-label v-if="review.userId">
                       {{ review.userId.name }}
                     </q-item-label>
                     <q-item-label caption>
