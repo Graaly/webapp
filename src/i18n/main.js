@@ -1034,7 +1034,7 @@ module.exports = {
       HelpStepMessageHint: "Display Hint button help",
       HelpStepMessagePrevious: "Display Previous button help",
       HelpStepMessageNext: "Display Next button help",
-      HelpStepMessage: "Welcome in your interface!\n\nTo participate, just follow the indications on screen.",
+      HelpStepMessage: "Welcome to this game!\n\nTo participate, just follow the indications on screen.",
       HelpStepMessageInventoryMessage: "With the suitcase, you can access and use the objects won during the game.",
       HelpStepMessageHintMessage: "With the light bulb, you can access the hints.",
       HelpStepMessagePreviousMessage: "Press the back button to move back to the previous step.",
@@ -1251,7 +1251,8 @@ module.exports = {
       ShakingEffect: "Shaking effect",
       HelpStepMessageCombinate: "Display the object combination help",
       HelpStepMessageCombinateMessage: "In the inventory, you can combine objects with this button",
-      OrderHaveNotToBeRespected: "Order has not to be respected"
+      OrderHaveNotToBeRespected: "Order has not to be respected",
+      PaymentOnYourSideWarning: "Warning: by activating this option, you can not use the QR code of the Publish tab. You need to create a QR code by player in the Payment tab. If you want to use a single QR code for all players, you can create a private game and do not activate this option."
     }
   },
   fr: {
@@ -2277,7 +2278,7 @@ module.exports = {
       HelpStepMessageHint: "Afficher l'aide pour le bouton Indice",
       HelpStepMessagePrevious: "Afficher l'aide pour le bouton Retour",
       HelpStepMessageNext: "Afficher l'aide pour le bouton Suivant",
-      HelpStepMessage: "Bienvenue dans votre interface !\n\nPour participer, il vous suffira de suivre les indications à l'écran.",
+      HelpStepMessage: "Bienvenue dans ce jeu !\n\nPour participer, il vous suffira de suivre les indications à l'écran.",
       HelpStepMessageInventoryMessage: "La valise vous sert à utiliser des objets que vous avez récupérés durant le jeu.",
       HelpStepMessageHintMessage: "L'ampoule vous sert à obtenir des indices.",
       HelpStepMessagePreviousMessage: "Pour revenir à l'étape précédente, appuyez sur la flèche de gauche.",
@@ -2494,7 +2495,8 @@ module.exports = {
       ShakingEffect: "Effet de tremblement",
       HelpStepMessageCombinate: "Afficher le bouton pour combinaison d'objets",
       HelpStepMessageCombinateMessage: "Dans l'inventaire, vous pouvez combiner des objets avec ce bouton",
-      OrderHaveNotToBeRespected: "L'ordre n'a pas à être respecté"
+      OrderHaveNotToBeRespected: "L'ordre n'a pas à être respecté",
+      PaymentOnYourSideWarning: "Attention : en activant cette option, vous ne pouvez plus utiliser le QR code de l'onglet Mise en ligne. Vous devez générer un QR code par joueur dans l'onglet Paiement. Si vous souhaitez plutôt utiliser un seul QR code pour tous les joueurs, vous pouvez créer un jeu privé et ne pas activer cette option."
     }
   }
 }

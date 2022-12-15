@@ -17,7 +17,7 @@
       </q-card>
     </div>
     <div class="bg-accent text-white q-pa-md" v-if="warnings.isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
-    <div v-if="startDate.enabled" class="centered q-pa-lg">
+    <div v-if="startDate.enabled" class="bg-white centered q-pa-lg">
       <img :src="getLogoImage()" v-if="info.quest.customization && info.quest.customization.logo && info.quest.customization.logo !== ''" />
       <img src="statics/icons/app-logo/icon-96x96.png" v-if="!info.quest.customization || !info.quest.customization.logo || info.quest.customization.logo === ''" />
       <div class="text-h6">{{ $t('label.ThisStepIsAvailableIn') }}</div>
@@ -37,6 +37,7 @@
     <div :class="{'fit': (step.type !== 'image-over-flow')}"><!-- Keep this div for iphone, for red filter display -->
 
       <stepPlay
+        v-if="!startDate.enabled"
         :step="step"
         :runId="runId"
         :inventory="inventory"
@@ -1019,10 +1020,11 @@ export default {
             this.hint.remainingNumber = tempStep.hint.length
           }
 
-          const stepAccess = this.offlineCheckAccess(tempStep)
+          const stepAccess = await this.offlineCheckAccess(tempStep)
+
           if (stepAccess && stepAccess.message) {
-            if (stepAccessMessage === 'Step not yet available') {
-              this.showStepBlockedMessage(stepAccess.startDate)
+            if (stepAccess.message === 'Step not yet available') {
+              this.showStepBlockedMessage(stepAccess.date)
             }
           }
 
@@ -1780,7 +1782,7 @@ export default {
      */
     async computeRemainingTime() {
       const today = new Date()
-      const startDate = new Date(this.startDate.date.substr(0, 4), (this.startDate.date.substr(5, 2) - 1), this.startDate.date.substr(8, 2), 0, 0, 0)
+      const startDate = new Date(this.startDate.date.substr(0, 4), (parseInt(this.startDate.date.substr(5, 2), 10) - 1), this.startDate.date.substr(8, 2), 0, 0, 0)
 
       var diff = (startDate - today.getTime()) / 1000
       if (diff < 0) {
@@ -2119,15 +2121,16 @@ export default {
      */
     async offlineCheckAccess(step) {
       // offline mode not activated for multiplayer
+
       if (this.isMultiplayer) {
         return false
       }
+
       if (step && step.startDate && step.startDate.enabled && step.startDate.date) {
         // check if step is available today
         const today = new Date()
-        const startDate = Date.UTC(step.startDate.date.substr(0, 4), step.startDate.date.substr(5, 2), step.startDate.date.substr(8, 2), 0, 0, 0)
-
-        if (today < startDate) {
+        const startDate = Date.UTC(step.startDate.date.substr(0, 4), (parseInt(step.startDate.date.substr(5, 2), 10) - 1), step.startDate.date.substr(8, 2), 0, 0, 0)
+        if (today.getTime() < startDate) {
           return {message: "Step not yet available", date: step.startDate.date}
         }
       }
@@ -2459,11 +2462,11 @@ export default {
       }
       // if location marker step found in advance mode, return information
       if (locationMarkerFound && !geolocationFound && this.info.quest && this.info.quest.editorMode === 'advanced') {
-        //if (extra.steps.length === 1) {
-        //  return extra.steps[0]
-        //} else {
+        if (extra.steps.length === 1) {
+          return {id: extra.steps[0], extra: extra}
+        } else {
           return {id: "locationMarker", extra: extra}
-        //}
+        }
       }
       // if geolocation step found in advance mode, return information
       if (geolocationFound && this.info.quest && this.info.quest.editorMode === 'advanced') {

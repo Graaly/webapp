@@ -131,8 +131,8 @@
 
       <text-btn-square
         class="q-mb-lg"
-        @click.native="readMoreQuestPublished()"
-        :title="$t('label.AllQuests')"
+        @click.native="buildQuest()"
+        :title="$t('label.CreateANewQuest')"
         color="secondary"
         icon="extension"
       />

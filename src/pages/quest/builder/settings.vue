@@ -334,6 +334,7 @@
                     :readonly="readOnly"
                     :label="$t('label.PaymentOnYourSide')"
                     v-model="showTierPaymentBox"
+                    @click.native="displayTierPaymentWarning"
                     /> <q-icon name="help" @click.native="showHelpPopup('PaymentOnYourSideHelp')" />
                 </div>
                 <div v-if="showTierPaymentBox">
@@ -3284,6 +3285,8 @@ export default {
     * Quest author change the language
     */
     async changeLanguage(language) {
+      this.languages.current = language
+      
       // check if quest is already available for this lang
       let questConfiguredForThisLanguage = false
       if (this.quest.languages) {
@@ -3337,6 +3340,7 @@ export default {
             this.quest.title[language] = this.quest.title[this.quest.mainLanguage]
           }
         }
+        this.languages.current = language
       }
     },
     /*
@@ -3693,6 +3697,12 @@ export default {
       this.inventory.isOpened = false
       this.hint.isOpened = false
       this.overview.tabSelected = 'none'
+    },
+
+    displayTierPaymentWarning() {
+      if (this.showTierPaymentBox) {
+        this.showHelpPopup('PaymentOnYourSideWarning')
+      }
     },
     inventoryZoom(zoomLevel) {
       Vue.set(this.inventory.detail, 'zoom', zoomLevel)
