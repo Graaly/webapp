@@ -2,6 +2,8 @@
   <div class="" :class="isHybrid ? 'q-pa-md' : 'full-height'">
     <!-- WEB APP VERSION -->
     <div v-if="!isHybrid" :class="!isLoaded ? 'bg-center' : ''">
+      <div v-if="!start" class="qrcode-target-desktop">
+      </div>
       <qrcode-stream @decode="onDecode" :camera="camera" @init="onInit" :torch="torchActive" class="camera-not-hybrid">
         <div v-show="showScanConfirmation" class="scan-confirmation">
           <q-spinner
@@ -10,7 +12,7 @@
             :thickness="2"
           />
         </div>
-        <div class="absolute-center" style="width: 90vw; max-width: 300px">
+        <div class="absolute-center over-qrcode-target" style="width: 90vw; max-width: 300px">
           <text-btn-square
             v-if="start && (isIOs || isSafari)"
             @click.native="start = !start"
@@ -22,7 +24,7 @@
           />
         </div>
       </qrcode-stream>
-      <div class="absolute-top q-mx-lg" style="top: 25px">
+      <div class="absolute-top q-mx-lg over-qrcode-target" style="top: 25px">
         <div class="code-btn" style="max-width: 800px; margin: 0 auto">
           <div class="flex justify-end">
             <icon-btn-square class="q-mr-lg" @click.native="!torchNotSupported ? torchActive = !torchActive : ''" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" :icon="isLight ? 'flashlight_off' : 'flashlight_on'" :disable="torchNotSupported"/>
@@ -31,10 +33,11 @@
 <!--          <icon-btn-square @click.native="closeQRCodeReader()" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" icon="close" fill rotation/>-->
         </div>
       </div>
-
     </div>
     <!-- MOBILE VERSION -->
     <div v-else>
+      <div class="qrcode-target-mobile">
+      </div>
       <div class="absolute-bottom q-mr-lg" :style="menu ? 'bottom: 125px;' : 'bottom: 125px;'">
         <div class="code-btn flex justify-between">
             <icon-btn-square class="q-ml-lg" @click.native="toggleLight" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" :icon="isLight ? 'flashlight_off' : 'flashlight_on'" :disable="torchNotSupported"/>
@@ -237,5 +240,26 @@ export default {
   background-position: center 0px;
   background-repeat: no-repeat;
   background-size: cover;
+}
+.qrcode-target-desktop {
+  background: url('../statics/images/background/qrcodescannerbackground.png') center/cover no-repeat;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  z-index: 10;
+}
+.qrcode-target-mobile {
+  background: url('../statics/images/background/qrcodescannerbackground.png') center/cover no-repeat;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.over-qrcode-target {
+  z-index: 20;
 }
 </style>

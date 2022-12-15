@@ -11,8 +11,9 @@
     </div>
     <div v-if="showNonHybridQRReader">
       <!--====================== QR CODE READER ON WEBAPP =================================-->
+      <div class="qrcode-target-desktop"></div>
       <div 
-        class="text-white q-pt-xl q-pl-md q-pb-sm"
+        class="text-white q-pt-xl q-pl-md q-pb-sm over-qrcode-target"
         :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
         :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}">
         <div class="float-right no-underline close-btn q-pa-sm" @click="closeQRCodeReader"><q-icon name="close" class="subtitle1" /></div>
@@ -5334,5 +5335,19 @@ export default {
   */
   .direction-helper { position: absolute; bottom: 20vw; left: 0; right: 0; margin-left: auto; margin-right: auto; z-index: 30; min-height: initial !important; pointer-events: none; width: 100vw; height: auto !important; }
   .direction-helper canvas { margin: auto; }
+  
+  .qrcode-target-desktop {
+    background: url('/statics/images/background/qrcodescannerbackground.png') center/cover no-repeat;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 10;
+  }
+  .over-qrcode-target {
+    z-index: 20;
+  }
 
 </style>

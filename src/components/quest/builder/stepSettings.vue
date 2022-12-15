@@ -2903,6 +2903,7 @@ export default {
      * Change the object selected in the 3D object list
      */
     async changeObjectInList() {
+      this.selectedStep.form.options.picture = ""
       this.selectedStep.form.options.customModel = null
       await this.displayARObject(this.selectedStep.form.options.model)
     },
