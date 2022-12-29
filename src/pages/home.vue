@@ -369,6 +369,8 @@ export default {
       this.$router.push('/user/updateprofile')
     },
     async onLocationSuccess(position) {
+console.log("NOUVELLE POSITION")
+console.log(position)
       this.$set(this.user, 'position', position.coords)
 
       // reload quests if quests are not loaded or are based on user default position
@@ -430,7 +432,7 @@ export default {
       // REMOVED EMA - QUESTS MUST BE DISPLAYED EVENT IF NO LOCATION if (previousOfflineValue !== this.offline.active) {
       this.questList = []
       await this.loadQuests()
-      this.questList[0].description = 'CachedQuests'
+      //this.questList[0].description = 'CachedQuests'
       //}
 
       utils.setTimeout(this.checkNetwork, 5000)

@@ -125,26 +125,8 @@
 
       <div v-if="options.type.code == 'character'">
         <div>{{ $t('label.SplitMessageWithPipe') }}</div>
-        <h2>{{ $t('label.Character') }}</h2>
-        <div v-if="quest.customization.character && quest.customization.character !== ''">
-          <q-radio v-model="selectedStep.form.options.character" val="usequestcharacter" />
-          <p><img class="full-width" :src="uploadUrl + '/upload/quest/' + quest.customization.character" /></p>
-        </div>
-        <div class="answer" v-for="n in 6" :key="n">
-          <q-radio v-model="selectedStep.form.options.character" :val="n.toString()" />
-          <p><img :src="'statics/icons/story/character' + n + '_attitude1.png'" /></p>
-        </div>
-        <q-list bordered>
-          <q-expansion-item :label="$t('label.OtherCharacters')">
-            <div class="answer" v-for="n in 34" :key="n">
-              <q-radio v-model="selectedStep.form.options.character" :val="(n + 6).toString()" />
-              <p><img :src="'statics/icons/story/character' + (n + 6) + '_attitude1.png'" /></p>
-            </div>
-          </q-expansion-item>
-        </q-list>
-        <div>
+        <div class="q-pt-lg">
           <div class="q-mb-sm">
-            {{ $t('label.OrDownloadAFile') }}
             <div v-if="!isIOs">
               <q-btn class="full-width" type="button" :label="$t('label.UploadACharacter')" @click="$refs['characterfile'].click()" />
               <input @change="uploadCharacterImage" ref="characterfile" type="file" accept="image/*" hidden />
@@ -154,14 +136,75 @@
               <input @change="uploadCharacterImage" ref="characterfile" type="file" accept="image/*" />
             </div>
             <p v-show="$v.selectedStep.form.options.character.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-            <div class="centered" v-if="selectedStep.form.options.character && selectedStep.form.options.character.length > 2 && selectedStep.form.options.character !== 'usequestcharacter'">
-              <img style="width:100%" :src="uploadUrl + '/upload/quest/' + questId + '/step/character/' + selectedStep.form.options.character" />
+            <div class="row centered" v-if="selectedStep.form.options.character && selectedStep.form.options.character.length > 2 && selectedStep.form.options.character !== 'usequestcharacter'">
+              <div class="col-3 selected">
+                <img style="width:100%" :src="uploadUrl + '/upload/quest/' + questId + '/step/character/' + selectedStep.form.options.character" />
+              </div>
             </div>
           </div>
           <!--<div class="q-mb-sm">
             <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadACharacter')" @click="premium.show = true" />
           </div>-->
         </div>
+        <h2>{{ $t('label.OrSelectACharacter') }}</h2>
+        <div class="row" v-if="quest.customization.character && quest.customization.character !== ''">
+          <div class="col-3" :class="{'selected': (selectedStep && 'usequestcharacter' == selectedStep.form.options.character)}" @click="selectCharacter('usequestcharacter')">
+            <img class="full-width" :src="uploadUrl + '/upload/quest/' + quest.customization.character" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="answer col-3" v-for="n in 6" :key="n" @click="selectCharacter(n)">
+            <img :class="{'selected': (selectedStep && n.toString() == selectedStep.form.options.character)}" style="width: 100%" :src="'statics/icons/story/character' + n + '_attitude1.png'" />
+          </div>
+        </div>
+        <q-list bordered>
+          <q-expansion-item :label="$t('label.OtherCharacters')">
+            <div class="row">
+              <div class="answer col-2" v-for="n in 34" :key="n" @click="selectCharacter(n + 6)">
+                <img :class="{'selected': (selectedStep && (n + 6) == selectedStep.form.options.character)}" style="width: 100%" :src="'statics/icons/story/character' + (n + 6) + '_attitude1.png'" />
+              </div>
+            </div>
+          </q-expansion-item>
+        </q-list>
+        
+        <div v-if="this.config.character.multiple.length > 0">
+          <div class="row" v-for="(character, index) in this.config.character.multiple">
+            <div v-if="character.position === 'left'" class="col-3">
+              <img v-if="character.picture.length > 2 && character.picture != 'usequestcharacter'" style="width:100%" :src="uploadUrl + '/upload/quest/' + questId + '/step/character/' + character.picture" />
+              <img v-if="character.picture.length <= 2 && character.picture != 'usequestcharacter'" style="width:100%" :src="'statics/icons/story/character' + character.picture + '_attitude1.png'" />
+              <img v-if="character.picture === 'usequestcharacter'" style="width:100%" :src="uploadUrl + '/upload/quest/' + quest.customization.character" />
+              <div @click="moveCharacter(index, 'right')">
+                {{ $t('label.MoveRight') }}
+                <q-icon name="arrow_right" />
+              </div>
+              <div @click="removeCharacter(index)">
+                <q-icon name="delete" /> 
+                {{ $t('label.Remove') }}
+              </div>
+            </div>
+            <div class="col-9 selected q-pa-md">
+              {{ character.text[lang] }}
+            </div>
+            <div v-if="character.position === 'right'" class="col-3">
+              <img v-if="character.picture.length > 2 && character.picture != 'usequestcharacter'" style="width:100%" :src="uploadUrl + '/upload/quest/' + questId + '/step/character/' + character.picture" />
+              <img v-if="character.picture.length <= 2 && character.picture != 'usequestcharacter'" style="width:100%" :src="'statics/icons/story/character' + character.picture + '_attitude1.png'" />
+              <img v-if="character.picture === 'usequestcharacter'" style="width:100%" :src="uploadUrl + '/upload/quest/' + quest.customization.character" />
+              <div @click="moveCharacter(index, 'left')">
+                <q-icon name="arrow_left" />
+                {{ $t('label.MoveLeft') }}
+              </div>
+              <div @click="removeCharacter(index)">
+                <q-icon name="delete" /> 
+                {{ $t('label.Remove') }}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <q-btn class="full-width" type="button" :label="$t('label.AddAnotherCharacter')" @click="addAnotherCharacter" />
+        </div>
+        
       </div>
 
       <!------------------ STEP : GEOLOCATION ------------------------>
@@ -1469,6 +1512,9 @@ export default {
           maxNbAnswers: 10,
           answers: []
         },
+        character: {
+          multiple: []
+        },
         colorCode: {
           numberOfDigitsOptions: [
             { value: 1, label: "1" },
@@ -1819,6 +1865,9 @@ export default {
       // define players select list
       if (this.options.type.code === 'info-text' || this.options.type.code === 'info-video' || this.options.type.code === 'new-item' || this.options.type.code === 'character' || this.options.type.code === 'help' || this.options.type.code === 'end-chapter' || this.options.type.code === 'increment-counter') {
         this.players.push({ label: this.$t('label.All'), value: 'All' })
+        if (this.selectedStep.form.options.multiple && this.selectedStep.form.options.multiple.length > 0) {
+          this.config.character.multiple = this.selectedStep.form.options.multiple
+        }
       }
       for (var p = 0; p < this.quest.playersNumber; p++) {
         this.players.push({ label: this.$t('label.Player') + " " + (p + 1), value: 'P' + (p + 1) })
@@ -2154,6 +2203,7 @@ export default {
         if (!this.selectedStep.form.options.character) {
           this.selectedStep.form.options.character = "1"
         }
+        this.selectedStep.form.options.multiple = this.config.character.multiple
       }
       if (this.options.type.code === 'code-keypad') {
         this.selectedStep.form.options.codeLength = this.selectedStep.form.answers.length
@@ -3603,6 +3653,23 @@ export default {
     },
     async removeAudio() {
       this.selectedStep.form.audioStream[this.lang] = ""
+    },
+    selectCharacter(n) {
+      this.selectedStep.form.options.character = n.toString()
+    },
+    addAnotherCharacter() {
+      this.config.character.multiple.push({
+        picture: this.selectedStep.form.options.character,
+        text: {},
+        position: 'right'
+      })
+      this.config.character.multiple[this.config.character.multiple.length - 1].text[this.lang] = this.selectedStep.form.text[this.lang]
+    },
+    moveCharacter(index, position) {
+      this.config.character.multiple[index].position = position
+    },
+    removeCharacter(index) {
+      this.config.character.multiple.splice(index, 1)
     }
   },
   validations() {

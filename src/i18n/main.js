@@ -1252,7 +1252,11 @@ module.exports = {
       HelpStepMessageCombinate: "Display the object combination help",
       HelpStepMessageCombinateMessage: "In the inventory, you can combine objects with this button",
       OrderHaveNotToBeRespected: "Order has not to be respected",
-      PaymentOnYourSideWarning: "Warning: by activating this option, you can not use the QR code of the Publish tab. You need to create a QR code by player in the Payment tab. If you want to use a single QR code for all players, you can create a private game and do not activate this option."
+      PaymentOnYourSideWarning: "Warning: by activating this option, you can not use the QR code of the Publish tab. You need to create a QR code by player in the Payment tab. If you want to use a single QR code for all players, you can create a private game and do not activate this option.",
+      MoveLeft: "Move left",
+      MoveRight: "Move right",
+      OrSelectACharacter: "Or select a character",
+      AddAnotherCharacter: "Add an other character"
     }
   },
   fr: {
@@ -2496,7 +2500,11 @@ module.exports = {
       HelpStepMessageCombinate: "Afficher le bouton pour combinaison d'objets",
       HelpStepMessageCombinateMessage: "Dans l'inventaire, vous pouvez combiner des objets avec ce bouton",
       OrderHaveNotToBeRespected: "L'ordre n'a pas à être respecté",
-      PaymentOnYourSideWarning: "Attention : en activant cette option, vous ne pouvez plus utiliser le QR code de l'onglet Mise en ligne. Vous devez générer un QR code par joueur dans l'onglet Paiement. Si vous souhaitez plutôt utiliser un seul QR code pour tous les joueurs, vous pouvez créer un jeu privé et ne pas activer cette option."
+      PaymentOnYourSideWarning: "Attention : en activant cette option, vous ne pouvez plus utiliser le QR code de l'onglet Mise en ligne. Vous devez générer un QR code par joueur dans l'onglet Paiement. Si vous souhaitez plutôt utiliser un seul QR code pour tous les joueurs, vous pouvez créer un jeu privé et ne pas activer cette option.",
+      MoveLeft: "Déplacer à gauche",
+      MoveRight: "Déplacer à droite",
+      OrSelectACharacter: "Ou sélectionnez un personnage",
+      AddAnotherCharacter: "Ajouter un autre personnage"
     }
   }
 }
