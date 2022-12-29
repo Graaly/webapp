@@ -1136,6 +1136,14 @@ export default {
             if (characterPictureUrl) {
               tempStep.options.character = characterPictureUrl
             }
+            // load characters when multiple characters on a single step
+            if (tempStep.options.multiple && tempStep.options.multiple.length > 0) {
+              for (let i = 0; i < tempStep.options.multiple.length; i++) {
+                if (tempStep.options.multiple[i] && tempStep.options.multiple[i].picture) {
+                  await utils.readBinaryFile(this.questId, tempStep.options.multiple[i].picture)
+                }
+              }
+            } 
           }
           if ((tempStep.type === 'find-item' || tempStep.type === 'use-item') && tempStep.options && tempStep.options.altFile && tempStep.options.altFile !== '') {
             const altPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.altFile)

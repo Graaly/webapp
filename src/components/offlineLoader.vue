@@ -295,6 +295,14 @@ export default {
                     this.throwSaveError('Could not save image for quest ' + quest.questId + ' and step "character" ' + step.stepId)
                     return false
                   }
+                  // if multiple characters on a same step
+                  if (step.options.multiple && step.options.multiple.length > 0) {
+                    for (let i = 0; i < step.options.multiple.length; i++) {
+                      if (step.options.multiple[i] && step.options.multiple[i].picture && step.options.multiple[i].picture.length > 3) {
+                        await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/character/', step.options.multiple[i].picture)
+                      }
+                    }
+                  }                  
                 }
               }
               if ((step.type === 'find-item' || step.type === 'use-item') && step.options && step.options.altFile && step.options.altFile !== '') {

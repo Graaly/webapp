@@ -262,21 +262,23 @@
       <!------------------ CHARACTER STEP AREA ------------------------>
 
       <div class="character" v-if="step.type == 'character'">
-        <div class="fixed-bottom-character story" @click="nextCharacterBubbleText()">
+        <div v-if="character.numberOfBubble > 0" class="fixed-bottom-character story" @click="nextCharacterBubbleText()">
           <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
           <div class="bubble-middle" style="font-size: 0.9em; background: url(statics/icons/story/sticker-middle.png) repeat-y;">
             <div v-if="character.needToScroll" class="scroll-indicator">
               <q-icon class="flashing" size="2.5em" name="arrow_drop_down_circle" />
             </div>
-            <p ref="bubbleText" style="text-align: left;" class="carrier-return small-margin" :class="'font-' + customization.font" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
-            <p ref="bubbleTextHtml" style="text-align: left;" class="text small-margin" :class="'font-' + customization.font" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
+            <p ref="bubbleText" style="text-align: left;" class="carrier-return small-margin" :class="'font-' + customization.font" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber].text != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber].text }}</p>
+            <p ref="bubbleTextHtml" style="text-align: left;" class="text small-margin" :class="'font-' + customization.font" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber].text != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber].text"></p>
             <p class="text-grey small-margin" v-if="character.bubbleNumber < (character.numberOfBubble - 1)">{{ $t('label.ReadNext') }}</p>
           </div>
-          <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
-          <div class="character">
-            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%')" v-if="step.options.character.length < 3" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
-            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%')" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : uploadUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
-            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%')" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? uploadUrl + '/upload/quest/' + customization.character : customization.character" />
+          <div class="bubble-bottom">
+            <img :src="'statics/icons/story/sticker-bottom-' + character.bubbleText[character.bubbleNumber].position + '.png'" />
+          </div>
+          <div class="character" :style="'text-align: ' + character.bubbleText[character.bubbleNumber].position">
+            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%')" v-if="character.bubbleText[character.bubbleNumber].picture .length < 3" :src="'statics/icons/story/character' + character.bubbleText[character.bubbleNumber].picture + '_attitude1.png'" />
+            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%')" v-if="character.bubbleText[character.bubbleNumber].picture .length > 2 && step.options.character !== 'usequestcharacter'" :src="character.bubbleText[character.bubbleNumber].picture .indexOf('blob:') !== -1 ? step.options.character : uploadUrl + '/upload/quest/' + step.questId + '/step/character/' + character.bubbleText[character.bubbleNumber].picture " />
+            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%')" v-if="character.bubbleText[character.bubbleNumber].picture  === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? uploadUrl + '/upload/quest/' + customization.character : customization.character" />
           </div>
           <div v-if="step.options && step.options.characterBarColor && step.options.characterBarColor !== ''" class="full-width" :class="(step.options && step.options.characterBarColor) ? '' : 'bg-black'" :style="'height: 68px; ' + ((step.options && step.options.characterBarColor && step.options.characterBarColor !== '') ? 'background-color: ' + step.options.characterBarColor : '')">
           </div>
@@ -1166,7 +1168,7 @@ export default {
         // for step 'character'
         character: {
           bubbleText: [],
-          numberOfBubble: 1,
+          numberOfBubble: 0,
           bubbleNumber: 0,
           needToScroll: false
         },
@@ -1549,16 +1551,40 @@ export default {
         }
 
         if (this.step.type === 'character') {
-          if (this.step.text && this.step.text !== "") {
-            this.character.bubbleText = this.step.text.split('|')
+          if (this.step && this.step.options && this.step.options.multiple && this.step.options.multiple.length > 0) {
+            for (let j = 0; j < this.step.options.multiple.length; j++) {
+              let bubbleTextSplit = this.step.options.multiple[j].text[this.lang].split('|')
+              for (let i = 0; i < bubbleTextSplit.length; i++) {
+                this.character.bubbleText.push({
+                  text: bubbleTextSplit[i],
+                  picture: this.step.options.multiple[j].picture,
+                  position: this.step.options.multiple[j].position
+                })
+              }
+            }
+            this.character.numberOfBubble = this.character.bubbleText.length
+            if (this.character.numberOfBubble === 1) {
+              this.checkAnswer()
+            }
+          } else if (this.step.text && this.step.text !== "") {
+            let bubbleTextSplit = this.step.text.split('|')
+            for (let i = 0; i < bubbleTextSplit.length; i++) {
+              this.character.bubbleText.push({
+                text: bubbleTextSplit[i],
+                picture: this.step.options.character,
+                position: 'right'
+              })
+            }
             this.character.numberOfBubble = this.character.bubbleText.length
             if (this.character.numberOfBubble === 1) {
               this.checkAnswer()
             }
             utils.setTimeout(this.checkIfTextIsHidden, 1500)
           } else {
+            this.character.numberOfBubble = 1
             this.checkAnswer()
           }
+          console.log(this.character.numberOfBubble)
         }
 
         if (this.step.type === 'code-keypad') {
