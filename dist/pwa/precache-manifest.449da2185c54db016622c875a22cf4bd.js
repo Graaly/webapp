@@ -4,8 +4,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "css/2.0cf6c528.css"
   },
   {
-    "revision": "7f5e3c9a9f9719e14ae5",
-    "url": "css/app.c92b4f79.css"
+    "revision": "6603669a5060e950c45a",
+    "url": "css/app.09f16880.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -96,7 +96,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "cf1dba9a7c5edb27476441acd42e8f10",
+    "revision": "5f54412cb27993d9013ad8a43e73d968",
     "url": "index.html"
   },
   {
@@ -104,12 +104,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2.10e7fdce.js"
   },
   {
-    "revision": "7f5e3c9a9f9719e14ae5",
-    "url": "js/app.8ae59dd1.js"
+    "revision": "6603669a5060e950c45a",
+    "url": "js/app.898dd7cd.js"
   },
   {
-    "revision": "d7b7b5b9db1c1e2430f3",
-    "url": "js/vendor.d7b7b5b9.js"
+    "revision": "1452c0d547fca360e67a",
+    "url": "js/vendor.1452c0d5.js"
   },
   {
     "revision": "19e941eacef1fc70e8b70479c2cb66cb",
@@ -736,11 +736,11 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/story/character12_attitude1.png"
   },
   {
-    "revision": "6d301725e7cb08cc8b1566c24c1e76c9",
+    "revision": "d43fa26a4b6df5944c6ad588f3469575",
     "url": "statics/icons/story/character13_attitude1.png"
   },
   {
-    "revision": "3b052a3e58407e389afbebfa13b933a2",
+    "revision": "f221a3ceca61857f9799a0a05ed3b70a",
     "url": "statics/icons/story/character14_attitude1.png"
   },
   {
@@ -760,7 +760,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/story/character18_attitude1.png"
   },
   {
-    "revision": "d2e82b628651181b6f454be3f0509c1a",
+    "revision": "08365965ce1e20af49d0e8aca137e055",
     "url": "statics/icons/story/character19_attitude1.png"
   },
   {
@@ -776,7 +776,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/story/character21_attitude1.png"
   },
   {
-    "revision": "9c25b02a411355352f26756c94eb692b",
+    "revision": "5554c89c32627b4bb9acebd809d1b982",
     "url": "statics/icons/story/character22_attitude1.png"
   },
   {
@@ -808,7 +808,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/story/character29_attitude1.png"
   },
   {
-    "revision": "6ce2046dcad25240d94332e3b0a7d5df",
+    "revision": "efc1f0afa5c3bcf0e09577a0e4a09e6a",
     "url": "statics/icons/story/character2_attitude1.png"
   },
   {
@@ -836,19 +836,19 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/story/character35_attitude1.png"
   },
   {
-    "revision": "afdaab79aed9754e363e67e5f76c7ab9",
+    "revision": "2f00f8e1497b1f849387749ff508b492",
     "url": "statics/icons/story/character36_attitude1.png"
   },
   {
-    "revision": "5adcfff88939a25b14c8b4fcf9516a38",
+    "revision": "3965809505d36650c366d4725ac17b89",
     "url": "statics/icons/story/character37_attitude1.png"
   },
   {
-    "revision": "30a9a34fd8d9c802ad8b6c8e4ab5382b",
+    "revision": "70a1a68a779593f11a86bb6808824a42",
     "url": "statics/icons/story/character38_attitude1.png"
   },
   {
-    "revision": "7d620d40b93cc35f61a4c111955c94cc",
+    "revision": "4b4bb3ae91228719831c3414352bffb9",
     "url": "statics/icons/story/character39_attitude1.png"
   },
   {
@@ -856,7 +856,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/story/character3_attitude1.png"
   },
   {
-    "revision": "9a898954d8c6e0f61a33eccf8e1d65c6",
+    "revision": "3037f6551d375720b2b19591f3bb2da3",
     "url": "statics/icons/story/character40_attitude1.png"
   },
   {
@@ -864,11 +864,11 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/story/character4_attitude1.png"
   },
   {
-    "revision": "ed3e2ddf2a9852ddc0a2fed3c43a7484",
+    "revision": "fc68cb00fb95a5ebe276462ce7fb756f",
     "url": "statics/icons/story/character5_attitude1.png"
   },
   {
-    "revision": "0c68cf6beb9673351bb065d510817c05",
+    "revision": "f73ca0eb8b3460bf62430ff96bc60748",
     "url": "statics/icons/story/character6_attitude1.png"
   },
   {
