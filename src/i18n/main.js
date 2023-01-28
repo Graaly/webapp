@@ -1256,7 +1256,8 @@ module.exports = {
       MoveLeft: "Move left",
       MoveRight: "Move right",
       OrSelectACharacter: "Or select a character",
-      AddAnotherCharacter: "Add an other character"
+      AddAnotherCharacter: "Add an other scene",
+      ChangeCharacter: "Changer the character"
     }
   },
   fr: {
@@ -2504,7 +2505,8 @@ module.exports = {
       MoveLeft: "Déplacer à gauche",
       MoveRight: "Déplacer à droite",
       OrSelectACharacter: "Ou sélectionnez un personnage",
-      AddAnotherCharacter: "Ajouter un autre personnage"
+      AddAnotherCharacter: "Ajouter une autre scène",
+      ChangeCharacter: "Changer le personnage"
     }
   }
 }
