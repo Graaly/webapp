@@ -230,7 +230,7 @@
                   {{ $t('label.UploadACharacter') }}:
                   <input @change="uploadCharacterImage" ref="characterfile" type="file" accept="image/*" />
                 </div>
-                <p v-show="$v.selectedStep.form.options.character.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+                <!--<p v-show="$v.selectedStep.form.options.character.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>-->
                 <div class="row centered" v-if="config.character.multiple[config.character.currentScene].picture && config.character.multiple[config.character.currentScene].picture.length > 2 && config.character.multiple[config.character.currentScene].picture !== 'usequestcharacter'">
                   <div class="col-3 selected">
                     <img style="width:100%" :src="uploadUrl + '/upload/quest/' + questId + '/step/character/' + config.character.multiple[config.character.currentScene].picture" />
