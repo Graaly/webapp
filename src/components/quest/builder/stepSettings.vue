@@ -3777,9 +3777,9 @@ export default {
       case 'new-item':
         fieldsToValidate.options = { picture: { required }, title: { required } }
         break
-      case 'character':
-        fieldsToValidate.options = { character: { required } }
-        break
+      //case 'character':
+        //fieldsToValidate.options = { character: { required } }
+        //break
       case 'use-item':
         fieldsToValidate.backgroundImage = { required }
         fieldsToValidate.answerItem = { required }
