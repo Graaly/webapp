@@ -242,6 +242,7 @@
 <script>
 import axios from 'axios'
 import AuthService from 'services/AuthService'
+import QuestService from 'services/QuestService'
 import { required, minLength, email } from 'vuelidate/lib/validators'
 import checkPasswordComplexity from 'boot/PasswordComplexity'
 import Notification from 'boot/NotifyHelper'
@@ -295,6 +296,10 @@ export default {
     // check if user is redirected to this page to confirm team invitation
     if (this.$route.query.email && this.$route.query.invitation) {
       this.validateTeamInvitation(this.$route.query.email, this.$route.query.invitation)
+    }
+    // check if user is redirected to this page to start a game after anonymous signin
+    if (this.$route.query.qrcode) {
+      this.checkCode(this.$route.query.qrcode)
     }
     // social login buttons
     if (window.cordova) {
@@ -473,12 +478,12 @@ export default {
     /*
     * start the game
     */
-    async playAnonymous() {
+    async playAnonymous(force, noRedirect) {
       this.terms.usageError = false
       this.terms.privacyError = false
-      if (this.terms.usage === false) {
+      if (this.terms.usage === false && !force) {
         this.terms.usageError = true
-      } else if (this.terms.privacy === false) {
+      } else if (this.terms.privacy === false && !force) {
         this.terms.privacyError = true
       } else {
         let checkStatus = await AuthService.playAnonymous(this.$t('label.shortLang'))
@@ -486,7 +491,9 @@ export default {
           if (checkStatus.data.user) {
             window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
             axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
-            this.$router.push(this.defineRedirection())
+            if (!noRedirect) {
+              this.$router.push(this.defineRedirection())
+            }
           } else {
             Notification(this.$t('label.ErrorStandardMessage'), 'error')
           }
@@ -499,13 +506,13 @@ export default {
      * Check if the quest code is valid
      * @param   {String}  code            QR Code value
      */
-    /* 
+
     async checkCode(code) {
       // if code is 3 digits => this is a game QR code, not to be flashed here
       if (code.length == 3) {
-        Notification(this.$t('label.QRCodeIsNotStartingOne'), 'error')
         return
       }
+      this.playAnonymous(true, true)
       // treat teamplay
       if (code.indexOf('teamplay_') !== -1) {
         let teamPlayCode = code.replace('teamplay_', '')
@@ -518,41 +525,32 @@ export default {
       } else {
         code = utils.removeUnusedUrl(code)
         // From login page
-        if (this.fromLogin) {
-          let checkStatus = await QuestService.checkLoginQRCode(code, this.$t('label.shortLang'))
-          if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
-            this.closeQRCodeReader()
-            if (checkStatus.data.user) {
-              window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
-              axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
-              if (code.indexOf('_score') === -1) {
-                if (code.indexOf('-slash-') === -1 && code.indexOf('tierplay_') === -1) {
+        let checkStatus = await QuestService.checkLoginQRCode(code, this.$t('label.shortLang'))
+        if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
+          if (checkStatus.data.user) {
+            window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
+            axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
+            if (code.indexOf('_score') === -1) {
+              if (code.indexOf('-slash-') === -1 && code.indexOf('tierplay_') === -1) {
+                if (checkStatus.data.questId) {
+                  this.$router.push('/quest/play/' + checkStatus.data.questId)
+                } else {
+                  this.$router.push('/quest/play/' + code)
+                }
+              } else {
+                this.$q.dialog({
+                  message: this.$t('label.UniqueUsageQRCodeWarning'),
+                  ok: this.$t('label.Ok')
+                }).onOk(data => {        
                   if (checkStatus.data.questId) {
                     this.$router.push('/quest/play/' + checkStatus.data.questId)
                   } else {
                     this.$router.push('/quest/play/' + code)
                   }
-                } else {
-                  this.$q.dialog({
-                    message: this.$t('label.UniqueUsageQRCodeWarning'),
-                    ok: this.$t('label.Ok')
-                  }).onOk(data => {        
-                    if (checkStatus.data.questId) {
-                      this.$router.push('/quest/play/' + checkStatus.data.questId)
-                    } else {
-                      this.$router.push('/quest/play/' + code)
-                    }
-                  })
-                }
-              } else {
-                this.$router.push('/quest/' + (code.substring(0, 24)) + '/end')
+                })
               }
             } else {
-              if (code.indexOf('-slash-') === -1 && code.indexOf('tierplay_') === -1) {
-                Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
-              } else {
-                Notification(this.$t('label.QRCodeAlreadyUsed'), 'error')
-              }
+              this.$router.push('/quest/' + (code.substring(0, 24)) + '/end')
             }
           } else {
             if (code.indexOf('-slash-') === -1 && code.indexOf('tierplay_') === -1) {
@@ -561,8 +559,15 @@ export default {
               Notification(this.$t('label.QRCodeAlreadyUsed'), 'error')
             }
           }
+        } else {
+          if (code.indexOf('-slash-') === -1 && code.indexOf('tierplay_') === -1) {
+            Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
+          } else {
+            Notification(this.$t('label.QRCodeAlreadyUsed'), 'error')
+          }
         }
-    },*/
+      }
+    },
     /*
      * open the subscribe page
      */
