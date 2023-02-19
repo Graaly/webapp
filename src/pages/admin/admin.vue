@@ -6,11 +6,14 @@
 
       <q-tabs v-model="adminTab" class="bg-primary text-white" indicator-color="accent" active-bg-color="accent">
         <q-tab name="validation" icon="check_box" label="Validation" default/>
-        <q-tab name="rejected" icon="sentiment_very_dissatisfied" label="Rejected"/>
-        <q-tab name="earnings" icon="euro" label="Earnings"/>
-        <q-tab name="statistics" icon="bar_chart" label="Statistics"/>
+        <!--<q-tab name="rejected" icon="sentiment_very_dissatisfied" label="Rejected"/>-->
+        <q-tab name="earnings" icon="euro" label="paying games"/>
+        <q-tab name="needtopay" icon="euro" label="Need to pay"/>
+        <q-tab name="statisticsMonth" icon="bar_chart" label="Best games (month)"/>
+        <q-tab name="statisticsYear" icon="bar_chart" label="Best games (year)"/>
+        <q-tab name="statistics" icon="bar_chart" label="Best games"/>
         <q-tab name="limitations" icon="pan_tool" label="Limitations"/>
-        <q-tab name="disabled" icon="pan_tool" label="Désactivées"/>
+        <!--<q-tab name="disabled" icon="pan_tool" label="Désactivées"/>-->
       </q-tabs>
 
       <q-tab-panels v-model="adminTab" animated>
@@ -32,10 +35,29 @@
           <earning-quest-panel/>
         </q-tab-panel>
 
-        <!------------------ MINI GAMES TAB ------------------------>
+        <!------------------ NEED TO PAY TAB ------------------------>
+
+        <q-tab-panel name="needtopay">
+          <need-to-pay-quest-panel/>
+        </q-tab-panel>
+
+
+        <!------------------ STATISTICS TAB ------------------------>
 
         <q-tab-panel name="statistics">
           <statistic-quest-panel/>
+        </q-tab-panel>
+
+        <!------------------ STATISTICS (Year) TAB ------------------------>
+
+        <q-tab-panel name="statisticsYear">
+          <statistic-year-quest-panel/>
+        </q-tab-panel>
+
+        <!------------------ STATISTICS (Month) TAB ------------------------>
+
+        <q-tab-panel name="statisticsMonth">
+          <statistic-month-quest-panel/>
         </q-tab-panel>
 
         <!------------------ LIMITATIONS TAB ------------------------>
@@ -58,7 +80,10 @@
 import validateQuestPanel from "../../components/admin/validateQuestPanel";
 import rejectedQuestPanel from "../../components/admin/rejectedQuestPanel";
 import earningQuestPanel from "../../components/admin/earningQuestPanel";
+import needToPayQuestPanel from "../../components/admin/needToPayQuestPanel";
 import statisticQuestPanel from "../../components/admin/statisticQuestPanel";
+import statisticYearQuestPanel from "../../components/admin/statisticYearQuestPanel";
+import statisticMonthQuestPanel from "../../components/admin/statisticMonthQuestPanel";
 import limitationQuestPanel from "../../components/admin/limitationQuestPanel";
 import disabledQuestPanel from "../../components/admin/disabledQuestPanel";
 
@@ -67,7 +92,10 @@ export default {
     validateQuestPanel,
     rejectedQuestPanel,
     earningQuestPanel,
+    needToPayQuestPanel,
     statisticQuestPanel,
+    statisticYearQuestPanel,
+    statisticMonthQuestPanel,
     limitationQuestPanel,
     disabledQuestPanel
   },

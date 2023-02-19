@@ -1,9 +1,16 @@
 <template>
   <div class="wrapper">
-    <div class="page-content top-padding-middle" v-if="quest">
+    <div class="page-content top-padding-middle bg-white q-pa-md" v-if="quest">
       <!------------------ MAIN INFORMATION AREA ------------------------>
       <p>
         Validation of the quest <strong>{{ quest.title }}</strong>
+      </p>
+      <p>
+        <q-input
+          type="text"
+          label="Number of plays allowed"
+          v-model="numberOfPlaysAllowed"
+        />
       </p>
       <p>
         <q-btn
@@ -39,6 +46,7 @@ export default {
   data() {
     return {
       quest: {},
+      numberOfPlaysAllowed: 50,
       serverUrl: process.env.SERVER_URL,
       uploadUrl: process.env.UPLOAD_URL
     };
@@ -61,7 +69,7 @@ export default {
      * publish the quest
      */
     async publish() {
-      await AdminService.publish(this.$route.params.questId);
+      await AdminService.publish(this.$route.params.questId, this.numberOfPlaysAllowed);
       this.$router.push("/admin");
     },
     /*
