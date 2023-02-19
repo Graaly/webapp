@@ -20,10 +20,28 @@ export default {
     return Api().get("admin/towns");
   },
   /*
-   * List the statistics of best games
+   * List the statistics of best games of month
    */
   ListBestGames() {
     return Api().get("admin/bestgames");
+  },
+  /*
+   * List the statistics of best games of month
+   */
+  ListBestGamesForMonth() {
+    return Api().get("admin/bestgames/month");
+  },
+  /*
+   * List the statistics of best games of year
+   */
+  ListBestGamesForYear() {
+    return Api().get("admin/bestgames/year");
+  },
+  /*
+   * List what needs to by payed
+   */
+  ListNeedToPay() {
+    return Api().get("admin/needtopay");
   },
   /*
    * List the earnings
@@ -51,9 +69,11 @@ export default {
   },
   /*
    * Validate a quest
+   * @param   {String}    id                  ID of the quest
+   * @param   {Number}    nbplays             Number of plays allowed
    */
-  publish(id) {
-    return Api().get("admin/quests/publish/" + id);
+  publish(id, nbplays) {
+    return Api().get("admin/quests/publish/" + id + "/nbplays/" + nbplays);
   },
   /*
    * get Mail by UserId

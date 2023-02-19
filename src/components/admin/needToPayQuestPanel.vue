@@ -1,7 +1,7 @@
 <template>
   <q-table
     class="container"
-    title="Best games"
+    title="Best games of the year"
     :data="items"
     :columns="columns"
     :visible-columns="visible"
@@ -24,6 +24,7 @@
     <template v-slot:body="props">
       <q-tr :props="props">
         <q-td auto-width key="name">{{ props.row._id.questData.fr }}</q-td>
+        <q-td auto-width key="limit">{{ props.row._id.limitations.plan }}</q-td>
         <q-td auto-width key="nb" class="text-center">{{ props.row.nb }}</q-td>
       </q-tr>
     </template>
@@ -34,14 +35,15 @@
 import AdminService from "../../services/AdminService";
 
 export default {
-  name: "statisticMonthQuestPanel",
+  name: "needToPayQuestPanel",
   data() {
     return {
       loading: true,
       items: [],
-      visible: ['name', 'nb'],
+      visible: ['name', 'limit', 'nb'],
       columns: [
         {name: 'name', required: true, label: this.$t('label.AdminName'), align: 'left', sortable: true, field: row => row._id.questData.fr},
+        {name: 'Limit', required: true, label: "Limit", align: 'left', sortable: true, field: row => row._id.limitations.plan},
         {name: 'nb', label: "Parties jouées", sortable: true, align: 'center', field: 'nb'}
       ],
       initialPagination: {
@@ -59,7 +61,7 @@ export default {
   },
   methods: {
     async loadStatistics() {
-      let response = await AdminService.ListBestGames();
+      let response = await AdminService.ListNeedToPay();
       this.items = response.data.games;
       this.loading = false
     }
