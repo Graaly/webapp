@@ -24,7 +24,7 @@
     <template v-slot:body="props">
       <q-tr :props="props">
         <q-td auto-width key="name">{{ props.row._id.questData.fr }}</q-td>
-        <q-td auto-width key="limit">{{ props.row._id.limitations.plan }}</q-td>
+        <q-td auto-width key="limit">{{ props.row._id.nbPlaysAllowed }}</q-td>
         <q-td auto-width key="nb" class="text-center">{{ props.row.nb }}</q-td>
       </q-tr>
     </template>
@@ -43,7 +43,7 @@ export default {
       visible: ['name', 'limit', 'nb'],
       columns: [
         {name: 'name', required: true, label: this.$t('label.AdminName'), align: 'left', sortable: true, field: row => row._id.questData.fr},
-        {name: 'Limit', required: true, label: "Limit", align: 'left', sortable: true, field: row => row._id.limitations.plan},
+        {name: 'Limit', required: true, label: "Limit", align: 'left', sortable: true, field: row => row._id.nbPlaysAllowed},
         {name: 'nb', label: "Parties jouées", sortable: true, align: 'center', field: 'nb'}
       ],
       initialPagination: {
