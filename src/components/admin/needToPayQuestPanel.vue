@@ -23,7 +23,7 @@
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td auto-width key="name">{{ props.row._id.questData.fr }}</q-td>
+        <q-td auto-width key="name" @click.native="$router.push('/quest/play/' + props.row._id.questId)">{{ props.row._id.questData.fr }}</q-td>
         <q-td auto-width key="limit">{{ props.row._id.nbPlaysAllowed }}</q-td>
         <q-td auto-width key="nb" class="text-center">{{ props.row.nb }}</q-td>
       </q-tr>
