@@ -1,4 +1,5 @@
 import Api from "services/Api"
+import utils from "src/includes/utils"
 import QuestService from "services/QuestService"
 
 export default {
@@ -82,9 +83,9 @@ export default {
    * @param   {String}    chapterId         ID of the chapter
    * @param   {String}    version        version of the quest
    */
-  async getChapterById(chapterId, version) {
+  async getChapterById(questId, chapterId, version) {
     // check if the quest data are not already saved on device
-    let isQuestOfflineLoaded = await this.isCached(id)
+    let isQuestOfflineLoaded = await this.isCached(questId)
 
     if ((!isQuestOfflineLoaded && store.state.networkMode === 'online') || !window.cordova) {
       let res = await Api()
@@ -92,8 +93,15 @@ export default {
         .catch(error => console.log(error.request))
       return res
     } else {
-      let chapter = await utils.readFile(id, 'chapter_' + chapterId + '.json')
+      let chapter = await utils.readFile(questId, 'chapter_' + chapterId + '.json')
       return JSON.parse(chapter)
+    }
+  },
+  isCached(questId) {
+    if (!window.cordova) {
+      return false;
+    } else {
+      return utils.checkIfFileExists(questId, "quest_" + questId + ".json")
     }
   },
   /**
