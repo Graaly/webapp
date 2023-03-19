@@ -778,13 +778,14 @@
           </p>-->
           <!-- using https://github.com/timruffles/ios-html5-drag-drop-shim to allow drag & drop on mobile -->
           <ul class="list-group" v-sortable="{ onUpdate: onChapterListUpdate, handle: '.handle' }">
-            <li class="step-list list-group-item align-top" v-for="chapter in chapters.items" :key="chapter._id">
+            <li class="step-list list-group-item align-top" v-for="(chapter, index) in chapters.items" :key="chapter._id">
               <q-icon v-if="!readOnly" class="handle" style="font-size: 1.3rem;" name="reorder" />
               <div>
                 <p class="bigger" style="margin-bottom: 8px;">
                   {{ chapter.title[languages.current] || chapter.title[quest.mainLanguage] }}
                   <q-icon v-if="!readOnly" name="add_box" class="float-right q-mt-sm q-ml-md size-1" @click.native="addStep(chapter.chapterId)" />
                   <q-icon v-if="!readOnly" name="delete" class="float-right q-mt-sm q-ml-md a-bit-bigger" @click.native="removeChapter(chapter.chapterId)" />
+                  <q-icon v-if="!readOnly && index > 0" name="schedule" :color="(chapter.countDownTime && chapter.countDownTime != 0) ? 'secondary' : 'black'" class="float-right q-mt-sm q-ml-md a-bit-bigger" @click.native="modifyChapterTimer(chapter.chapterId)" />
                   <q-icon v-if="!readOnly" name="mode_edit" class="float-right q-mt-sm q-ml-md a-bit-bigger" @click.native="modifyChapter(chapter.chapterId)" />
                   <q-icon name="warning" color="primary" class="float-right q-mt-sm a-bit-bigger" v-if="chapter.warnings && chapter.warnings.length > 0" @click.native="showChapterWarnings(chapter.warnings)" />
                 </p>
@@ -2078,7 +2079,8 @@ export default {
           }
         } else {
           // editor advanced mode
-          for (var j = 0; j < this.chapters.items.length; j++) {
+          for (let j = 0; j < this.chapters.items.length; j++) {
+            this.chapters.items[j].warnings = []
             var hasEndOfChapterStep = false
             var stepsWithNoCondition = []
             var stepsWithNoParent = []
@@ -2086,7 +2088,7 @@ export default {
             var parent = []
 
             // Get the steps of current chapter & check if chapter has and end step
-            for (var i = 0; i < steps.length; i++) {
+            for (let i = 0; i < steps.length; i++) {
               if (steps[i].chapterId.toString() === this.chapters.items[j].chapterId.toString()) {
                 // create steps array
                 if (!this.chapters.items[j].steps) {
@@ -2099,10 +2101,29 @@ export default {
                 stepsOfChapter.push(steps[i])
               }
             }
+            
+            // Check that if chapter has a timer, there is a chapterTimerOver condition
+            if (this.chapters.items[j].countDownTime 
+              && this.chapters.items[j].countDownTime > 0
+              && this.chapters.items[j].order !== 1) {
+              let found = false
+              for (let i = 0; i < steps.length; i++) {
+                if (steps[i].chapterId.toString() === this.chapters.items[j].chapterId.toString()) {
+                  for (let k = 0; k < steps[i].conditions.length; k++) {
+                    if (steps[i].conditions[k] === 'chapterTimerOver') {
+                      found = true
+                    }
+                  }
+                }
+              }
+              if (!found) {
+                this.chapters.items[j].warnings.push({noCountDownTimerCondition: true})
+              }
+            }
 
             // create unsorted list of steps
             var unsorted = []
-            for (i = 0; i < stepsOfChapter.length; i++) {
+            for (let i = 0; i < stepsOfChapter.length; i++) {
               unsorted.push(stepsOfChapter[i].stepId.toString())
             }
 
@@ -2113,7 +2134,7 @@ export default {
             while (unsorted.length > 0 && iteration < 1000) {
               iteration++
               allSteps:
-                for (i = 0; i < stepsOfChapter.length; i++) {
+                for (let i = 0; i < stepsOfChapter.length; i++) {
                   var stepId = stepsOfChapter[i].stepId.toString()
                   // if the step does not already exists in final array
                   if (sorted.indexOf(stepId) === -1) {
@@ -2131,7 +2152,9 @@ export default {
                         if (stepsOfChapter[i].conditions[k].indexOf("counter") === -1 
                           && stepsOfChapter[i].conditions[k].indexOf("combineobject") === -1 
                           && stepsOfChapter[i].conditions[k].indexOf("haveobject") === -1 
-                          && stepsOfChapter[i].conditions[k].indexOf("nothaveobject") === -1) {
+                          && stepsOfChapter[i].conditions[k].indexOf("nothaveobject") === -1
+                          && stepsOfChapter[i].conditions[k] !== 'chapterTimerOver'
+                        ) {
                           let parentStepId = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
                           parentStepId = parentStepId.replace("stepSuccess_", "")
                           parentStepId = parentStepId.replace("stepFail_", "")
@@ -2158,7 +2181,7 @@ export default {
                         }
                       }
                       // treat the position of the new item
-                      if (sorted.length >= maxPosition) {
+                      if (sorted.length >= maxPosition && stepsOfChapter[i].conditions.indexOf('chapterTimerOver') === -1) {
                         sorted.splice(maxPosition + 1, 0, stepId)
                       } else {
                         sorted.push(stepId)
@@ -2170,13 +2193,18 @@ export default {
             }
 
             // apply sort && add extra formating properties
-            for (i = 0; i < sorted.length; i++) {
-              for (k = 0; k < stepsOfChapter.length; k++) {
+            for (let i = 0; i < sorted.length; i++) {
+              for (let k = 0; k < stepsOfChapter.length; k++) {
                 if (sorted[i] === stepsOfChapter[k].stepId.toString()) {
                   if (stepsWithNoParent.indexOf(stepsOfChapter[k].stepId.toString()) !== -1) {
                     stepsOfChapter[k].error = 'FollowingStepsHaveInvalidCondition'
                   }
-                  if (i === 0 || stepsOfChapter[k].conditions.length === 0 || stepsOfChapter[k].conditions.length > 1 || stepsOfChapter[k].type === 'locate-marker' || stepsOfChapter[k].type === 'geolocation') {
+                  if (i === 0 || stepsOfChapter[k].conditions.length === 0 
+                    || stepsOfChapter[k].conditions.length > 1 
+                    || stepsOfChapter[k].type === 'locate-marker' 
+                    || stepsOfChapter[k].type === 'geolocation'
+                    || stepsOfChapter[k].conditions.indexOf('chapterTimerOver') !== -1
+                  ) {
                     stepsOfChapter[k].level = 1
                   } else {
                     stepsOfChapter[k].level = 2
@@ -2185,11 +2213,12 @@ export default {
                 }
               }
             }
+            
             // check if steps are not treated
             var isTreated = false
-            for (k = 0; k < stepsOfChapter.length; k++) {
+            for (let k = 0; k < stepsOfChapter.length; k++) {
               isTreated = false
-              for (i = 0; i < sorted.length; i++) {
+              for (let i = 0; i < sorted.length; i++) {
                 if (sorted[i] === stepsOfChapter[k].stepId.toString()) {
                   isTreated = true
                 }
@@ -2269,7 +2298,6 @@ export default {
             */
 
             // Checks
-            this.chapters.items[j].warnings = []
             if (!hasEndOfChapterStep) {
               this.chapters.items[j].warnings.push({noEndOfChapter: true})
             }
@@ -2314,6 +2342,9 @@ export default {
       for (var i = 0; i < warnings.length; i++) {
         if (warnings[i].hasOwnProperty('noEndOfChapter')) {
           message += this.$t('label.YourChapterMustHaveAEndOfChapterStep') + ". "
+        }
+        if (warnings[i].hasOwnProperty('noCountDownTimerCondition')) {
+          message += this.$t('label.YourChapterHasTimerButNoCountDonwTimerCondition') + ". "
         }
         if (warnings[i].hasOwnProperty('moreThan1StepWithNoCondition')) {
           message += this.$t('label.FollowingStepsHaveNoConditionsOnlyTheFirstStepCanHaveThis') + ": " + warnings[i].moreThan1StepWithNoCondition.join(', ') + ". "
@@ -3041,6 +3072,39 @@ export default {
         await StepService.modifyChapter({questId: _this.questId, version: _this.quest.version, chapterId: chapterId, title: title})
 
         _this.chapters.items[chapterData.position].title[_this.languages.current] = data
+      }).onCancel(() => {})
+    },
+    /*
+     * Modify a chapter timer
+     * @param   {String}    chapterId            ID of the chapter removed
+     */
+    async modifyChapterTimer(chapterId) {
+      var _this = this; // workaround for closure scope quirks
+      var chapterData = {countDownTime: '', position: 0}
+
+      // Get chapter position and title
+      for (var i = 0; i < this.chapters.items.length; i++) {
+        if (this.chapters.items[i].chapterId.toString() === chapterId) {
+          chapterData.countDownTime = this.chapters.items[i].countDownTime
+          chapterData.position = i
+        }
+      }
+
+      this.$q.dialog({
+        dark: true,
+        message: this.$t('label.ModifyTheChapterTimer'),
+        prompt: {
+          model: chapterData.countDownTime,
+          type: 'number',
+          min: 0,
+          max: 400,
+        },
+        cancel: true
+      }).onOk(async (data) => {
+
+        await StepService.modifyChapter({questId: _this.questId, version: _this.quest.version, chapterId: chapterId, countDownTime: data})
+
+        _this.chapters.items[chapterData.position].countDownTime = data
       }).onCancel(() => {})
     },
     /*

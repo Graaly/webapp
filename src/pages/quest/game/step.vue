@@ -609,6 +609,7 @@ export default {
       this.loadStepData = true
       
       this.refreshCurrentDate()
+      
     },
     /*sendDataToGameMaster() {
       GMMS.Send(this.run.questId, {
@@ -661,7 +662,7 @@ export default {
      * Move to a step
      * @param {String} forceStepId optional - Id of step to load
      */
-    async moveToStep(forceStepId) {
+    async moveToStep(forceStepId, extra) {
       // keeping stepId info is required when network is interrupted & quest is played in online mode
       this.navigatingToStepId = forceStepId
 
@@ -683,7 +684,7 @@ export default {
       this.player = await this.getPlayer()
 
       // get current step
-      await this.getStep(forceStepId)
+      await this.getStep(forceStepId, extra)
 
       // send stepId to parent if in a frame
       this.sendStepIdToParent()
@@ -885,6 +886,19 @@ export default {
         response = await RunService.getNextStep(this.questId, this.player, extra)
 
         if (response && response.data && response.status === 200) {
+          // timer
+console.log("CHECK")
+console.log(response.data)
+          if (response.data.extra && response.data.extra.chapter) {
+            console.log("STOP JEU AVEC TIMER 2")
+            this.stopChapterCountDown()
+          }
+          if (response.data.extra && response.data.extra.timer) {
+            console.log("DEMARRER JEU AVEC TIMER 2")
+            console.log(response.data.extra.timer)
+            this.startChapterCountDown(response.data.extra.timer)
+          }
+          
           // check if a step is triggered
           if (response.data.next) {
             if (response.data.next === 'locationMarker') {
@@ -954,6 +968,17 @@ export default {
             return stepId
           }
         }
+        // timer
+        if (response.data.extra && response.data.extra.chapter) {
+          console.log("STOP JEU AVEC TIMER")
+          this.stopChapterCountDown()
+        }
+        if (stepIdResponse.extra && stepIdResponse.extra.timer) {
+          console.log("DEMARRER JEU AVEC TIMER")
+          console.log(stepIdResponse.extra.timer)
+          this.startChapterCountDown(stepIdResponse.extra.timer)
+        }
+        
         if (stepId === 'locationMarker') {
           // QR Code scanner step
           this.step = {
@@ -1099,6 +1124,24 @@ export default {
                 }
               }
             }
+            if (tempStep.options.imageBelow) {
+              const imageBelowUrl = await utils.readBinaryFile(this.questId, tempStep.options.imageBelow)
+              if (imageBelowUrl) {
+                tempStep.options.imageBelow = imageBelowUrl
+              } else {
+                this.warnings.stepDataMissing = true
+              }
+            }
+          }
+          if (tempStep.type === 'write-text') {
+            if (tempStep.options.imageBelow) {
+              const imageBelowUrl = await utils.readBinaryFile(this.questId, tempStep.options.imageBelow)
+              if (imageBelowUrl) {
+                tempStep.options.imageBelow = imageBelowUrl
+              } else {
+                this.warnings.stepDataMissing = true
+              }
+            }
           }
           if (tempStep.type === 'jigsaw-puzzle' && tempStep.options && tempStep.options.picture && tempStep.options.picture[this.lang] && tempStep.options.picture[this.lang] !== '') {
             const jigsawPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture[this.lang])
@@ -1237,7 +1280,7 @@ export default {
       }
     },
     /*
-     * Start the countdown
+     * Start the quest countdown
      */
     startCountDown () {
       if (this.info.quest.countDownTime && this.info.quest.countDownTime.enabled) {
@@ -1255,6 +1298,34 @@ export default {
         }
       }
     },
+    /*
+     * Start the chapter countdown
+     */
+    async startChapterCountDown (duration) {
+      if (duration) {
+        this.countDownTime = {
+          enabled: true, 
+          duration: duration,
+          remainingMinutes: duration,
+          remaining: 1
+        }
+      } else {
+        this.countDownTime.remainingMinutes -= 0.1
+        this.countDownTime.remaining = this.countDownTime.remainingMinutes / this.countDownTime.duration
+      }
+      if (this.countDownTime.remaining <= 0.09) {
+console.log("STOP THE CHAPTER")
+//tootoo
+        this.countDownTime.enabled = false
+        await this.moveToNextStep(null, {type: "chapterCounterOver"})
+      } else if (this.countDownTime.enabled === true) {
+        setTimeout(this.startChapterCountDown, 6000)
+      }
+    },
+    stopChapterCountDown() {
+      this.countDownTime.enabled = false
+    },
+    
     /*
      * Track step success
      */
@@ -1527,7 +1598,7 @@ export default {
     /*
      * Move to next step
      */
-    async moveToNextStep(type) {
+    async moveToNextStep(type, extra) {
       // sync offline run
       await this.saveOfflineRun(this.questId, this.run, false)
       //hide button
@@ -1544,7 +1615,7 @@ export default {
       }
 
       //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + type + '_' + this.step.stepId + '_' + utils.randomId() + '/' + this.$route.params.lang)
-      this.moveToStep()
+      this.moveToStep(null, extra)
     },
     /*
      * Return to previous step
@@ -2274,6 +2345,20 @@ export default {
           counter++
         }
       }
+      
+      // if chapter timer is over
+      /*if (extra && extra.type === 'chapterCounterOver') {
+        for (let i = 0; i < stepsofChapter.length; i++) {
+          if (stepsofChapter[i].conditions.length > 0) {
+            for (let j = 0; j < stepsofChapter[i].conditions.length; j++) {
+              if (stepsofChapter[i].conditions[j] === 'chapterTimerOver') {      
+                delete extra.type
+                return {id: stepsofChapter[i].stepId, extra: extra}
+              }
+            }
+          }
+        }
+      }*/
 
       if (stepsofChapter && stepsofChapter.length > 0) {
         let combineFound = 0
@@ -2284,12 +2369,20 @@ export default {
           if (conditionsDone && conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
             if (stepsofChapter[i].conditions && stepsofChapter[i].conditions.length > 0) {
               for (j = 0; j < stepsofChapter[i].conditions.length; j++) {
+                // check if timer over
+                if (extra && extra.type === 'chapterCounterOver') {
+                  if (stepsofChapter[i].conditions[j] !== 'chapterTimerOver') {
+                    continue stepListFor
+                  }
+                  delete extra.type
+                }
                 // check if a standard condition (not a counter condition)
-                if (stepsofChapter[i].conditions[j].indexOf('countergreater_') === -1 
+                else if (stepsofChapter[i].conditions[j].indexOf('countergreater_') === -1 
                   && stepsofChapter[i].conditions[j].indexOf('counterlower_') === -1
                   && stepsofChapter[i].conditions[j].indexOf('haveobject_') === -1
                   && stepsofChapter[i].conditions[j].indexOf('nothaveobject_') === -1
-                  && stepsofChapter[i].conditions[j].indexOf('combineobject_') === -1) {
+                  && stepsofChapter[i].conditions[j].indexOf('combineobject_') === -1
+                  && stepsofChapter[i].conditions[j] !== 'chapterTimerOver') {
                   // if one of the conditions of the step i not ok, continue with next step
                   if (conditionsDone.indexOf(stepsofChapter[i].conditions[j]) === -1) {
                     continue stepListFor
@@ -2433,6 +2526,8 @@ export default {
 
                 // get next step by running the process again for new chapter
                 let response = await this.getNextOfflineStep(questId, markerCode, player, extra)
+                extra.timer = await getOfflineChapterTimer(this.run.version)
+                extra.chapter = "new"
                 nextStepId = response.id
               }
               //await this.addStepToHistory(nextStepId)
@@ -2760,6 +2855,7 @@ export default {
       }
 
       this.run.currentChapter = nextChapter
+      this.startChapterCounter()
       return nextChapter
     },
     /*
@@ -2767,7 +2863,16 @@ export default {
      */
     async moveToChapter(chapterId) {
       this.run.currentChapter = chapterId
+      this.startChapterCounter()
       return chapterId
+    },
+    getOfflineChapterTimer(version) {
+      const chapter = StepService.getChapterById(this.run.currentChapter, version)
+    
+      if (!chapter || !chapter.countDownTime) {
+        return 0
+      }
+      return chapter.countDownTime
     },
     /*
      * cut sound

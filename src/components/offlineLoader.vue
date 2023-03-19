@@ -259,6 +259,22 @@ export default {
                     }
                   }
                 }
+                if (step.options.imageBelow) {
+                  const imageBelowSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/code-image/', step.options.imageBelow)
+                  if (!imageBelowSuccess) {
+                    this.throwSaveError('Could not save image for quest ' + quest.questId + ' and step "code image" ' + step.stepId)
+                    return false
+                  }
+                }
+              }
+              if (step.type === 'write-text') {
+                if (step.options.imageBelow) {
+                  const imageBelowSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/code-image/', step.options.imageBelow)
+                  if (!imageBelowSuccess) {
+                    this.throwSaveError('Could not save image for quest ' + quest.questId + ' and step "code image" ' + step.stepId)
+                    return false
+                  }
+                }
               }
               if (step.type === 'jigsaw-puzzle' && step.options && step.options.picture && step.options.picture[this.lang] && step.options.picture[this.lang] !== '') {
                 const jigsawImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/jigsaw-puzzle/', step.options.picture[this.lang])

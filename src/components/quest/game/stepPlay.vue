@@ -443,6 +443,12 @@
               <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
             </div>
           </div>
+          <div v-if="codeImage.imageBelow">
+            <img
+              style="width: 80%"
+              :src="((codeImage.imageBelow.indexOf('statics/') > -1 || codeImage.imageBelow.indexOf('blob:') !== -1) ? codeImage.imageBelow : uploadUrl + '/upload/quest/' + step.questId + '/step/code-image/' + codeImage.imageBelow)"
+            />
+          </div>
           <div v-if="!step.options || !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
@@ -521,6 +527,12 @@
           <div v-if="!step.options || !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
+          <div v-if="writetext.imageBelow" style="opacity: 0.99;">
+            <img
+              style="width: 80%"
+              :src="((writetext.imageBelow.indexOf('statics/') > -1 || writetext.imageBelow.indexOf('blob:') !== -1) ? writetext.imageBelow : uploadUrl + '/upload/quest/' + step.questId + '/step/write-text/' + writetext.imageBelow)"
+            />
+          </div>
         </div>
         <div v-if="!showTools" class="centered">
           <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
@@ -535,18 +547,18 @@
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
         <div id="pieces">
-            <div draggable="true"
-              v-for="piece in puzzle.pieces"
-              :key="piece.pos"
-              :id="'piece-' + piece.pos"
-              @dragstart="handleDragStart($event)"
-              @dragover="handleDragOver($event)"
-              @drop="handleDrop($event)"
-              @dragend="handleDragEnd($event)"
-              @click="movePieceWithClick(piece.pos)"
-              :class="piece.classes"
-              :style="'background-image: url(' + puzzle.picture + '); background-size: ' + piece.backSize + '% ' + piece.backSize + '%;background-position: -' + piece.backXPos + ' -' + piece.backYPos + ';'"
-            ><header :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'"></header></div>
+          <div draggable="true"
+            v-for="piece in puzzle.pieces"
+            :key="piece.pos"
+            :id="'piece-' + piece.pos"
+            @dragstart="handleDragStart($event)"
+            @dragover="handleDragOver($event)"
+            @drop="handleDrop($event)"
+            @dragend="handleDragEnd($event)"
+            @click="movePieceWithClick(piece.pos)"
+            :class="piece.classes"
+            :style="'background-image: url(' + puzzle.picture + '); background-size: ' + piece.backSize + '% ' + piece.backSize + '%;background-position: -' + piece.backXPos + ' -' + piece.backYPos + ';'"
+          ><header :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'"></header></div>
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
         <div class="q-mt-lg background-lighter4 q-pa-md" v-if="!step.options.hidePuzzleNotWorkingMessage">
@@ -817,12 +829,12 @@
         </div>
       </div>-->
       <super-impose-image-camera-step
-      v-if="step.type == 'image-over-flow'"
-      :quest="quest"
-      :step="step"
-      :customization="customization"
-      v-on:showButtons="$emit('showButtons')"
-      v-on:hideButtons="$emit('hideButtons')"
+        v-if="step.type == 'image-over-flow'"
+        :quest="quest"
+        :step="step"
+        :customization="customization"
+        v-on:showButtons="$emit('showButtons')"
+        v-on:hideButtons="$emit('hideButtons')"
       />
 
       <!------------------ LOCATE A 2D MARKER / TOUCH OBJECT ON MARKER ------------------------>
@@ -1253,7 +1265,11 @@ export default {
 
         // for step type 'write-text'
         writetext: {
-          playerAnswer: ""
+          playerAnswer: "",
+          imageBelow: null
+        },
+        codeImage: {
+          imageBelow: null
         },
 
         // for step type 'jigsaw puzzle'
@@ -1362,6 +1378,7 @@ export default {
       this.deviceMotion = defaultVars.deviceMotion
       this.locateMarker = defaultVars.locateMarker
       this.writetext = defaultVars.writetext
+      this.codeImage = defaultVars.codeImage
       this.puzzle = defaultVars.puzzle
       this.choose = defaultVars.choose
       this.memory = defaultVars.memory
@@ -1605,6 +1622,10 @@ export default {
         }
         if (this.step.type === 'code-image') {
           this.resetImageCode()
+          this.codeImage.imageBelow = this.step.options.imageBelow
+        }
+        if (this.step.type === 'write-text') {
+          this.writetext.imageBelow = this.step.options.imageBelow
         }
 
         if (this.step.type === 'find-item') {

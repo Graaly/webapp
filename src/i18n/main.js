@@ -623,6 +623,7 @@ module.exports = {
       StepHaveObject: "(BETA) Object is in inventory ",
       StepNotHaveObject: "(BETA) Object is not in inventory ",
       StepAnswerNb: "(BETA) Answer Nb to the question",
+      StepChapterTimerOver: "(BETA) chapter timer is over",
       NoCondition: "No condition (start at the beginning of the chapter)",
       Conditions: "Triggers",
       AddACondition: "Add a trigger",
@@ -1239,7 +1240,7 @@ module.exports = {
       PrintQRCodePages: "Print QR Codes",
       AnswerNumber: "Number of the answer",
       QRCodeIsNotStartingOne: "This is not the right QR code. Look for the QR code to start the game!",
-      QRCodeIsNotPlayingOne: "This is not the right QR code. Look for the QR code with a logo on the bottom right!",
+      QRCodeIsNotPlayingOne: "This is not the right QR code",
       Loading2: "Loading",
       Configuration: "Settings",
       Video: "Video",
@@ -1257,7 +1258,11 @@ module.exports = {
       MoveRight: "Move right",
       OrSelectACharacter: "Or select a character",
       AddAnotherCharacter: "Add an other scene",
-      ChangeCharacter: "Changer the character"
+      ChangeCharacter: "Changer the character",
+      UploadImageBelowButton: "Display an image below the button",
+      UpdateClones: "Update cloned steps",
+      ModifyTheChapterTimer: "Set the chapter countdown in minutes (0 = no timer)",
+      YourChapterHasTimerButNoCountDonwTimerCondition: "You have set a timer for this chapter but not created a step with a condition for the end of the timer"
     }
   },
   fr: {
@@ -1872,6 +1877,7 @@ module.exports = {
       StepHaveObject: "(BETA) Objet est dans l'inventaire ",
       StepNotHaveObject: "(BETA) Objet n'est pas dans l'inventaire ",
       StepAnswerNb: "(BETA) Réponse N° au QCM",
+      StepChapterTimerOver: "(BETA) Le compte à rebours du chapitre est fini",
       NoCondition: "Aucune condition (démarre au début du chapitre)",
       Conditions: "Déclencheurs",
       AddACondition: "Ajouter un déclencheur",
@@ -2488,7 +2494,7 @@ module.exports = {
       PrintQRCodePages: "Imprimer les QR Codes",
       AnswerNumber: "Numéro de la réponse",
       QRCodeIsNotStartingOne: "Ce n'est pas le bon QR code. Recherchez le QR code de démarrage du jeu !",
-      QRCodeIsNotPlayingOne: "Ce n'est pas le bon QR code. Recherchez un QR code avec un logo en bas à droite !",
+      QRCodeIsNotPlayingOne: "Ce n'est pas le bon QR code",
       Loading2: "Chargement",
       Configuration: "Configuration",
       Video: "Vidéo",
@@ -2506,7 +2512,11 @@ module.exports = {
       MoveRight: "Déplacer à droite",
       OrSelectACharacter: "Ou sélectionnez un personnage",
       AddAnotherCharacter: "Ajouter une autre scène",
-      ChangeCharacter: "Changer le personnage"
+      ChangeCharacter: "Changer le personnage",
+      UploadImageBelowButton: "Ajouter une image sous le bouton",
+      UpdateClones: "Mettre à jour les étapes clonées",
+      ModifyTheChapterTimer: "Définir le compte à rebours du chapitre en minutes (0 = pas de compte à rebours)",
+      YourChapterHasTimerButNoCountDonwTimerCondition: "Vous avez défini un compte à rebours dans le chapitre, mais aucune étape avec un déclencheur de fin de compte à rebours"
     }
   }
 }

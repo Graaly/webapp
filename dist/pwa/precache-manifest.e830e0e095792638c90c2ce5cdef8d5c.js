@@ -4,8 +4,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "css/2.0cf6c528.css"
   },
   {
-    "revision": "82c3649ad5d8bc3ad193",
-    "url": "css/app.86ad63cf.css"
+    "revision": "85d38d5a98e80c5b8c16",
+    "url": "css/app.cc4b3643.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -96,7 +96,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "72620b60c1c46def3d15537c5eab3639",
+    "revision": "7abc47ae712092a6ce8cfb118cbd94bb",
     "url": "index.html"
   },
   {
@@ -104,12 +104,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2.10e7fdce.js"
   },
   {
-    "revision": "82c3649ad5d8bc3ad193",
-    "url": "js/app.19df63e5.js"
+    "revision": "85d38d5a98e80c5b8c16",
+    "url": "js/app.76787e8c.js"
   },
   {
-    "revision": "1452c0d547fca360e67a",
-    "url": "js/vendor.1452c0d5.js"
+    "revision": "9c976b3f39e8215038d7",
+    "url": "js/vendor.9c976b3f.js"
   },
   {
     "revision": "19e941eacef1fc70e8b70479c2cb66cb",
@@ -724,15 +724,15 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/social-networks/twitter.png"
   },
   {
-    "revision": "7050c042be5ad19797ee01f5636faa59",
+    "revision": "c385755e65a5e707e8e6ccf630595fb3",
     "url": "statics/icons/story/character10_attitude1.png"
   },
   {
-    "revision": "b853981b181fb0df602defb65661cdd9",
+    "revision": "dc0497dced04c2a1c4b73f75e75535f9",
     "url": "statics/icons/story/character11_attitude1.png"
   },
   {
-    "revision": "fc286f31c203371b1d2adebcbcbd59ff",
+    "revision": "73b355f73fced68c87a71707a7cc08c0",
     "url": "statics/icons/story/character12_attitude1.png"
   },
   {
@@ -740,55 +740,55 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/story/character13_attitude1.png"
   },
   {
-    "revision": "f221a3ceca61857f9799a0a05ed3b70a",
+    "revision": "79a270e8211a076d43e00d806958a5fc",
     "url": "statics/icons/story/character14_attitude1.png"
   },
   {
-    "revision": "b916dd7928204028bc697f4540235302",
+    "revision": "2b9f55b2cb4d64a3723e6ffeeed26b18",
     "url": "statics/icons/story/character15_attitude1.png"
   },
   {
-    "revision": "67fa6bcb57ba9dabc15dca47ac3f0ffc",
+    "revision": "6ec0ef2a6a275fbfa91516016c448cff",
     "url": "statics/icons/story/character16_attitude1.png"
   },
   {
-    "revision": "6817b82adbbc4485998b97664a29a675",
+    "revision": "1358e180909abcac72aa4a0a620b185d",
     "url": "statics/icons/story/character17_attitude1.png"
   },
   {
-    "revision": "dd55015f55adf5838c86292dca49b784",
+    "revision": "e950c1aee0dacd0e97e63d524e484015",
     "url": "statics/icons/story/character18_attitude1.png"
   },
   {
-    "revision": "08365965ce1e20af49d0e8aca137e055",
+    "revision": "81a8bb96627d16c053dd40201d8dea31",
     "url": "statics/icons/story/character19_attitude1.png"
   },
   {
-    "revision": "7658b2221d2fa5fdace0ad9fa3f15b86",
+    "revision": "f60cfd3998ff923d25de16fbec9dba3b",
     "url": "statics/icons/story/character1_attitude1.png"
   },
   {
-    "revision": "b110955768527e2ce293163bc5363def",
+    "revision": "dbb410e439fb5c35638fc4482d7454cb",
     "url": "statics/icons/story/character20_attitude1.png"
   },
   {
-    "revision": "d6a46aa40897a46743aa9f931cde9bd3",
+    "revision": "398a2f26dd93c5265d4a85dd10365c7f",
     "url": "statics/icons/story/character21_attitude1.png"
   },
   {
-    "revision": "5554c89c32627b4bb9acebd809d1b982",
+    "revision": "1885a747847e6ff9a42e1b39c3a5b060",
     "url": "statics/icons/story/character22_attitude1.png"
   },
   {
-    "revision": "d7b3b1c8af3d6550aa6c8a3b53fe0c87",
+    "revision": "44bc4996e46acf57be86ab8a981d78ce",
     "url": "statics/icons/story/character23_attitude1.png"
   },
   {
-    "revision": "52822d3a3241ed8a6f32b999411e2608",
+    "revision": "b0ba6b08178beb43c6dc36c0bcb8e900",
     "url": "statics/icons/story/character24_attitude1.png"
   },
   {
-    "revision": "13452c6278a4cadb13283b83195c7bf0",
+    "revision": "f9c9ede26ad787f6f8e80bd59b0608c4",
     "url": "statics/icons/story/character25_attitude1.png"
   },
   {
@@ -796,91 +796,91 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/story/character26_attitude1.png"
   },
   {
-    "revision": "b29ab099d5ee4fb0e550a5df41f9d378",
+    "revision": "083871aa93ba75dd156a5817890c1bbd",
     "url": "statics/icons/story/character27_attitude1.png"
   },
   {
-    "revision": "5789334169804f5b15a2fef84a85de07",
+    "revision": "539ba319fb5deab0a1f81ec6fec5c886",
     "url": "statics/icons/story/character28_attitude1.png"
   },
   {
-    "revision": "04ce39d63a3e8e6d6684be306b0f70a4",
+    "revision": "f0b00f8c252d1002ee5c9d413dbb512b",
     "url": "statics/icons/story/character29_attitude1.png"
   },
   {
-    "revision": "efc1f0afa5c3bcf0e09577a0e4a09e6a",
+    "revision": "19a3913944353baa6b6ca5d0f6c22e25",
     "url": "statics/icons/story/character2_attitude1.png"
   },
   {
-    "revision": "c0e72361bc17bec7e0c52711fea9235d",
+    "revision": "72fe2af661a6e7f09fd6082866bafdbf",
     "url": "statics/icons/story/character30_attitude1.png"
   },
   {
-    "revision": "9e5736c56a121dbba4acb97486adf58c",
+    "revision": "a55b549a839c47b2ba348f6d4dc50439",
     "url": "statics/icons/story/character31_attitude1.png"
   },
   {
-    "revision": "61755c8ae1c8cde8b1566b1090acfbfc",
+    "revision": "6bba92280a980850a2bc40fe05b27851",
     "url": "statics/icons/story/character32_attitude1.png"
   },
   {
-    "revision": "02e862537f67f69d6ae6b8b33cecf39a",
+    "revision": "2268857c47c6137a1278b86ae5337795",
     "url": "statics/icons/story/character33_attitude1.png"
   },
   {
-    "revision": "19374ea981059ad210f9ff3c907336ea",
+    "revision": "980e8dfead3adbdd0b99107cca08df54",
     "url": "statics/icons/story/character34_attitude1.png"
   },
   {
-    "revision": "2ee9c418533551411dcf9ee38ce419ba",
+    "revision": "d246a6f887153c200380cf67bd9c430b",
     "url": "statics/icons/story/character35_attitude1.png"
   },
   {
-    "revision": "2f00f8e1497b1f849387749ff508b492",
+    "revision": "89d7e528dd5f6f7b5d4a087433fc95ff",
     "url": "statics/icons/story/character36_attitude1.png"
   },
   {
-    "revision": "3965809505d36650c366d4725ac17b89",
+    "revision": "56b9a79d3f7e46584c88be5cefa97617",
     "url": "statics/icons/story/character37_attitude1.png"
   },
   {
-    "revision": "70a1a68a779593f11a86bb6808824a42",
+    "revision": "94eb8c40fca525c581aa3e7762b8951f",
     "url": "statics/icons/story/character38_attitude1.png"
   },
   {
-    "revision": "4b4bb3ae91228719831c3414352bffb9",
+    "revision": "9ecba8d7114b863c6edfe95cf17898bc",
     "url": "statics/icons/story/character39_attitude1.png"
   },
   {
-    "revision": "ad8b89e6ffadffa93eca0a61c8ebce53",
+    "revision": "93f83629a79f77e180cee0c60296f843",
     "url": "statics/icons/story/character3_attitude1.png"
   },
   {
-    "revision": "3037f6551d375720b2b19591f3bb2da3",
+    "revision": "179bd199c9336531735e8ea776443dee",
     "url": "statics/icons/story/character40_attitude1.png"
   },
   {
-    "revision": "f19758b54a8a541b8919b9ba017930a1",
+    "revision": "11f3c4042949aaf683b2ab01e9c3ae9f",
     "url": "statics/icons/story/character4_attitude1.png"
   },
   {
-    "revision": "fc68cb00fb95a5ebe276462ce7fb756f",
+    "revision": "5e3400fcde2683ea137de00ecb4737f2",
     "url": "statics/icons/story/character5_attitude1.png"
   },
   {
-    "revision": "f73ca0eb8b3460bf62430ff96bc60748",
+    "revision": "ba8bc528c1022a264ad32328e0eb95fa",
     "url": "statics/icons/story/character6_attitude1.png"
   },
   {
-    "revision": "5c0bf4358cf482281c5fd96185e95b43",
+    "revision": "c3d6d432002a1510ec998535a70644ea",
     "url": "statics/icons/story/character7_attitude1.png"
   },
   {
-    "revision": "b051ce430d8c724468b3c43f2c1d92ac",
+    "revision": "5dd2dca05e9bcbbae5d244b1ea579ec9",
     "url": "statics/icons/story/character8_attitude1.png"
   },
   {
-    "revision": "6f1243f83169de1fb31af4fa4aa1ca9b",
+    "revision": "22e5690c28a97eddd6de992bf8729b0b",
     "url": "statics/icons/story/character9_attitude1.png"
   },
   {
@@ -2652,20 +2652,24 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/sncf/eye-0.png"
   },
   {
-    "revision": "68eed930c1235aa62ac7a81775e0e242",
+    "revision": "8d2c23b570c906c7f30b67265fef7c69",
     "url": "statics/sncf/eye-1.png"
   },
   {
-    "revision": "da92d747d0ca562eb3ca51e2e5119733",
+    "revision": "c5c49e9ce6940bb8d6c97e29d3b3d771",
     "url": "statics/sncf/eye-2.png"
   },
   {
-    "revision": "360b5cd3ee3bc1331940adbf55fd8bea",
+    "revision": "ba78a45500e140c6425c2e32e03e2981",
     "url": "statics/sncf/eye-3.png"
   },
   {
-    "revision": "13c21b69b2d24d062967713bf934065a",
+    "revision": "ecde64c310f4dd7e42a987e3f6294bf0",
     "url": "statics/sncf/eye-4.png"
+  },
+  {
+    "revision": "0317becf289539b3647c658ce133e7fb",
+    "url": "statics/sncf/eye-5.png"
   },
   {
     "revision": "48294cd1ef04028a72388f2d99608594",

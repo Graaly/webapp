@@ -77,6 +77,25 @@ export default {
       .catch(error => console.log(error.request))
     return res
   },
+  /*
+   * get a chapter by its ID
+   * @param   {String}    chapterId         ID of the chapter
+   * @param   {String}    version        version of the quest
+   */
+  async getChapterById(chapterId, version) {
+    // check if the quest data are not already saved on device
+    let isQuestOfflineLoaded = await this.isCached(id)
+
+    if ((!isQuestOfflineLoaded && store.state.networkMode === 'online') || !window.cordova) {
+      let res = await Api()
+        .get("chapter/" + chapterId + "/version/" + version + "/lang/" + lang)
+        .catch(error => console.log(error.request))
+      return res
+    } else {
+      let chapter = await utils.readFile(id, 'chapter_' + chapterId + '.json')
+      return JSON.parse(chapter)
+    }
+  },
   /**
    * check an answer
    * @param   {String}    questId        ID of the quest
@@ -413,6 +432,25 @@ export default {
    * @param   {Object}    data           upload data
    */
   async uploadItemImage(questId, stepType, data) {
+    let res = await Api()
+      .post("/quest/" + questId + "/step/" + stepType + "/upload", data, {
+        timeout: 60000,
+        headers: { "Content-Type": "multipart/form-data" }
+      })
+      .catch(error => console.log(error.request))
+
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+
+    return res
+  },
+  /*
+   * upload a picture below the button
+   * @param   {String}    questId        ID of the quest
+   * @param   {String}    stepType       step type code, like 'new-item'
+   * @param   {Object}    data           upload data
+   */
+  async uploadImageBelow(questId, stepType, data) {
     let res = await Api()
       .post("/quest/" + questId + "/step/" + stepType + "/upload", data, {
         timeout: 60000,
