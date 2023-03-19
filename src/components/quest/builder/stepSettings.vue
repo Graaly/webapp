@@ -154,7 +154,7 @@
             </div>
             <div class="col-9 selected q-pa-md">
               <q-input
-                v-model="character.text[lang]"
+                v-model="config.character.multiple[index].text[lang]"
                 type="textarea"
                 :max-height="100"
                 :min-rows="4"
@@ -1001,7 +1001,13 @@
             <q-btn color="primary" class="full-width" v-if="!selectedStep.newConditionForm" @click="selectedStep.newConditionForm = true" :label="$t('label.AddACondition')" />
             <div v-if="selectedStep.newConditionForm">
               <q-select emit-value map-options :label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @input="changeNewConditionType" />
-              <q-select v-if="selectedStep.newCondition.selectedType !== 'counter' && selectedStep.newCondition.selectedType !== 'countergreater' && selectedStep.newCondition.selectedType !== 'counterlower' && selectedStep.newCondition.selectedType !== 'combineobject' && selectedStep.newCondition.selectedType !== 'haveobject' && selectedStep.newCondition.selectedType !== 'nothaveobject'" emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
+              <q-select 
+                v-if="selectedStep.newCondition.selectedType !== 'counter' && selectedStep.newCondition.selectedType !== 'countergreater' && selectedStep.newCondition.selectedType !== 'counterlower' && selectedStep.newCondition.selectedType !== 'combineobject' && selectedStep.newCondition.selectedType !== 'haveobject' && selectedStep.newCondition.selectedType !== 'nothaveobject' && selectedStep.newCondition.selectedType !== 'chapterTimerOver'" 
+                emit-value map-options 
+                :label="$t('label.ConditionValue')" 
+                v-model="selectedStep.newCondition.selectedValue" 
+                :options="selectedStep.newCondition.values" 
+              />
               <q-select v-if="selectedStep.newCondition.selectedType === 'combineobject' && options.type.code === 'new-item'" emit-value map-options :label="$t('label.ObjectCombined')" v-model="selectedStep.newCondition.selectedObject" :options="config.useItem.questItemsAsOptions" />
               <div v-if="selectedStep.newCondition.selectedType === 'combineobject' && options.type.code !== 'new-item'">{{ $t('label.YouCanOnlyUseThisFeatureInNewItemStep') }}</div>
               <q-select v-if="selectedStep.newCondition.selectedType === 'haveobject'" emit-value map-options :label="$t('label.ObjectInInventory')" v-model="selectedStep.newCondition.selectedObject" :options="config.useItem.questItemsAsOptions" />
@@ -1064,6 +1070,24 @@
                   :src="uploadUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage[lang]" 
                   /> <br />
                 <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
+              </div>
+            </div>
+            <div class="background-upload" v-show="options.type.code === 'write-text' || options.type.code === 'code-image'">
+              <div>
+                <div v-if="!isIOs">
+                  <q-btn class="full-width" type="button" :label="$t('label.UploadImageBelowButton')" @click="$refs['imageBelowfile'].click()" />
+                  <input @change="uploadImageBelowButton" ref="imageBelowfile" type="file" accept="image/*" hidden />
+                </div>
+                <div v-if="isIOs">
+                  {{ $t('label.UploadImageBelowButton') }}:
+                  <input @change="uploadImageBelowButton" ref="imageBelowfile" type="file" accept="image/*" />
+                </div>
+              </div>
+              <div v-if="selectedStep.form.options !== null && selectedStep.form.options.imageBelow && selectedStep.form.options.imageBelow !== null">
+                <p>{{ $t('label.YourItemPicture') }} :</p>
+                <div class="centered">
+                  <img style="width:100%" :src="(selectedStep.form.options.imageBelow.indexOf('statics/') !== -1 ? selectedStep.form.options.imageBelow : uploadUrl + '/upload/quest/' + questId + '/step/' + options.type.code + '/' + selectedStep.form.options.imageBelow)" />
+                </div>
               </div>
             </div>
             <div class="background-upload" v-if="options.type.code === 'geolocation'">
@@ -1288,6 +1312,10 @@
 
     <!------------------ SAVE BUTTONS ------------------------>
 
+      <div>
+        <q-toggle v-model="updateClones" :label="$t('label.UpdateClones')" />
+      </div>
+      
       <div class="centered q-pa-md q-pt-lg q-pb-sm">
         <q-btn class="glossy large-button" color="primary" @click="checkAndSubmit(true)" test-id="btn-save-step">{{ $t('label.SaveAndTestThisStep') }}</q-btn>
       </div>
@@ -1467,6 +1495,7 @@ export default {
   data() {
     return {
       questId: null,
+      updateClones: false,
       selectedStep: {
         isNew: true,
         newConditionForm: false,
@@ -1507,7 +1536,8 @@ export default {
             {label: this.$t('label.StepCounterLower'), value: 'counterlower'},
             {label: this.$t('label.StepCombineObject'), value: 'combineobject'},
             {label: this.$t('label.StepHaveObject'), value: 'haveobject'},
-            {label: this.$t('label.StepNotHaveObject'), value: 'nothaveobject'}
+            {label: this.$t('label.StepNotHaveObject'), value: 'nothaveobject'},
+            {label: this.$t('label.StepChapterTimerOver'), value: 'chapterTimerOver'}
           ],
           selectedValue: '',
           selectedObject: '',
@@ -1740,6 +1770,7 @@ export default {
      * Get step ID and step type
      */
     async resetStep() {
+      this.updateClones = false
       this.selectedStep.form = {
         title: {}, // {fr: 'mon titre', en: 'my title', ...}
         text: {}, // {fr: 'ma description', en: 'my description', ...}
@@ -2335,6 +2366,7 @@ export default {
       // save step data
       let newStepData = Object.assign(this.selectedStep.form, {
         questId: this.questId,
+        updateClones: this.updateClones,
         version: this.quest.version,
         chapterId: this.options.chapterId,
         type: this.options.type.code
@@ -2547,6 +2579,10 @@ export default {
         if (conditionParts[0] === 'combineobject') {
           this.selectedStep.formatedConditions.push(this.$t("label.StepCombineObject") + " <i><img src='" + (conditionParts[1].indexOf('statics/') !== -1 ? conditionParts[1] : this.uploadUrl + '/upload/quest/' + this.questId + '/step/new-item/' + conditionParts[1]) + "' style='width: 40px' /></i>")
         }
+
+        if (conditionParts[0] === 'chapterTimerOver') {
+          this.selectedStep.formatedConditions.push(this.$t("label.StepChapterTimerOver"))
+        }
         if (conditionParts[0] === 'haveobject') {
           for (let pictureUrl in this.config.useItem.stepsOfItems) {
             if (this.config.useItem.stepsOfItems[pictureUrl] === conditionParts[1]) {
@@ -2656,6 +2692,10 @@ export default {
         if (this.selectedStep.newCondition.selectedType === 'nothaveobject') {
           this.selectedStep.form.conditions.push('nothaveobject_' + this.config.useItem.stepsOfItems[this.selectedStep.newCondition.selectedObject])
         }
+      }
+
+      if (this.selectedStep.newCondition.selectedType === 'chapterTimerOver') {
+        this.selectedStep.form.conditions.push('chapterTimerOver')
       }
       this.getUnderstandableConditions()
       await this.resetNewConditionForm()
@@ -2974,6 +3014,32 @@ export default {
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         if (uploadResult.data.file) {
           Vue.set(this.selectedStep.form.options, 'locator', uploadResult.data.file)
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    /*
+     * Upload a picture below the button
+     * @param   {Object}    e            Upload data
+     */
+    async uploadImageBelowButton(e) {
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      this.$q.loading.show()
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadResult = await StepService.uploadImageBelow(this.questId, this.options.type.code, data)
+      if (uploadResult && uploadResult.hasOwnProperty('data')) {
+        if (uploadResult.data.file) {
+          Vue.set(this.selectedStep.form.options, 'imageBelow', uploadResult.data.file)
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
@@ -3724,10 +3790,10 @@ export default {
     addAnotherCharacter() {
       this.config.character.multiple.push({
         picture: "1",
-        text: {},
+        text: {fr: '', en: ''},
         position: 'right'
       })
-      this.config.character.multiple[this.config.character.multiple.length - 1].text[this.lang] = this.selectedStep.form.text[this.lang]
+      //this.config.character.multiple[this.config.character.multiple.length - 1].text[this.lang] = ""
     },
     moveCharacter(index, position) {
       this.config.character.multiple[index].position = position

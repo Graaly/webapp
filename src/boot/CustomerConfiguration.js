@@ -29,6 +29,14 @@ import CustomerQuestPlayEnd from '../customers/bosch/pages/quest/game/end'
 import CustomerHome from '../customers/bosch/pages/home'
 */
 
+// ============== TD SYNNEX =============
+/*
+import CustomerUserLogin from '../customers/td-synnex/pages/user/login'
+import CustomerQuestPlayHome from '../customers/td-synnex/pages/quest/game/intro'
+import CustomerQuestPlayEnd from '../customers/td-synnex/pages/quest/game/end'
+import CustomerHome from '../customers/td-synnex/pages/home'
+*/
+
 export default {
   // CONSEIL DE L'EUROPE
 /*
@@ -57,6 +65,14 @@ export default {
   LOGIN_PAGE: CustomerUserLogin,
   QUEST_PLAY_HOME: CustomerQuestPlayHome,
   QUEST_PLAY_STEP: CustomerQuestPlayStep,
+  QUEST_PLAY_END: CustomerQuestPlayEnd,
+  HOME: CustomerHome
+*/
+
+  // TD SYNNEX
+/*
+  LOGIN_PAGE: CustomerUserLogin,
+  QUEST_PLAY_HOME: CustomerQuestPlayHome,
   QUEST_PLAY_END: CustomerQuestPlayEnd,
   HOME: CustomerHome
 */
