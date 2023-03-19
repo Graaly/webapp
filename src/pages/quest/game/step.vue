@@ -1302,14 +1302,14 @@ export default {
           remaining: 1
         }
       } else {
-        this.countDownTime.remainingMinutes -= 0.1
+        this.countDownTime.remainingMinutes -= 1 / 60
         this.countDownTime.remaining = this.countDownTime.remainingMinutes / this.countDownTime.duration
       }
       if (this.countDownTime.remaining <= 0.09) {
         this.countDownTime.enabled = false
         await this.moveToNextStep(null, {type: "chapterCounterOver"})
       } else if (this.countDownTime.enabled === true) {
-        setTimeout(this.startChapterCountDown, 6000)
+        setTimeout(this.startChapterCountDown, 1000)
       }
     },
     stopChapterCountDown() {

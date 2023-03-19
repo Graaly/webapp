@@ -37,7 +37,8 @@
           v-if="!isIOs"
         >
           <div class="absolute-full flex flex-center">
-            <q-badge color="white" text-color="black" :label="parseInt(Math.abs(timer.remainingMinutes), 10) + ' ' + $t('label.minutes')" />
+            <q-badge v-if="timer.remainingMinutes >= 1" color="white" text-color="black" :label="parseInt(Math.abs(timer.remainingMinutes), 10) + ' ' + $t('label.minutes')" />
+            <q-badge v-if="timer.remainingMinutes < 1" color="white" text-color="black" :label="parseInt(Math.abs(timer.remainingMinutes * 60), 10) + ' ' + $t('label.seconds')" />
           </div>
         </q-linear-progress>
         <div
