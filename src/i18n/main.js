@@ -1263,7 +1263,6 @@ module.exports = {
       UpdateClones: "Update cloned steps",
       ModifyTheChapterTimer: "Set the chapter countdown in minutes (0 = no timer)",
       YourChapterHasTimerButNoCountDonwTimerCondition: "You have set a timer for this chapter but not created a step with a condition for the end of the timer",
-      minutes: "minute(s)",
       seconds: "second(s)"
     }
   },
@@ -2519,7 +2518,6 @@ module.exports = {
       UpdateClones: "Mettre à jour les étapes clonées",
       ModifyTheChapterTimer: "Définir le compte à rebours du chapitre en minutes (0 = pas de compte à rebours)",
       YourChapterHasTimerButNoCountDonwTimerCondition: "Vous avez défini un compte à rebours dans le chapitre, mais aucune étape avec un déclencheur de fin de compte à rebours",
-      minutes: "minute(s)",
       seconds: "seconde(s)"
     }
   }

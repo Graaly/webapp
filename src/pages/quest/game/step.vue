@@ -246,7 +246,7 @@
 
     <!--====================== COUNTDOWN MESSAGE =================================-->
 
-    <div v-show="countDownTime.enabled" class="fadein-message" style="font-size: 48px;"><q-icon color="white" name="timer" /> {{ $t('label.ItRemainsMinutes', {time: countDownTime.remainingMinutes}) }}</div>
+    <div v-show="countDownTime.enabled" class="fadein-message" style="font-size: 48px;"><q-icon color="white" name="timer" /> {{ $t('label.ItRemainsMinutes', {time: Math.ceil(countDownTime.remainingMinutes)}) }}</div>
 
     <!--====================== FEEDBACK =================================-->
 
@@ -1305,7 +1305,7 @@ export default {
         this.countDownTime.remainingMinutes -= 1 / 60
         this.countDownTime.remaining = this.countDownTime.remainingMinutes / this.countDownTime.duration
       }
-      if (this.countDownTime.remaining <= 0.09) {
+      if (this.countDownTime.remaining <= 0.016) {
         this.countDownTime.enabled = false
         await this.moveToNextStep(null, {type: "chapterCounterOver"})
       } else if (this.countDownTime.enabled === true) {
