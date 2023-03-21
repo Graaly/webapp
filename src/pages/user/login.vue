@@ -1,7 +1,7 @@
 <template>
   <div class="background-login wrapper">
     <div class="login">
-      <div class="page-content" style="padding-bottom: 100px">
+      <div class="page-content" style="padding-bottom: 100px" v-if="showPage">
 
         <!------------------ TITLE AREA ------------------------>
         <div class="centered">
@@ -265,6 +265,7 @@ export default {
         newPassword: '',
         code: ''
       },
+      showPage: true,
       terms: {
         show: false,
         usage: false,
@@ -299,6 +300,7 @@ export default {
     }
     // check if user is redirected to this page to start a game after anonymous signin
     if (this.$route.query.qrcode) {
+      this.showPage = false
       this.checkCode(this.$route.query.qrcode)
     }
     // social login buttons

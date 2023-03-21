@@ -1262,7 +1262,8 @@ module.exports = {
       UploadImageBelowButton: "Display an image below the button",
       UpdateClones: "Update cloned steps",
       ModifyTheChapterTimer: "Set the chapter countdown in minutes (0 = no timer)",
-      YourChapterHasTimerButNoCountDonwTimerCondition: "You have set a timer for this chapter but not created a step with a condition for the end of the timer"
+      YourChapterHasTimerButNoCountDonwTimerCondition: "You have set a timer for this chapter but not created a step with a condition for the end of the timer",
+      seconds: "second(s)"
     }
   },
   fr: {
@@ -2516,7 +2517,8 @@ module.exports = {
       UploadImageBelowButton: "Ajouter une image sous le bouton",
       UpdateClones: "Mettre à jour les étapes clonées",
       ModifyTheChapterTimer: "Définir le compte à rebours du chapitre en minutes (0 = pas de compte à rebours)",
-      YourChapterHasTimerButNoCountDonwTimerCondition: "Vous avez défini un compte à rebours dans le chapitre, mais aucune étape avec un déclencheur de fin de compte à rebours"
+      YourChapterHasTimerButNoCountDonwTimerCondition: "Vous avez défini un compte à rebours dans le chapitre, mais aucune étape avec un déclencheur de fin de compte à rebours",
+      seconds: "seconde(s)"
     }
   }
 }

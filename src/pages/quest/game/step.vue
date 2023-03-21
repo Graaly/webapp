@@ -246,7 +246,7 @@
 
     <!--====================== COUNTDOWN MESSAGE =================================-->
 
-    <div v-show="countDownTime.enabled" class="fadein-message" style="font-size: 48px;"><q-icon color="white" name="timer" /> {{ $t('label.ItRemainsMinutes', {time: countDownTime.remainingMinutes}) }}</div>
+    <div v-show="countDownTime.enabled" class="fadein-message" style="font-size: 48px;"><q-icon color="white" name="timer" /> {{ $t('label.ItRemainsMinutes', {time: Math.ceil(countDownTime.remainingMinutes)}) }}</div>
 
     <!--====================== FEEDBACK =================================-->
 
@@ -887,15 +887,10 @@ export default {
 
         if (response && response.data && response.status === 200) {
           // timer
-console.log("CHECK")
-console.log(response.data)
           if (response.data.extra && response.data.extra.chapter) {
-            console.log("STOP JEU AVEC TIMER 2")
             this.stopChapterCountDown()
           }
           if (response.data.extra && response.data.extra.timer) {
-            console.log("DEMARRER JEU AVEC TIMER 2")
-            console.log(response.data.extra.timer)
             this.startChapterCountDown(response.data.extra.timer)
           }
           
@@ -969,13 +964,10 @@ console.log(response.data)
           }
         }
         // timer
-        if (response.data.extra && response.data.extra.chapter) {
-          console.log("STOP JEU AVEC TIMER")
+        if (stepIdResponse && stepIdResponse.data && stepIdResponse.data.extra && stepIdResponse.data.extra.chapter) {
           this.stopChapterCountDown()
         }
         if (stepIdResponse.extra && stepIdResponse.extra.timer) {
-          console.log("DEMARRER JEU AVEC TIMER")
-          console.log(stepIdResponse.extra.timer)
           this.startChapterCountDown(stepIdResponse.extra.timer)
         }
         
@@ -1310,16 +1302,14 @@ console.log(response.data)
           remaining: 1
         }
       } else {
-        this.countDownTime.remainingMinutes -= 0.1
+        this.countDownTime.remainingMinutes -= 1 / 60
         this.countDownTime.remaining = this.countDownTime.remainingMinutes / this.countDownTime.duration
       }
-      if (this.countDownTime.remaining <= 0.09) {
-console.log("STOP THE CHAPTER")
-//tootoo
+      if (this.countDownTime.remaining <= 0.016) {
         this.countDownTime.enabled = false
         await this.moveToNextStep(null, {type: "chapterCounterOver"})
       } else if (this.countDownTime.enabled === true) {
-        setTimeout(this.startChapterCountDown, 6000)
+        setTimeout(this.startChapterCountDown, 1000)
       }
     },
     stopChapterCountDown() {
@@ -2526,7 +2516,10 @@ console.log("STOP THE CHAPTER")
 
                 // get next step by running the process again for new chapter
                 let response = await this.getNextOfflineStep(questId, markerCode, player, extra)
-                extra.timer = await getOfflineChapterTimer(this.run.version)
+                if (!extra) {
+                  extra = {}
+                }
+                extra.timer = await this.getOfflineChapterTimer(this.run.version)
                 extra.chapter = "new"
                 nextStepId = response.id
               }
@@ -2855,7 +2848,8 @@ console.log("STOP THE CHAPTER")
       }
 
       this.run.currentChapter = nextChapter
-      this.startChapterCounter()
+
+      this.startChapterCountDown(await this.getOfflineChapterTimer())
       return nextChapter
     },
     /*
@@ -2863,15 +2857,17 @@ console.log("STOP THE CHAPTER")
      */
     async moveToChapter(chapterId) {
       this.run.currentChapter = chapterId
-      this.startChapterCounter()
+
+      this.startChapterCountDown(await this.getOfflineChapterTimer())
       return chapterId
     },
-    getOfflineChapterTimer(version) {
-      const chapter = StepService.getChapterById(this.run.currentChapter, version)
+    async getOfflineChapterTimer(version) {
+      const chapter = await StepService.getChapterById(this.questId, this.run.currentChapter, version)
     
       if (!chapter || !chapter.countDownTime) {
         return 0
       }
+
       return chapter.countDownTime
     },
     /*
