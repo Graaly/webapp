@@ -1527,7 +1527,7 @@
         <div class="hint panel-bottom q-pa-md">
           <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Hint') }}</div>
           <p v-if="hint.label === ''">{{ $t('label.NoHintForThisStep') }}</p>
-          <p v-if="hint.label !== ''">{{ hint.label[hint.number] }}</p>
+          <p v-if="hint.label !== ''" v-html="hint.label[hint.number]"></p>
           <div class="centered">
             <q-btn class="q-mb-xl glossy normal-button" color="primary" @click="askForHint()"><div>{{ $t('label.Close') }}</div></q-btn>
           </div>

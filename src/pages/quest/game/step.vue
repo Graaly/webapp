@@ -2419,6 +2419,9 @@ export default {
                       continue stepListFor
                     }
                   }
+                  if (stepsofChapter[i].conditions[j] === 'chapterTimerOver') {
+                    continue stepListFor
+                  }
                 }
               }
             }

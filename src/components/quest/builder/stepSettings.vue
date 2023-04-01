@@ -744,6 +744,16 @@
         </q-dialog>
       </div>
 
+      <!------------------ STEP : BINOCULARS ------------------------>
+      
+      <div class="binocular" v-if="options.type.code === 'binocular'">
+        <q-select 
+          emit-value map-options 
+          :label="$t('label.Shape')" 
+          v-model="selectedStep.form.options.shape" 
+          :options="config.binocular.options" />
+      </div>
+      
       <!------------------ STEP : PORTRAIT ROBOT ------------------------>
 
       <div class="portrait-robot" v-if="options.type.code === 'portrait-robot' && selectedStep.form.answers && selectedStep.form.answers.items">
@@ -1207,13 +1217,6 @@
             <div v-if="options.type.code === 'find-item'">
               <q-input v-if="selectedStep.form.options.wrongLocationMessage" v-model="selectedStep.form.options.wrongLocationMessage[lang]" :label="$t('label.WrongLocationMessage') + ' ' + currentLanguageForLabels" />
             </div>
-            <div v-if="options.type.code === 'binocular'">
-              <q-select 
-                emit-value map-options 
-                :label="$t('label.Shape')" 
-                v-model="selectedStep.form.options.shape" 
-                :options="config.binocular.options" />
-            </div>
             <div v-if="options.type.code === 'end-chapter'">
               <q-toggle v-model="selectedStep.form.options.resetHistory" :label="$t('label.ResetHistoryAfter')" />
               <q-toggle v-model="selectedStep.form.options.resetChapterProgression" :label="$t('label.RestartChapterAfterStep')" />
@@ -1667,7 +1670,8 @@ export default {
           shape: "binocular",
           options: [
             {label: this.$t('label.Binoculars'), value: "binocular"},
-            {label: this.$t('label.FlashLight'), value: "flashlight"}
+            {label: this.$t('label.FlashLight'), value: "flashlight"},
+            {label: this.$t('label.KeyHole'), value: "keyhole"}
           ]
         },
         portrait: {
