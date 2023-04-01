@@ -665,10 +665,11 @@
           <div class="absolute no-mouse-event" style="top: 0px; width: 100%;">
             <img class="no-mouse-event" v-if="!step.options.shape || step.options.shape === 'binocular'" style="width: 100%;" src="statics/icons/game/binoculars.png">
             <img class="no-mouse-event" v-if="step.options.shape && step.options.shape === 'flashlight'" style="width: 100%;" src="statics/icons/game/flashlight.png">
+            <img class="no-mouse-event" v-if="step.options.shape && step.options.shape === 'keyhole'" style="width: 100%;" src="statics/icons/game/keyhole.png">
           </div>
         </div>
         <div class="absolute text-white centered" style="width: 100%; left: 0px; right: 0px; bottom: 130px">
-          {{ $t('label.MovePictureWithFinger')}}
+          {{ $t('label.MovePictureWithFingerFor' + (step.options.shape ? step.options.shape : 'binocular'))}}
         </div>
       </div>
 
