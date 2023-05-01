@@ -277,9 +277,9 @@
             <img :src="'statics/icons/story/sticker-bottom-' + character.bubbleText[character.bubbleNumber].position + '.png'" />
           </div>
           <div class="character" :style="'text-align: ' + character.bubbleText[character.bubbleNumber].position">
-            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%')" v-if="character.bubbleText[character.bubbleNumber].picture .length < 3" :src="'statics/icons/story/character' + character.bubbleText[character.bubbleNumber].picture + '_attitude1.png'" />
-            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%')" v-if="character.bubbleText[character.bubbleNumber].picture .length > 2 && step.options.character !== 'usequestcharacter'" :src="character.bubbleText[character.bubbleNumber].picture .indexOf('blob:') !== -1 ? step.options.character : uploadUrl + '/upload/quest/' + step.questId + '/step/character/' + character.bubbleText[character.bubbleNumber].picture " />
-            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%')" v-if="character.bubbleText[character.bubbleNumber].picture  === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? uploadUrl + '/upload/quest/' + customization.character : customization.character" />
+            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%') + ';visibility: ' + (character.show ? 'visible' : 'hidden')" v-if="character.bubbleText[character.bubbleNumber].picture .length < 3" :src="'statics/icons/story/character' + character.bubbleText[character.bubbleNumber].picture + '_attitude1.png'" />
+            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%') + ';visibility: ' + (character.show ? 'visible' : 'hidden')" v-if="character.bubbleText[character.bubbleNumber].picture .length > 2 && step.options.character !== 'usequestcharacter'" :src="character.bubbleText[character.bubbleNumber].picture .indexOf('blob:') !== -1 ? step.options.character : uploadUrl + '/upload/quest/' + step.questId + '/step/character/' + character.bubbleText[character.bubbleNumber].picture " />
+            <img :style="'vertical-align:bottom; width:' + (step.options && step.options.characterSize ? step.options.characterSize : '60%') + ';visibility: ' + (character.show ? 'visible' : 'hidden')" v-if="character.bubbleText[character.bubbleNumber].picture  === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? uploadUrl + '/upload/quest/' + customization.character : customization.character" />
           </div>
           <div v-if="step.options && step.options.characterBarColor && step.options.characterBarColor !== ''" class="full-width" :class="(step.options && step.options.characterBarColor) ? '' : 'bg-black'" :style="'height: 68px; ' + ((step.options && step.options.characterBarColor && step.options.characterBarColor !== '') ? 'background-color: ' + step.options.characterBarColor : '')">
           </div>
@@ -1190,7 +1190,8 @@ export default {
           bubbleText: [],
           numberOfBubble: 0,
           bubbleNumber: 0,
-          needToScroll: false
+          needToScroll: false,
+          show: true
         },
         // for step 'choose'
         answerType: 'text', // 'text' or 'image'
@@ -2995,6 +2996,7 @@ export default {
      * Display next text
      */
     async nextCharacterBubbleText() {
+      this.character.show = false
       if (this.character.bubbleNumber < (this.character.numberOfBubble - 1)) {
         this.character.bubbleNumber++
         this.character.needToScroll = false
@@ -3007,6 +3009,8 @@ export default {
           this.forceNextStep()
         }
       }
+      const _this = this
+      utils.setTimeout(function() {_this.character.show = true}, 100)
     },
     async checkIfTextIsHidden() {
       if (!this.$refs.bubbleText) {

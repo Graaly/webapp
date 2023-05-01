@@ -1267,7 +1267,7 @@ module.exports = {
       ModifyTheChapterTimer: "Set the chapter countdown in minutes (0 = no timer)",
       YourChapterHasTimerButNoCountDonwTimerCondition: "You have set a timer for this chapter but not created a step with a condition for the end of the timer",
       seconds: "second(s)",
-      DisplayFirstImageAsDefault: "Display first picture as defaut one",
+      DisplayFirstImageAsDefault: "Do not display first picture as defaut one",
       DoNotUserGeolocation: "Disable geolocation"
     }
   },
@@ -2527,7 +2527,7 @@ module.exports = {
       ModifyTheChapterTimer: "Définir le compte à rebours du chapitre en minutes (0 = pas de compte à rebours)",
       YourChapterHasTimerButNoCountDonwTimerCondition: "Vous avez défini un compte à rebours dans le chapitre, mais aucune étape avec un déclencheur de fin de compte à rebours",
       seconds: "seconde(s)",
-      DisplayFirstImageAsDefault: "Afficher la première image par défaut",
+      DisplayFirstImageAsDefault: "Ne pas afficher la première image par défaut",
       DoNotUserGeolocation: "Désactiver la géolocalisation"
     }
   }

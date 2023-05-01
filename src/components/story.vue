@@ -29,7 +29,7 @@
         </div>
       </div>
       <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" style="min-height: 20vh" /></div>
-      <div class="character">
+      <div class="character" v-if="showCharacter">
         <img v-if="steps[currentStep.id].discussions[currentStep.discussionId].character.indexOf('blob:') === -1 && steps[currentStep.id].discussions[currentStep.discussionId].character.indexOf('.') === -1" :src="'statics/icons/story/character' + steps[currentStep.id].discussions[currentStep.discussionId].character + '_attitude1.png'" style="min-height: 30vh; vertical-align: bottom;" />
         <img v-if="steps[currentStep.id].discussions[currentStep.discussionId].character.indexOf('blob:') !== -1 || steps[currentStep.id].discussions[currentStep.discussionId].character.indexOf('.') !== -1" :src="steps[currentStep.id].discussions[currentStep.discussionId].character" style="min-height: 20vh; max-height: 30vh; vertical-align: bottom;" />
       </div>
@@ -46,6 +46,15 @@ import utils from 'src/includes/utils'
 
 export default {
   props: ['step', 'data', 'color'],
+  /*watch: {
+    // If character change, hide picture it half a second
+    step: async function (newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.showCharacter = false
+        utils.setTimeout(this.showCharacterPicture(), 500)
+      }
+    }
+  },*/
   data() {
     return {
       steps: {
@@ -318,7 +327,8 @@ export default {
       nextStep: 0,
       hide: false,
       needToScroll: false,
-      backgroundTouchCount: 0
+      backgroundTouchCount: 0,
+      showCharacter: true
     }
   },
   async mounted() {
@@ -414,6 +424,9 @@ export default {
       //if (this.currentStep.id === 6) {
       //  this.$emit('next', this.nextStep)
       //}
+    },
+    showCharacterPicture() {
+      this.showCharacter = true
     },
     async linkAction() {
       if (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].link.hasOwnProperty("action")) {
