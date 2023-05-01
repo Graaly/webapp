@@ -472,7 +472,13 @@
           <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: ((geolocation.GPSdistance == 0 || geolocation.GPSdistance == null) ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
         </div>
 
-        <geolocationStepMap class="geolocation-step-map" :class="'font-' + customization.font" v-show="geolocation.mode === 'map' && playerResult === null" :target-position="geolocation.destinationPosition" :player-position="geolocation.playerPosition" />
+        <geolocationStepMap 
+          class="geolocation-step-map" 
+          :class="'font-' + customization.font" 
+          v-if="!customization.disableGeolocation"
+          v-show="geolocation.mode === 'map' && playerResult === null" 
+          :target-position="geolocation.destinationPosition" 
+          :player-position="geolocation.playerPosition" />
 
         <q-btn
           id="mode-switch"
@@ -3050,7 +3056,22 @@ export default {
      */
     resetImageCode() {
       const length = ((this.step.options && this.step.options.codeLength && this.step.options.codeLength > 0) ? this.step.options.codeLength : 4)
-      this.playerCode = Array(length).fill(0)
+      if (this.step.options && !this.step.options.displaySameDefaultImage ) {
+        this.playerCode = Array(length).fill(0)
+      } else {
+        this.playerCode.length = 0
+        var imagePositionInCode = 0
+        var nbImagePositionInCode = this.getNbImageUploadedForCode()
+        for (var i = 0; i < ((this.step.options && this.step.options.codeLength && this.step.options.codeLength > 0) ? this.step.options.codeLength : 4); i++) {
+          this.playerCode.push(imagePositionInCode)
+          if (imagePositionInCode < nbImagePositionInCode - 1) {
+            imagePositionInCode++
+          } else {
+            imagePositionInCode = 0
+          }
+          this.forceImageRefresh(i)
+        }
+      }
       // MPA 2020-09-28 this shows the right answer
       /*this.playerCode.length = 0
       var imagePositionInCode = 0

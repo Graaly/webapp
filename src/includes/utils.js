@@ -237,11 +237,15 @@ var self = {
     this.clearAllIntervals()
     this.clearAllNotifications()
   },
-  getDurationFromNow: function(date) {
+  getDurationFromNow: function(date, display) {
     const oldDate = new Date(date)
     const now = new Date()
     const duration =(now.getTime() - oldDate.getTime())
-    return {h: parseInt((duration/(1000*60*60))%24), m: parseInt((duration/(1000*60))%60)}
+    if (!display || display === 'all') { 
+      return {h: parseInt((duration/(1000*60*60))%24), m: parseInt((duration/(1000*60))%60)}
+    } else if (display === 'm') {
+      return duration/(1000*60)
+    }
   },
   getFullDate(date) {
     return date.getFullYear() + '-' + date.getMonth() + '-' + date.getDay()

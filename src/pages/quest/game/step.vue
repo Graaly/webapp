@@ -504,7 +504,8 @@ export default {
         isIOs: utils.isIOS(),
         // timer
         countDownTime: {
-          remaining: 0
+          remaining: 0,
+          start: null
         },
         // for step type 'use-item'
         selectedItem: null,
@@ -1299,10 +1300,11 @@ export default {
           enabled: true, 
           duration: duration,
           remainingMinutes: duration,
-          remaining: 1
+          remaining: 1,
+          start: new Date()
         }
       } else {
-        this.countDownTime.remainingMinutes -= 1 / 60
+        this.countDownTime.remainingMinutes = this.countDownTime.duration - utils.getDurationFromNow(this.countDownTime.start, 'm')//-= 1 / 60
         this.countDownTime.remaining = this.countDownTime.remainingMinutes / this.countDownTime.duration
       }
       if (this.countDownTime.remaining <= 0.016) {
@@ -2392,8 +2394,13 @@ export default {
                       continue stepListFor
                     }
                   }
-                  // if object is in inventory value
-                  if (stepsofChapter[i].conditions[j].indexOf('haveobject_') !== -1) {
+                  // if object is not in inventory value
+                  if (stepsofChapter[i].conditions[j].indexOf('nothaveobject_') !== -1) {
+                    let objectToCheck = stepsofChapter[i].conditions[j].replace('nothaveobject_', '')
+                    if (conditionsDone.indexOf('objectWon_' + objectToCheck) !== -1) {
+                      continue stepListFor
+                    }                    
+                  } else if (stepsofChapter[i].conditions[j].indexOf('haveobject_') !== -1) {
                     let objectToCheck = stepsofChapter[i].conditions[j].replace('haveobject_', '')
                     if (conditionsDone.indexOf('objectWon_' + objectToCheck) === -1) {
                       continue stepListFor
