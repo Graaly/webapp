@@ -605,6 +605,13 @@
                 <div>
                   <q-toggle
                     :readonly="readOnly"
+                    :label="$t('label.DoNotUserGeolocation')"
+                    v-model="form.fields.customization.disableGeolocation"
+                    />
+                </div>
+                <div>
+                  <q-toggle
+                    :readonly="readOnly"
                     :label="$t('label.HideObjectCombination')"
                     v-model="form.fields.customization.hideObjectCombination"
                     />
@@ -1619,7 +1626,7 @@ export default {
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { audio: {}, color: '', logo: '', character: '', removeScoring: false, endMessage: {fr: '', en: ''}, endMessageForPerfectScore: {fr: '', en: ''}, font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, geolocationMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false, authorName: '', userReplay: 'yes' },
+          customization: { audio: {}, color: '', logo: '', character: '', removeScoring: false, endMessage: {fr: '', en: ''}, endMessageForPerfectScore: {fr: '', en: ''}, font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, geolocationMessage: {fr: '', en: ''}, hideInventory: false, disableGeolocation: false, hideFullScreen: false, authorName: '', userReplay: 'yes' },
           rewardPicture: '',
           readMoreLink: '',
           limitNumberOfPlayer: 0,
