@@ -2366,6 +2366,7 @@ export default {
                   if (stepsofChapter[i].conditions[j] !== 'chapterTimerOver') {
                     continue stepListFor
                   }
+                  extra.oldType = 'chapterCounterOver'
                   delete extra.type
                 }
                 // check if a standard condition (not a counter condition)
@@ -2426,11 +2427,14 @@ export default {
                       continue stepListFor
                     }
                   }
-                  if (stepsofChapter[i].conditions[j] === 'chapterTimerOver') {
+                  if (stepsofChapter[i].conditions[j] === 'chapterTimerOver' && (!extra || extra.oldType !== 'chapterCounterOver')) {
                     continue stepListFor
                   }
                 }
               }
+            } else if (extra && extra.type === 'chapterCounterOver') {
+              // HACK if first item of chapter with no condition
+              continue stepListFor
             }
             // if the geoloc is not requested, do not treat geoloc step
             if (stepsofChapter[i].type === 'geolocation') {

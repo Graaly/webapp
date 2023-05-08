@@ -1851,14 +1851,14 @@ export default {
         this.options.chapterId = (response.data && response.data.chapterId) ? response.data.chapterId : 0
 
         // get conditions
-        this.getUnderstandableConditions()
+        //this.getUnderstandableConditions()
       } else {
         this.selectedStep.form.type = this.options.type.code
         this.selectedStep.form.chapterId = this.options.chapterId
         // build default condition if step is not the first of the chapter
         if (this.options.previousStepId !== 0) {
           this.selectedStep.form.conditions.push('stepDone_' + this.options.previousStepId)
-          this.getUnderstandableConditions()
+          //this.getUnderstandableConditions()
         }
       }
 
@@ -1966,7 +1966,8 @@ export default {
         this.selectedStep.form.options.html = false
       }
       
-      this.getQuestItemsAsOptions()
+      await this.getQuestItemsAsOptions()
+      this.getUnderstandableConditions()
       
       // initialize specific steps
       if (this.options.type.code === 'choose') {
@@ -2591,18 +2592,28 @@ export default {
           this.selectedStep.formatedConditions.push(this.$t("label.StepChapterTimerOver"))
         }
         if (conditionParts[0] === 'haveobject') {
+          let found = false
           for (let pictureUrl in this.config.useItem.stepsOfItems) {
             if (this.config.useItem.stepsOfItems[pictureUrl] === conditionParts[1]) {
               this.selectedStep.formatedConditions.push(this.$t("label.StepHaveObject") + " <i><img src='" + (pictureUrl.indexOf('statics/') !== -1 ? pictureUrl : this.uploadUrl + '/upload/quest/' + this.questId + '/step/new-item/' + pictureUrl) + "' style='width: 40px' /></i>")
+              found = true
             }
-          }  
+          }
+          if (!found) {
+            this.selectedStep.formatedConditions.push(this.$t("label.StepHaveObject"))
+          }
         }
         if (conditionParts[0] === 'nothaveobject') {
+          let found = false
           for (let pictureUrl in this.config.useItem.stepsOfItems) {
             if (this.config.useItem.stepsOfItems[pictureUrl] === conditionParts[1]) {
               this.selectedStep.formatedConditions.push(this.$t("label.StepNotHaveObject") + " <i><img src='" + (pictureUrl.indexOf('statics/') !== -1 ? pictureUrl : this.uploadUrl + '/upload/quest/' + this.questId + '/step/new-item/' + pictureUrl) + "' style='width: 40px' /></i>")
+              found = true
             }
           }  
+          if (!found) {
+            this.selectedStep.formatedConditions.push(this.$t("label.StepNotHaveObject"))
+          }
         }
       }
     },
