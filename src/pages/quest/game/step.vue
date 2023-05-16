@@ -959,6 +959,13 @@ export default {
           return false
         } else {
           stepId = stepIdResponse.id
+          if (stepId === "") {
+            // restart without extra
+            const stepIdResponse2 = await this.getNextOfflineStep(this.questId, null, this.player)
+            if (stepIdResponse2 && stepIdResponse2.id) {
+              stepId = stepIdResponse2.id
+            }
+          }
           // if combine objects return stepId
           if (extra && extra.type === "combine") {
             return stepId
@@ -1307,11 +1314,13 @@ export default {
         this.countDownTime.remainingMinutes = this.countDownTime.duration - utils.getDurationFromNow(this.countDownTime.start, 'm')//-= 1 / 60
         this.countDownTime.remaining = this.countDownTime.remainingMinutes / this.countDownTime.duration
       }
-      if (this.countDownTime.remaining <= 0.016) {
-        this.countDownTime.enabled = false
-        await this.moveToNextStep(null, {type: "chapterCounterOver"})
-      } else if (this.countDownTime.enabled === true) {
-        setTimeout(this.startChapterCountDown, 1000)
+      if (this.countDownTime.enabled === true) {
+        if (this.countDownTime.remaining <= 0.016) {
+          this.countDownTime.enabled = false
+          await this.moveToNextStep(null, {type: "chapterCounterOver"})
+        } else {
+          setTimeout(this.startChapterCountDown, 1000)
+        }
       }
     },
     stopChapterCountDown() {
@@ -2370,7 +2379,7 @@ export default {
                   delete extra.type
                 }
                 // check if a standard condition (not a counter condition)
-                else if (stepsofChapter[i].conditions[j].indexOf('countergreater_') === -1 
+                if (stepsofChapter[i].conditions[j].indexOf('countergreater_') === -1 
                   && stepsofChapter[i].conditions[j].indexOf('counterlower_') === -1
                   && stepsofChapter[i].conditions[j].indexOf('haveobject_') === -1
                   && stepsofChapter[i].conditions[j].indexOf('nothaveobject_') === -1
@@ -2407,13 +2416,7 @@ export default {
                       continue stepListFor
                     }                    
                   }
-                  // if object is not in inventory value
-                  if (stepsofChapter[i].conditions[j].indexOf('nothaveobject_') !== -1) {
-                    let objectToCheck = stepsofChapter[i].conditions[j].replace('nothaveobject_', '')
-                    if (conditionsDone.indexOf('objectWon_' + objectToCheck) !== -1) {
-                      continue stepListFor
-                    }                    
-                  }
+
                   // if counter greater than counterlower value
                   if (stepsofChapter[i].conditions[j].indexOf('combineobject_') !== -1) {
                     // If not checking combination, move to next step conditions step
@@ -2530,12 +2533,13 @@ export default {
 
                 // get next step by running the process again for new chapter
                 let response = await this.getNextOfflineStep(questId, markerCode, player, extra)
+                nextStepId = response.id
+                extra = response.extra
                 if (!extra) {
                   extra = {}
                 }
                 extra.timer = await this.getOfflineChapterTimer(this.run.version)
                 extra.chapter = "new"
-                nextStepId = response.id
               }
               //await this.addStepToHistory(nextStepId)
               return {id: nextStepId, extra: extra}
@@ -2607,7 +2611,6 @@ export default {
           return {id: randomIds[Math.floor(Math.random()*randomIds.length)], extra: extra}
         }
       }
-
       return {id: "", extra: extra}
     },
     /*
