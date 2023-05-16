@@ -4,8 +4,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "css/2.0cf6c528.css"
   },
   {
-    "revision": "eaf61ae09337441da7ef",
-    "url": "css/app.7e10e303.css"
+    "revision": "3214d0c5f9387efe9600",
+    "url": "css/app.685c726e.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -96,7 +96,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "1e45640ce41e586285a7d90d3fb76a40",
+    "revision": "79c29f727dc6b4a00d43cd915166fba9",
     "url": "index.html"
   },
   {
@@ -104,12 +104,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2.10e7fdce.js"
   },
   {
-    "revision": "eaf61ae09337441da7ef",
-    "url": "js/app.849f8bda.js"
+    "revision": "3214d0c5f9387efe9600",
+    "url": "js/app.1a616741.js"
   },
   {
-    "revision": "95c86f0a7e0c83c2f78e",
-    "url": "js/vendor.95c86f0a.js"
+    "revision": "31606566b7e02916dc5c",
+    "url": "js/vendor.31606566.js"
   },
   {
     "revision": "19e941eacef1fc70e8b70479c2cb66cb",
@@ -668,7 +668,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/game/french.png"
   },
   {
-    "revision": "1d6364a3385cbbe8a3c6a11c47b4608e",
+    "revision": "149d8b5e367e408594d3648fad7ffab7",
     "url": "statics/icons/game/keyhole.png"
   },
   {
