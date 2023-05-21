@@ -949,7 +949,7 @@ export default {
         }
       } else {
         // use offline content
-        const stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player, extra)
+        let stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player, extra)
         if (!stepIdResponse || !stepIdResponse.id) {
           // if no step is triggered, display the waiting screen
           if (this.isMultiplayer) {
@@ -961,9 +961,9 @@ export default {
           stepId = stepIdResponse.id
           if (stepId === "") {
             // restart without extra
-            const stepIdResponse2 = await this.getNextOfflineStep(this.questId, null, this.player)
-            if (stepIdResponse2 && stepIdResponse2.id) {
-              stepId = stepIdResponse2.id
+            stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player)
+            if (stepIdResponse && stepIdResponse.id) {
+              stepId = stepIdResponse.id
             }
           }
           // if combine objects return stepId
@@ -972,7 +972,7 @@ export default {
           }
         }
         // timer
-        if (stepIdResponse && stepIdResponse.data && stepIdResponse.data.extra && stepIdResponse.data.extra.chapter) {
+        if (stepIdResponse && stepIdResponse.extra && stepIdResponse.extra.chapter) {
           this.stopChapterCountDown()
         }
         if (stepIdResponse.extra && stepIdResponse.extra.timer) {
