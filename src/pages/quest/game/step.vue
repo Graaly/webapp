@@ -46,6 +46,7 @@
         :lang="lang"
         :customization="info.quest.customization ? info.quest.customization : {color: 'primary'}"
         :answer="offline.answer"
+        :nbTryAlreadyPlayed="nbTry"
         :player="player"
         :timer="countDownTime"
         :quest="info.quest"
@@ -54,6 +55,7 @@
         @success="trackStepSuccess"
         @fail="trackStepFail"
         @pass="trackStepPass"
+        @retry="trackStepRetry"
         @closeAllPanels="closeAllPanels"
         @forceMoveNext="nextStep(true)"
         @suggestNext="alertOnNext"
@@ -1196,6 +1198,10 @@ export default {
           }
           this.step = tempStep
           this.step.id = this.step.stepId
+          
+          // get the number of tries already done on this step
+          this.nbTry = this.getNbTry()
+          
           // get previous button redirect
           this.getPreviousStep()
 
@@ -1205,6 +1211,16 @@ export default {
           return true
         }
       }
+    },
+    getNbTry() {
+      if (this.run.answers && this.run.answers.length > 1) {
+        for (let i = 0; i < this.run.answers.length; i++) {
+          if (this.run.answers[i] && this.run.answers[i].stepId && this.run.answers[i].stepId !== null && this.run.answers[i].stepId === this.step.stepId) {
+            return this.run.answers[i].nbTry
+          }
+        }
+      }
+      return 0
     },
     /*
      * Send stepId to parent frame
@@ -1391,6 +1407,29 @@ export default {
         this.nextStep()
       }
     },
+    /*
+     * Track step retry
+     */
+    async trackStepRetry (offline, nbTry) {
+      let updated = false
+      if (this.run.answers && this.run.answers.length > 1) {
+        for (var i = 0; i < this.run.answers.length; i++) {
+          if (this.run.answers[i] && this.run.answers[i].stepId && this.run.answers[i].stepId !== null && this.run.answers[i].stepId === this.step.stepId) {
+            this.run.answers[i].nbTry = nbTry
+            updated = true
+          }
+        }
+      }
+      // if step does not yet exists in the run data
+      if (!updated) {
+        const answer = {stepId: this.step.stepId, stepNumber: this.step.number, nbTry: nbTry, date: new Date(), online: true}
+        this.run.answers.push(answer)
+      }
+      
+      let updateAnswer = await this.saveOfflineRun(this.questId, this.run, new Date())
+
+    },
+    
     /*
      * Track message sent
      */
@@ -2130,7 +2169,7 @@ export default {
       }
 
       // compute nb points
-      answer = {stepId: this.step.stepId, stepNumber: this.step.number, nbTry: 1, ended: ended, score: score, reward: 0, status: stepStatus, useHint: false, date: new Date(), online: false}
+      answer = {stepId: this.step.stepId, stepNumber: this.step.number, nbTry: answer.nbTry ? answer.nbTry : 1, ended: ended, score: score, reward: 0, status: stepStatus, useHint: false, date: new Date(), online: false}
       // add new item in inventory
       if (this.step.type === 'new-item') {
         if (this.run.inventory) {
