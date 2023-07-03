@@ -1109,7 +1109,7 @@ export default {
    * itemUsed : item of the inventory used
    * lang : language of the step (fr, en, ...)
    */
-  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization', 'player', 'inventory', 'timer', 'quest', 'offline'],
+  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'nbTryAlreadyPlayed', 'customization', 'player', 'inventory', 'timer', 'quest', 'offline'],
   components: {
     holdphonevertically,
     gpscalibration,
@@ -1570,6 +1570,9 @@ export default {
         this.resetDrawDirectionInterval()
         
         this.resetSuccessIcon()
+        
+        // Set number of tries if step already played
+        this.nbTry = this.nbTryAlreadyPlayed ? this.nbTryAlreadyPlayed : 0
 
         var _this = this
 
@@ -1615,7 +1618,6 @@ export default {
             this.character.numberOfBubble = 1
             this.checkAnswer()
           }
-          console.log(this.character.numberOfBubble)
         }
 
         if (this.step.type === 'code-keypad') {
@@ -2196,6 +2198,7 @@ export default {
             this.$q.loading.hide()
           }
           let offlineAnswer = await this.checkOfflineAnswer(answerData.answer)
+          //offlineAnswer.remainingTrial = (this.step.nbTrial - this.nbTry - 1)
           return offlineAnswer
         }
       } else { // offline mode
@@ -2400,7 +2403,7 @@ export default {
                 }
               }
             }
-            this.nbTry++
+            this.increaseNbTry()
             if (checkAnswerResult.remainingTrial > 0) {
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
@@ -2435,7 +2438,7 @@ export default {
               }
             }
 
-            this.nbTry++
+            this.increaseNbTry()
             if (checkAnswerResult.remainingTrial > 0) {
               // reset code
               this.resetKeypadCode()
@@ -2462,7 +2465,7 @@ export default {
               }
             }
 
-            this.nbTry++
+            this.increaseNbTry()
             if (checkAnswerResult.remainingTrial > 0) {
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
@@ -2487,7 +2490,7 @@ export default {
               }
             }
 
-            this.nbTry++
+            this.increaseNbTry()
             if (checkAnswerResult.remainingTrial > 0) {
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
@@ -2532,7 +2535,7 @@ export default {
               checkAnswerResult.remainingTrial = 0
             }
 
-            this.nbTry++
+            this.increaseNbTry()
             if (checkAnswerResult.remainingTrial > 0) {
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
@@ -2560,7 +2563,7 @@ export default {
               }
             }
 
-            this.nbTry++
+            this.increaseNbTry()
             if (checkAnswerResult.remainingTrial > 0) {
               // reset field
               this.writetext.playerAnswer = ""
@@ -2606,7 +2609,7 @@ export default {
               checkAnswerResult.remainingTrial = 0
             }
 
-            this.nbTry++
+            this.increaseNbTry()
             if (checkAnswerResult.remainingTrial > 0) {
               Notification(this.$t('label.UseItemNothingHappens'), 'warning')
             } else {
@@ -2638,7 +2641,7 @@ export default {
           } else {
             const remainingTrial = this.isTimeUp ? 0 : (this.step.nbTrial - this.nbTry - 1)
             if (!checkIfFound.one) {
-              this.nbTry++
+              this.increaseNbTry()
               if (remainingTrial > 0) {
                 if (this.step.options.wrongLocationMessage && this.step.options.wrongLocationMessage[this.lang] && this.step.options.wrongLocationMessage[this.lang] !== "") {
                   Notification(this.step.options.wrongLocationMessage[this.lang], 'warning')
@@ -2758,7 +2761,7 @@ export default {
                 this.submitGoodAnswer(checkAnswerResult.score, checkAnswerResult.offline, true)
                 this.locateMarker.playerAnswer = answer // for display
               } else {
-                this.nbTry++
+                this.increaseNbTry()
                 if (this.nbTry === 2 || this.isTimeUp) {
                   this.submitWrongAnswer(checkAnswerResult.offline, true)
                 } else {
@@ -2811,6 +2814,10 @@ export default {
       // display score
       this.score = (checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0
       this.reward = (checkAnswerResult && checkAnswerResult.reward) ? checkAnswerResult.reward : 0
+    },
+    increaseNbTry() {
+      this.nbTry++
+      this.$emit('retry', true, this.nbTry)
     },
     /*
      * Send answer without telling if it is true or false

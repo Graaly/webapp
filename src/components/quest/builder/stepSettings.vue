@@ -2111,7 +2111,7 @@ export default {
         }
       } else if (this.options.type.code === 'new-item') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
-          this.selectedStep.form.options = { picture: null, title: "", pictures: {'fr': '', 'en': ''}, titles: {'fr': '', 'en': ''} }
+          this.selectedStep.form.options = { picture: null, title: "", pictures: {'fr': '', 'en': '', 'es': ''}, titles: {'fr': '', 'en': '', 'es': ''} }
         } else {
           if (this.selectedStep.form.options.hasOwnProperty('pictures') && this.selectedStep.form.options.pictures[this.lang]) {
             this.selectedStep.form.options.picture = this.selectedStep.form.options.pictures[this.lang]
