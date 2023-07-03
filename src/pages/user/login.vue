@@ -120,7 +120,9 @@
           <img :class="$i18n.locale === 'en' ? '' :'lang-opacity'" src="statics/icons/game/flag-en.png"
                @click="switchLanguage('en')"/> -
           <img :class="$i18n.locale === 'fr' ? '' :'lang-opacity'" src="statics/icons/game/flag-fr.png"
-               @click="switchLanguage('fr')"/>
+               @click="switchLanguage('fr')"/> -
+          <img :class="$i18n.locale === 'es' ? '' :'lang-opacity'" src="statics/icons/game/flag-es.png"
+               @click="switchLanguage('es')"/>
         </div>
       </div>
     </div>

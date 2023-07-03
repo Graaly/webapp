@@ -40,6 +40,8 @@ export default {
     } else {
       if ((navigator.language && navigator.language.substr(0, 2) === 'fr') || (navigator.userLanguage && navigator.userLanguage.substr(0, 2) === 'fr')) {
         this.$i18n.locale = "fr"
+      } else if ((navigator.language && navigator.language.substr(0, 2) === 'es') || (navigator.userLanguage && navigator.userLanguage.substr(0, 2) === 'es')) {
+        this.$i18n.locale = "es"
       } else {
         this.$i18n.locale = "en"
       }
@@ -52,6 +54,8 @@ export default {
       } else {
         if ((navigator.language && navigator.language.substr(0, 2) === 'fr') || (navigator.userLanguage && navigator.userLanguage.substr(0, 2) === 'fr')) {
           this.$i18n.locale = "fr"
+        } else if ((navigator.language && navigator.language.substr(0, 2) === 'es') || (navigator.userLanguage && navigator.userLanguage.substr(0, 2) === 'es')) {
+          this.$i18n.locale = "es"
         } else {
           this.$i18n.locale = "en"
         }

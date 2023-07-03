@@ -379,6 +379,7 @@ import textBtnSquare from "components/user/UI/textBtnSquare";
 
 import countriesFR from 'data/countries_fr.json'
 import countriesEN from 'data/countries_en.json'
+import countriesES from 'data/countries_es.json'
 
 export default {
   components: {
@@ -406,7 +407,7 @@ export default {
         }
       },
       position: null,
-      countries: this.$i18n.locale === 'fr' ? countriesFR : countriesEN,
+      countries: this.$i18n.locale === 'fr' ? countriesFR : (this.$i18n.locale === 'es' ? countriesES : countriesEN),
       sexes: [{label: this.$t('label.Male'), value: 'male'}, {label: this.$t('label.Female'), value: 'female'}],
       ages: [{label: '13 - 25', value: '13-25'}, {label: '26 - 39', value: '26-39'}, {label: '40 - 49', value: '40-49'}, {label: '50 - 64', value: '50-64'}, {label: '65 +', value: '65+'}],
       languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
