@@ -1275,7 +1275,11 @@ module.exports = {
       YourChapterHasTimerButNoCountDonwTimerCondition: "You have set a timer for this chapter but not created a step with a condition for the end of the timer",
       seconds: "second(s)",
       DisplayFirstImageAsDefault: "Do not display first picture as defaut one",
-      DoNotUserGeolocation: "Disable geolocation"
+      DoNotUserGeolocation: "Disable geolocation",
+      qrCodeUsageDescription: "You must print a one-time use QR code for each player in the Payment tab that will appear. This QR code will be valid:",
+      QRCodeValidOneTime: "Only once (or 2 if players need to restart the game on another phone)",
+      QRCodeValidOneDay: "As many times as desired for 1 day (from the first scan of the QR code)",
+      NumberOfOngoingPlay: "Number of games in progress"
     }
   },
   
@@ -2542,7 +2546,11 @@ module.exports = {
 		"YourChapterHasTimerButNoCountDonwTimerCondition": "Ha establecido un temporizador para este capítulo pero no ha creado un paso con una condición para el final del temporizador",
 		"seconds": "segundo(s)",
 		"DisplayFirstImageAsDefault": "No mostrar la primera imagen como la defaut",
-		"DoNotUserGeolocation": "Desactivar la geolocalización"
+		"DoNotUserGeolocation": "Desactivar la geolocalización",
+    qrCodeUsageDescription: "Debe imprimir un código QR de un solo uso para cada jugador en la pestaña Pago que aparecerá. Este código QR será válido:",
+    QRCodeValidOneTime: "Sólo una vez (o 2 si los jugadores tienen que reiniciar el juego en otro teléfono)",
+    QRCodeValidOneDay: "Tantas veces como se desee durante 1 día (desde el primer escaneo del código QR)",
+    NumberOfOngoingPlay: "Número de juegos en curso"
 	}
 },
   
@@ -3811,7 +3819,11 @@ module.exports = {
       YourChapterHasTimerButNoCountDonwTimerCondition: "Vous avez défini un compte à rebours dans le chapitre, mais aucune étape avec un déclencheur de fin de compte à rebours",
       seconds: "seconde(s)",
       DisplayFirstImageAsDefault: "Ne pas afficher la première image par défaut",
-      DoNotUserGeolocation: "Désactiver la géolocalisation"
+      DoNotUserGeolocation: "Désactiver la géolocalisation",
+      qrCodeUsageDescription: "Vous devez imprimer un QR code à usage unique pour chaque joueur dans l'onglet Paiement qui va apparaître. Ce QR code sera valide : ",
+      QRCodeValidOneTime: "Une seule fois (ou 2 si les joueurs doivent relancer le jeu sur un autre téléphone)",
+      QRCodeValidOneDay: "Autant de fois que souhaité pendant 1 jour (à partir du premier scan du QR code)",
+      NumberOfOngoingPlay: "Nombre de parties en cours"
     }
   }
 }

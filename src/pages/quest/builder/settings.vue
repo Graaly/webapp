@@ -344,6 +344,19 @@
                     :label="$t('label.PriceFrom')"
                     class="full-width"
                   />
+                  <div>
+                    {{ $t('label.qrCodeUsageDescription') }}
+                    <q-radio
+                      :disable="readOnly"
+                      v-model="form.fields.customization.qrCodeValidity" 
+                      val="onetime"
+                      :label="$t('label.QRCodeValidOneTime')" />
+                    <q-radio
+                      :disable="readOnly"
+                      v-model="form.fields.customization.qrCodeValidity" 
+                      val="oneday"
+                      :label="$t('label.QRCodeValidOneDay')" />
+                  </div>
                 </div>
                 <div v-if="form.fields.customization">
                   <q-toggle
@@ -1114,6 +1127,17 @@
         </q-card>
         <q-card bordered class="my-card q-mb-md">
           <q-card-section>
+            <div class="subtitle3">{{ $t('label.NumberOfOngoingPlay') }}</div>
+          </q-card-section>
+          <q-separator inset />
+          <q-card-section>
+            <div class="title1 text-primary centered">
+              {{ statistics.statistics.onGoing }}
+            </div>
+          </q-card-section>
+        </q-card>
+        <q-card bordered class="my-card q-mb-md">
+          <q-card-section>
             <div class="subtitle3">{{ $t('label.AverageScore') }}</div>
           </q-card-section>
           <q-separator inset />
@@ -1626,7 +1650,7 @@ export default {
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { audio: {}, color: '', logo: '', character: '', removeScoring: false, endMessage: {fr: '', en: ''}, endMessageForPerfectScore: {fr: '', en: ''}, font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, geolocationMessage: {fr: '', en: ''}, hideInventory: false, disableGeolocation: false, hideFullScreen: false, authorName: '', userReplay: 'yes' },
+          customization: { audio: {}, color: '', logo: '', character: '', removeScoring: false, endMessage: {fr: '', en: ''}, endMessageForPerfectScore: {fr: '', en: ''}, font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, geolocationMessage: {fr: '', en: ''}, hideInventory: false, disableGeolocation: false, hideFullScreen: false, authorName: '', userReplay: 'yes', qrCodeValidity: 'onetime' },
           rewardPicture: '',
           readMoreLink: '',
           limitNumberOfPlayer: 0,
