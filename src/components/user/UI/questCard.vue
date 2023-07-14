@@ -62,9 +62,15 @@
         <div v-if="quest.status !== 'published'" class="info-quest shadow-5 centered q-pa-sm q-mb-md">
           {{ $t('label.' + (quest.type === 'quest' ? 'QuestDraftVersion' : 'PageDraftVersion')) }}
         </div>
-        <!-- =========================== TITLE ========================== -->
-        <div class="text-h5" v-if="language !== $store.state.user.language">
-          &nbsp;<img class="image-and-text-aligned" :src="'statics/icons/game/flag-' + language + '.png'" />
+        <!-- =========================== LANGUAGES ========================== -->
+        <div class="q-pt-md text-subtitle1" v-if="languages.length > 1">
+          {{ $t('label.Languages') }} &nbsp;
+          <img v-if="isLanguage('en')" :class="language === 'en' ? '' :'lang-opacity'" src="statics/icons/game/flag-en.png"
+               @click="switchLanguage('en')"/> &nbsp;
+          <img v-if="isLanguage('fr')" :class="language === 'fr' ? '' :'lang-opacity'" src="statics/icons/game/flag-fr.png"
+               @click="switchLanguage('fr')"/> &nbsp;
+          <img v-if="isLanguage('es')" :class="language === 'es' ? '' :'lang-opacity'" src="statics/icons/game/flag-es.png"
+               @click="switchLanguage('es')"/>
         </div>
         <!-- =========================== PROPERTIES ========================== -->
         <div class="row q-pt-md text-subtitle1 properties-bar">
@@ -140,6 +146,7 @@ export default {
     warning: Object,
     shop: Object,
     language: null,
+    languages: null,
     color: {
       type: String,
       default: 'primary'
@@ -171,7 +178,6 @@ export default {
       this.ratingValue = this.quest.rating.value
     }
     this.getCreator()
-    console.log(this.quest)
   },
   computed: {
     bgColor() {
@@ -239,6 +245,19 @@ export default {
       } else {
         return 'statics/images/quest/default-quest-picture.jpg'
       }
+    },
+    switchLanguage(lang) {
+      this.$emit('changeLanguage', lang)
+    },
+    isLanguage(lang) {
+      if (this.languages && this.languages.length > 0) {
+        for (let i = 0; i < this.languages.length; i++) {
+          if (this.languages[i].lang === lang) {
+            return true
+          }
+        }
+      } 
+      return false
     }
   }
 }
@@ -337,6 +356,9 @@ export default {
     .info-quest{
       background: var(--bg-color);
     }
+  }
+  .lang-opacity{
+    opacity: 0.5;
   }
 }
 </style>

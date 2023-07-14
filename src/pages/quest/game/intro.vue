@@ -54,12 +54,14 @@
                   :quest="quest"
                   :warning="warning"
                   :shop="shop"
-                  :language="getLanguage()"
+                  :language="language"
+                  :languages = "getLanguages()"
                   color="primary"
                   direction="left"
                   v-on:showRewards="showRewards"
                   info
                   :is-user-too-far="isUserTooFar"
+                  @changeLanguage="changeLanguage"
       />
 
       <!-- =========================== PLAY BUTTON ========================== -->
@@ -70,7 +72,7 @@
             <text-btn-square
               class="q-mb-lg"
               v-if="isQuestOpen.status && quest.type === 'quest' && !(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && !isAdmin"
-              @click.native="playQuest(quest.questId, getLanguage())"
+              @click.native="playQuest(quest.questId, language)"
               color="secondary"
               :title="continueQuest ? $t('label.ContinueTheQuest') : isRunFinished ? $t('label.SolveAgainThisQuest') : $t('label.SolveThisQuest')"
               :icon="continueQuest ? 'skip_next' : isRunFinished ? 'replay' : 'play_arrow'"
@@ -110,7 +112,7 @@
             <text-btn-square
               class="q-mb-lg"
               v-if="isAdmin || (isQuestOpen.status && quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(isUserTooFar && !quest.allowRemotePlay))"
-              @click.native="playQuest(quest.questId, getLanguage())"
+              @click.native="playQuest(quest.questId, language)"
               color="primary"
               :title="$t('label.SolveThisQuest')"
               icon="play_arrow"
@@ -118,7 +120,7 @@
             <text-btn-square
               class="q-mb-lg"
               v-if="isQuestOpen.status && shop.premiumQuest.priceCode === 'notplayableonweb' && !isAdmin && !isOwner"
-              @click.native="playQuest(quest.questId, getLanguage())"
+              @click.native="playQuest(quest.questId, language)"
               disable
               color="primary"
               :title="$t('label.QuestPlayableOnMobile')"
@@ -127,7 +129,7 @@
             <text-btn-square
               class="q-mb-lg"
               v-if="isQuestOpen.status && shop.premiumQuest.priceCode === 'notplayableonweb' && (isAdmin || isOwner)"
-              @click.native="playQuest(quest.questId, getLanguage())"
+              @click.native="playQuest(quest.questId, language)"
               color="primary"
               :title="$t('label.TestYourQuest')"
               icon="bug_report"
@@ -221,7 +223,7 @@
             <offlineLoader
               :quest="this.quest"
               :design="'prepare'"
-              :lang="getLanguage()"
+              :lang="language"
               @end="showCalibrationAndStartQuest()">
             </offlineLoader>
           </div>
@@ -240,7 +242,7 @@
           </div>
           <gpscalibration
             ref="gpscal"
-            @end="startQuest(quest.questId, getLanguage())">
+            @end="startQuest(quest.questId, language)">
           </gpscalibration>
         </div>
       </div>
@@ -529,6 +531,7 @@ export default {
       pageReady: false,
       isHybrid: window.cordova,
       isIOs: utils.isIOS(),
+      language: 'fr',
 
       ratingValue: 0
     }
@@ -550,6 +553,8 @@ export default {
     this.$store.state.history = {items: [], index: 0}
     this.$store.commit('setNetworkMode', 'online')
     this.$store.commit('setForceOnline', false)
+    
+    this.language = this.getLanguage()
   },
   updated: debounce(function () {
     this.$nextTick(() => {
@@ -610,9 +615,9 @@ export default {
     /*
      * Init quest data
      */
-    async initQuest() {
+    async initQuest(lang) {
       // get quest information
-      const response = await QuestService.getByIdOnline(this.$route.params.id)
+      const response = await QuestService.getByIdOnline(this.$route.params.id, '999', lang)
       if (!response || !response.data) {
         // check if offline data existing
         let checkIfOfflineDataExists = await utils.checkIfFileExists(this.$route.params.id, "quest_" + this.$route.params.id + ".json")
@@ -690,7 +695,7 @@ export default {
       if (this.quest.hasGeolocationSteps) {
         this.$refs.gpscal.askUserToCalibrateGPS()
       } else {
-        this.startQuest(this.quest.questId, this.getLanguage())
+        this.startQuest(this.quest.questId, this.language)
       }
     },
     /*
@@ -916,12 +921,8 @@ export default {
         return false
       }
       // get only published languages
-      var publishedLanguages
-      if (this.isOwner || this.isAdmin) {
-        publishedLanguages = quest.languages
-      } else {
-        publishedLanguages = quest.languages.filter(language => language.published)
-      }
+      let publishedLanguages = this.getLanguages()
+      
       if (publishedLanguages && publishedLanguages.length > 0) {
         // check if the user language is set => default language
         var defaultLanguage = ''
@@ -938,12 +939,26 @@ export default {
       }
       return defaultLanguage
     },
+    getLanguages() {
+      let publishedLanguages
+      if (this.isOwner || this.isAdmin) {
+        publishedLanguages = this.quest.languages
+      } else {
+        publishedLanguages = this.quest.languages.filter(language => language.published)
+      }
+      return publishedLanguages
+    },
+    changeLanguage(lang) {
+      this.language = lang
+      this.initQuest(lang)
+      this.getBackgroundImage()
+    },
     /*
      * Return data translated based on default language
      * @param   {object}    data            object containing translated data
      */
     getTranslatedData(data) {
-      let lang = this.getLanguage()
+      let lang = this.language
       if (data[lang]) {
         return data[lang]
       } else {
@@ -1286,7 +1301,7 @@ export default {
      * get background image
      */
     getBackgroundImage () {
-      const currentLanguage = this.getLanguage()
+      const currentLanguage = this.language
       let picture
       if (this.quest.picture) {
         if (this.quest.picture[currentLanguage]) {
