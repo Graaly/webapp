@@ -1436,7 +1436,7 @@ module.exports = {
 		"sample3": "Juego de escape avanzado"
 	},
 	"label": {
-		"shortLang": "en",
+		"shortLang": "es",
 		"letsGo": "¡Vamos!",
 		"YourEmail": "Su correo electrónico",
 		"PleaseEnterYourEmailAddress": "Introduzca su dirección de correo electrónico",
