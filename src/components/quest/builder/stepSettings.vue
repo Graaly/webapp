@@ -422,12 +422,11 @@
 
       <!------------------ STEP : IMAGE CODE ------------------------>
 
-      <div v-if="options.type.code == 'code-image'" class="code-image">
+      <div v-if="options.type.code == 'code-image' && selectedStep.form.options && selectedStep.form.options[lang] && selectedStep.form.options[lang].images" class="code-image">
         <h2>{{ $t('label.ImagesUsedForCode') }}</h2>
-        <div class="answer" v-for="(image, key) in selectedStep.form.options.images" :key="key">
+        <div class="answer" v-for="(image, key) in selectedStep.form.options[lang].images" :key="key">
 
-          <p v-show="image.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && !$v.selectedStep.form.options.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
-          <p><img v-if="image.imagePath !== null" :src="uploadUrl + '/upload/quest/' + questId + '/step/code-image/' + image.imagePath" /></p>
+          <p><img v-if="image.imagePath" :src="uploadUrl + '/upload/quest/' + questId + '/step/code-image/' + image.imagePath" /></p>
           <span v-if="!isIOs">
             <q-btn icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
             <input @change="uploadCodeAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden :test-id="'image-code-' + key" />
@@ -442,7 +441,7 @@
         <q-btn @click="addCodeAnswer()" class="full-width add-answer" color="secondary">
           {{ $t('label.AddAnImage') }}
         </q-btn>
-        <div v-if="selectedStep.form.options.images && selectedStep.form.options.images.length > 0 && selectedStep.form.options.images[0].imagePath">
+        <div v-if="selectedStep.form.options[lang] && selectedStep.form.options[lang].images && selectedStep.form.options[lang].images.length > 0 && selectedStep.form.options[lang].images[0].imagePath">
           <h2>{{ $t('label.ExpectedCode') }}</h2>
           <q-select emit-value map-options :label="$t('label.NumberOfImagesInTheCode')" :options="config.imageCode.numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-images-in-code" />
           <table>
@@ -453,7 +452,7 @@
             </tr>
             <tr>
               <td v-for="(code, index) in unformatedAnswer" :key="index">
-                <img :id="'image-code-setting-' + index" :src="uploadUrl + '/upload/quest/' + questId + '/step/code-image/' + selectedStep.form.options.images[code].imagePath" />
+                <img :id="'image-code-setting-' + index" :src="uploadUrl + '/upload/quest/' + questId + '/step/code-image/' + selectedStep.form.options[lang].images[code].imagePath" />
               </td>
             </tr>
             <tr>
@@ -2016,10 +2015,15 @@ export default {
         }
       } else if (this.options.type.code === 'code-image') {
         // init images list
-        if (!this.selectedStep.form.options || !this.selectedStep.form.options.images) {
-          this.selectedStep.form.options = {images: [], hideHideButton: true}
+        if (!this.selectedStep.form.options || !this.selectedStep.form.options[this.lang] || !this.selectedStep.form.options[this.lang].images) {
+          console.log(this.selectedStep.form.options)
+          if (!this.selectedStep.form.options) {
+            this.selectedStep.form.options = {hideHideButton: true}
+          }
+          this.selectedStep.form.options[this.lang] = {images: []}
+          this.$forceUpdate()
           for (let i = 0; i < this.config.imageCode.defaultNbAnswers; i++) {
-            this.selectedStep.form.options.images.push({ imagePath: null })
+            this.selectedStep.form.options[this.lang].images.push({ imagePath: null })
           }
         }
         if (!this.selectedStep.form.options.codeLength) {
@@ -2430,10 +2434,10 @@ export default {
      * Add a picture answer in the multiple choice step
      */
     addCodeAnswer: function () {
-      if (this.selectedStep.form.options.images.length >= this.config.imageCode.maxNbAnswers) {
+      if (this.selectedStep.form.options[this.lang].images.length >= this.config.imageCode.maxNbAnswers) {
         Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.config.imageCode.maxNbAnswers }), 'error')
       } else {
-        this.selectedStep.form.options.images.push({
+        this.selectedStep.form.options[this.lang].images.push({
           imagePath: null // image default data
         })
       }
@@ -2457,7 +2461,7 @@ export default {
      * Add a picture answer in the multiple choice step
      */
     deleteCodeAnswer: function (key) {
-      if (this.selectedStep.form.options.images.length <= this.config.choose.minNbAnswers) {
+      if (this.selectedStep.form.options[this.lang].images.length <= this.config.choose.minNbAnswers) {
         Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.config.choose.minNbAnswers }), 'error')
       } else {
         // change code if the code answer is used in the code
@@ -2472,7 +2476,8 @@ export default {
             this.unformatedAnswer[i]--
           }
         }
-        this.selectedStep.form.options.images.splice(key, 1)
+        this.selectedStep.form.options[this.lang].images.splice(key, 1)
+        this.$forceUpdate()
       }
     },
     /*
@@ -2504,7 +2509,7 @@ export default {
         this.unformatedAnswer[key] = 0
       }
       // force src refresh
-      document.getElementById('image-code-setting-' + key).src = this.uploadUrl + '/upload/quest/' + this.questId + '/step/code-image/' + this.selectedStep.form.options.images[this.unformatedAnswer[key]].imagePath
+      document.getElementById('image-code-setting-' + key).src = this.uploadUrl + '/upload/quest/' + this.questId + '/step/code-image/' + this.selectedStep.form.options[this.lang].images[this.unformatedAnswer[key]].imagePath
     },
     /*
      * Display previous image in the image code step
@@ -2517,7 +2522,7 @@ export default {
         this.unformatedAnswer[key] = nbImagesUploaded - 1
       }
       // force src refresh
-      document.getElementById('image-code-setting-' + key).src = this.uploadUrl + '/upload/quest/' + this.questId + '/step/code-image/' + this.selectedStep.form.options.images[this.unformatedAnswer[key]].imagePath
+      document.getElementById('image-code-setting-' + key).src = this.uploadUrl + '/upload/quest/' + this.questId + '/step/code-image/' + this.selectedStep.form.options[this.lang].images[this.unformatedAnswer[key]].imagePath
     },
     /*
      * change item in portrait robot
@@ -2536,8 +2541,8 @@ export default {
      */
     getNbImageUploadedForCode() {
       var nbImagesUploaded = 0
-      for (var i = 0; i < this.selectedStep.form.options.images.length; i++) {
-        if (this.selectedStep.form.options.images[i] && this.selectedStep.form.options.images[i].imagePath) {
+      for (var i = 0; i < this.selectedStep.form.options[this.lang].images.length; i++) {
+        if (this.selectedStep.form.options[this.lang].images[i] && this.selectedStep.form.options[this.lang].images[i].imagePath) {
           nbImagesUploaded++
         }
       }
@@ -2946,7 +2951,8 @@ export default {
       let uploadResult = await StepService.uploadCodeAnswerImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         if (uploadResult.data.file) {
-          this.selectedStep.form.options.images[key].imagePath = uploadResult.data.file
+          this.selectedStep.form.options[this.lang].images[key].imagePath = uploadResult.data.file
+          this.$forceUpdate()
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {

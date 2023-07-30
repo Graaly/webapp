@@ -64,7 +64,7 @@
         </div>
         <!-- =========================== LANGUAGES ========================== -->
         <div class="q-pt-md text-subtitle1" v-if="languages.length > 1">
-          {{ $t('label.Languages') }} &nbsp;
+          {{ $t('label.ChooseYourLanguage') }} &nbsp;
           <img v-if="isLanguage('en')" :class="language === 'en' ? '' :'lang-opacity'" src="statics/icons/game/flag-en.png"
                @click="switchLanguage('en')"/> &nbsp;
           <img v-if="isLanguage('fr')" :class="language === 'fr' ? '' :'lang-opacity'" src="statics/icons/game/flag-fr.png"

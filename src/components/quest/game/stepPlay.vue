@@ -429,12 +429,12 @@
             </tr>
             <tr>
               <td v-for="(code, index) in playerCode" :key="index">
-                <img v-if="step.options.images[code]" :id="'image-code-' + index" @click="enlargeThePicture(index)" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : uploadUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
+                <img v-if="step.options[lang].images[code]" :id="'image-code-' + index" @click="enlargeThePicture(index)" :src="step.options[lang].images[code].imagePath.indexOf('blob:') !== -1 ? step.options[lang].images[code].imagePath : uploadUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options[lang].images[code].imagePath" />
               </td>
             </tr>
             <tr v-show="rightAnswer">
               <td v-for="(code, index) in rightAnswer" :key="index" class="right">
-                <img v-if="step.options.images[code]" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : uploadUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
+                <img v-if="step.options[lang].images[code]" :src="step.options[lang].images[code].imagePath.indexOf('blob:') !== -1 ? step.options[lang].images[code].imagePath : uploadUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options[lang].images[code].imagePath" />
               </td>
             </tr>
             <tr>
@@ -3116,6 +3116,7 @@ export default {
         this.playerCode[key] = 0
       }
       this.forceImageRefresh(key)
+      this.$forceUpdate()
     },
     /*
      * Display the next image in the image code pad
@@ -3128,6 +3129,7 @@ export default {
         this.playerCode[key] = nbImagesUploaded - 1
       }
       this.forceImageRefresh(key)
+      this.$forceUpdate()
     },
     /*
     * Force image refresh for image code
@@ -3135,10 +3137,10 @@ export default {
     */
     forceImageRefresh(key) {
       if (document.getElementById('image-code-' + key) !== null) {
-        if (this.step.options.images[this.playerCode[key]].imagePath && this.step.options.images[this.playerCode[key]].imagePath.indexOf('blob:') !== -1) {
-          document.getElementById('image-code-' + key).src = this.step.options.images[this.playerCode[key]].imagePath
+        if (this.step.options[this.lang].images[this.playerCode[key]].imagePath && this.step.options[this.lang].images[this.playerCode[key]].imagePath.indexOf('blob:') !== -1) {
+          document.getElementById('image-code-' + key).src = this.step.options[this.lang].images[this.playerCode[key]].imagePath
         } else {
-          document.getElementById('image-code-' + key).src = this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + this.step.options.images[this.playerCode[key]].imagePath
+          document.getElementById('image-code-' + key).src = this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + this.step.options[this.lang].images[this.playerCode[key]].imagePath
         }
       }
     },
@@ -3147,8 +3149,8 @@ export default {
      */
     getNbImageUploadedForCode() {
       var nbImagesUploaded = 0
-      for (var i = 0; i < this.step.options.images.length; i++) {
-        if (this.step.options.images[i] && this.step.options.images[i].imagePath) {
+      for (var i = 0; i < this.step.options[this.lang].images.length; i++) {
+        if (this.step.options[this.lang].images[i] && this.step.options[this.lang].images[i].imagePath) {
           nbImagesUploaded++
         }
       }
@@ -4667,7 +4669,7 @@ export default {
     enlargeThePicture (index) {
       if (!this.step.options || !this.step.options.hideEnlargeMessage) {
         this.enlargePicture.show = true
-        var pictureUrl = this.step.options.images[this.playerCode[index]].imagePath
+        var pictureUrl = this.step.options[this.lang].images[this.playerCode[index]].imagePath
         this.enlargePicture.url = (pictureUrl && pictureUrl.indexOf('blob:') !== -1) ? pictureUrl : this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + pictureUrl
       }
     },
