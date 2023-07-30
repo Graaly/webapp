@@ -1279,7 +1279,8 @@ module.exports = {
       qrCodeUsageDescription: "You must print a one-time use QR code for each player in the Payment tab that will appear. This QR code will be valid:",
       QRCodeValidOneTime: "Only once (or 2 if players need to restart the game on another phone)",
       QRCodeValidOneDay: "As many times as desired for 1 day (from the first scan of the QR code)",
-      NumberOfOngoingPlay: "Number of games in progress"
+      NumberOfOngoingPlay: "Number of games in progress",
+      ChooseYourLanguage: "Choose the language"
     }
   },
   
@@ -2550,7 +2551,8 @@ module.exports = {
     qrCodeUsageDescription: "Debe imprimir un código QR de un solo uso para cada jugador en la pestaña Pago que aparecerá. Este código QR será válido:",
     QRCodeValidOneTime: "Sólo una vez (o 2 si los jugadores tienen que reiniciar el juego en otro teléfono)",
     QRCodeValidOneDay: "Tantas veces como se desee durante 1 día (desde el primer escaneo del código QR)",
-    NumberOfOngoingPlay: "Número de juegos en curso"
+    NumberOfOngoingPlay: "Número de juegos en curso",
+    ChooseYourLanguage: "Elija su idioma"
 	}
 },
   
@@ -3823,7 +3825,8 @@ module.exports = {
       qrCodeUsageDescription: "Vous devez imprimer un QR code à usage unique pour chaque joueur dans l'onglet Paiement qui va apparaître. Ce QR code sera valide : ",
       QRCodeValidOneTime: "Une seule fois (ou 2 si les joueurs doivent relancer le jeu sur un autre téléphone)",
       QRCodeValidOneDay: "Autant de fois que souhaité pendant 1 jour (à partir du premier scan du QR code)",
-      NumberOfOngoingPlay: "Nombre de parties en cours"
+      NumberOfOngoingPlay: "Nombre de parties en cours",
+      ChooseYourLanguage: "Choisissez la langue"
     }
   }
 }
