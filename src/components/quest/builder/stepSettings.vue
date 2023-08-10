@@ -1233,6 +1233,9 @@
                 {{ $t('label.AddAnAudioFile') + ' ' + currentLanguageForLabels }}:
                 <input @change="uploadAudio" ref="audiofile" type="file" accept="audio/mp3" />
               </div>
+              <div>
+                <q-toggle v-model="selectedStep.form.options.hideSoundPause" :label="$t('label.hideSoundPause')" /><br />
+              </div>
             </div>
             <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
               <q-toggle v-model="selectedStep.form.options.kenBurnsEffect" :label="$t('label.KenBurnsEffect')" /><br />

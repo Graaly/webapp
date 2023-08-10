@@ -1280,7 +1280,8 @@ module.exports = {
       QRCodeValidOneTime: "Only once (or 2 if players need to restart the game on another phone)",
       QRCodeValidOneDay: "As many times as desired for 1 day (from the first scan of the QR code)",
       NumberOfOngoingPlay: "Number of games in progress",
-      ChooseYourLanguage: "Choose the language"
+      ChooseYourLanguage: "Choose the language",
+      hideSoundPause: "Hide audio player pause button"
     }
   },
   
@@ -2552,7 +2553,8 @@ module.exports = {
     QRCodeValidOneTime: "Sólo una vez (o 2 si los jugadores tienen que reiniciar el juego en otro teléfono)",
     QRCodeValidOneDay: "Tantas veces como se desee durante 1 día (desde el primer escaneo del código QR)",
     NumberOfOngoingPlay: "Número de juegos en curso",
-    ChooseYourLanguage: "Elija su idioma"
+    ChooseYourLanguage: "Elija su idioma",
+    hideSoundPause: "Ocultar el botón de pausa del reproductor de audio"
 	}
 },
   
@@ -3826,7 +3828,8 @@ module.exports = {
       QRCodeValidOneTime: "Une seule fois (ou 2 si les joueurs doivent relancer le jeu sur un autre téléphone)",
       QRCodeValidOneDay: "Autant de fois que souhaité pendant 1 jour (à partir du premier scan du QR code)",
       NumberOfOngoingPlay: "Nombre de parties en cours",
-      ChooseYourLanguage: "Choisissez la langue"
+      ChooseYourLanguage: "Choisissez la langue",
+      hideSoundPause: "Cacher le bouton de pause du lecteur audio"
     }
   }
 }

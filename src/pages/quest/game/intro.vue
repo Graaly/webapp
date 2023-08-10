@@ -621,7 +621,7 @@ export default {
       if (!response || !response.data) {
         // check if offline data existing
         let checkIfOfflineDataExists = await utils.checkIfFileExists(this.$route.params.id, "quest_" + this.$route.params.id + ".json")
-        if (!this.isOwner && checkIfOfflineDataExists) {
+        if (!this.isOwner && checkIfOfflineDataExists && this.quest.languages.length < 2) {
           this.startQuest(this.$route.params.id, this.$route.params.lang)
         }
         return
@@ -731,7 +731,7 @@ export default {
           // check if quest data are loaded offline
           let checkIfOfflineDataExists = await utils.checkIfFileExists(this.quest.questId, "quest_" + this.quest.questId + ".json")
 
-          if (!this.isOwner && checkIfOfflineDataExists) {
+          if (!this.isOwner && checkIfOfflineDataExists && this.quest.languages.length < 2) {
             this.startQuest(this.quest.questId, this.$route.params.lang)
           }
         }
