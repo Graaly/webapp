@@ -109,13 +109,13 @@
               style="font-size: 2em;"
               />
             <q-icon
-              v-if="audio.play"
+              v-if="audio.play && (!step.options || !step.options.hideSoundPause)"
               @click="switchAudioSound"
               name="pause_circle"
               style="font-size: 2em;"
               />
             <q-icon
-              v-if="!audio.play"
+              v-if="!audio.play && (!step.options || !step.options.hideSoundPause)"
               @click="switchAudioSound"
               name="play_circle"
               style="font-size: 2em;"
@@ -472,8 +472,12 @@
 
       <div class="geolocation" v-if="step.type == 'geolocation'">
         <div :class="geolocation.mode + 'mode'">
-          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
-          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
+          <p class="text" :class="'font-' + customization.font" v-if="geolocation.showText && getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="geolocation.showText && getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
+          <p v-if="getTranslatedText().length > 75" class="centered">
+            <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" v-if="geolocation.showText" @click="geolocation.showText = false" />
+            <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" v-if="!geolocation.showText" @click="geolocation.showText = true" />
+          </p>
           <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: ((geolocation.GPSdistance == 0 || geolocation.GPSdistance == null) ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
         </div>
 
@@ -1251,7 +1255,8 @@ export default {
           mode: 'compass',
           colorIndicator: 'blue-2',
           closestDistance: 100,
-          isCalibrationWatched: false
+          isCalibrationWatched: false,
+          showText: true
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -1836,7 +1841,7 @@ export default {
           if (this.deviceHasGyroscope || !this.step.backgroundImage) {
             // video stream for AR background
             if (this.isIOs && CameraPreview) {
-              let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
+              let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: true, previewDrag: false}
               CameraPreview.startCamera(options)
               CameraPreview.show()
             } else {

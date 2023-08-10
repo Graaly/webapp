@@ -1115,12 +1115,12 @@ export default {
               }
             }
           }
-          if (tempStep.type === 'code-image' && tempStep.options && tempStep.options.images) {
-            for (k = 0; k < tempStep.options.images.length; k++) {
-              if (tempStep.options.images[k].imagePath) {
-                var codeImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.images[k].imagePath)
+          if (tempStep.type === 'code-image' && tempStep.options && tempStep.options[this.lang] && tempStep.options[this.lang].images) {
+            for (k = 0; k < tempStep.options[this.lang].images.length; k++) {
+              if (tempStep.options[this.lang].images[k].imagePath) {
+                var codeImageUrl = await utils.readBinaryFile(this.questId, tempStep.options[this.lang].images[k].imagePath)
                 if (codeImageUrl) {
-                  tempStep.options.images[k].imagePath = codeImageUrl
+                  tempStep.options[this.lang].images[k].imagePath = codeImageUrl
                 } else {
                   this.warnings.stepDataMissing = true
                 }
