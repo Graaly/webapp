@@ -35,7 +35,7 @@
           </q-avatar>
         </q-td>
         <q-td auto-width key="name">{{ props.row.title.fr }}</q-td>
-        <q-td auto-width key="author">{{ props.row.author }}<br><span style="font-size: 10px;" class="text-secondary">{{ props.row.authorUserId }}</span></q-td>
+        <q-td auto-width key="author" @click="openProfilePage(props.row.authorUserId)">{{ props.row.author }}<br><span style="font-size: 10px;" class="text-secondary">{{ props.row.authorUserId }}</span></q-td>
         <q-td auto-width key="mail"><q-btn v-if="props.row.userMail" size="8px" flat round color="accent" icon="content_copy" class="q-mr-sm" @click="copy(props.row.userMail)">
           <q-tooltip>
             {{ props.row.userMail.length > 0 ? props.row.userMail : '-- Pas de mail --' }}
@@ -113,6 +113,9 @@ export default {
         message: 'copied : ' + text + ''
       })
       navigator.clipboard.writeText(text)
+    },
+    openProfilePage(authorId) {
+      this.$router.push('/profile/' + authorId)
     }
   }
 }
