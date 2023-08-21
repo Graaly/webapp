@@ -1281,7 +1281,9 @@ module.exports = {
       QRCodeValidOneDay: "As many times as desired for 1 day (from the first scan of the QR code)",
       NumberOfOngoingPlay: "Number of games in progress",
       ChooseYourLanguage: "Choose the language",
-      hideSoundPause: "Hide audio player pause button"
+      hideSoundPause: "Hide audio player pause button",
+      InvalidQuest: "This game does not exist, has not yet been published or has been deactivated.",
+      creationOfQRCodes: "QR codes creation"
     }
   },
   
@@ -2554,7 +2556,9 @@ module.exports = {
     QRCodeValidOneDay: "Tantas veces como se desee durante 1 día (desde el primer escaneo del código QR)",
     NumberOfOngoingPlay: "Número de juegos en curso",
     ChooseYourLanguage: "Elija su idioma",
-    hideSoundPause: "Ocultar el botón de pausa del reproductor de audio"
+    hideSoundPause: "Ocultar el botón de pausa del reproductor de audio",
+    InvalidQuest: "Este juego no existe, aún no ha sido publicado o ha sido desactivado.",
+    creationOfQRCodes: "Creación de códigos QR"
 	}
 },
   
@@ -3829,7 +3833,9 @@ module.exports = {
       QRCodeValidOneDay: "Autant de fois que souhaité pendant 1 jour (à partir du premier scan du QR code)",
       NumberOfOngoingPlay: "Nombre de parties en cours",
       ChooseYourLanguage: "Choisissez la langue",
-      hideSoundPause: "Cacher le bouton de pause du lecteur audio"
+      hideSoundPause: "Cacher le bouton de pause du lecteur audio",
+      InvalidQuest: "Ce jeu n'existe pas, n'est pas encore publié ou a été désactivé",
+      creationOfQRCodes: "Création de QR codes"
     }
   }
 }

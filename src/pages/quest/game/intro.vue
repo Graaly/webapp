@@ -29,7 +29,15 @@
       />
     </div>
     <div class="quest">
-    <div id="teaser" v-if="!shop.showScanner && !multiplayer.showScanner" class="reduce-window-size-desktop q-px-md" :class="{'loaded': pageReady}">
+    <div v-if="this.quest.invalidQuest" class="q-pt-lg">
+      <div class="centered q-pa-lg text-white">
+        {{ $t('label.InvalidQuest')}}
+        <div class="q-pa-md q-mt-lg">
+          <q-btn @click="backToTheMap()" color="primary" class="glossy large-button">{{ $t('label.BackToTheMap') }}</q-btn>
+        </div>
+      </div>
+    </div>
+    <div id="teaser" v-if="!this.quest.invalidQuest && !shop.showScanner && !multiplayer.showScanner" class="reduce-window-size-desktop q-px-md" :class="{'loaded': pageReady}">
 
       <!------------------ MAIN INFORMATION AREA ------------------------>
 
@@ -206,7 +214,7 @@
 
       <!------------------ VERSION ------------------------>
 
-      <div v-if="!multiplayer.showScanner" class="centered text-grey text-subtitle1 arial q-mb-md">
+      <div v-if="!this.quest.invalidQuest && !multiplayer.showScanner" class="centered text-grey text-subtitle1 arial q-mb-md">
         {{ $t('label.Version') + " " + quest.version }}
       </div>
 
@@ -627,6 +635,12 @@ export default {
         return
       }
       this.quest = response.data
+      
+      // check if quest data are valid
+      if (!this.quest.questId) {
+        this.quest.invalidQuest = true
+        return
+      }
 
       // update 'forceOnline' state property according to current quest
       this.$store.commit('setForceOnline', this.quest.hasOwnProperty('customization') && this.quest.customization.hasOwnProperty('forceOnline') ? this.quest.customization.forceOnline : false)

@@ -11,6 +11,7 @@
           <img :src="'statics/images/icon/level' + user.level + '.svg'" />
         </div>
         <div class="subtitle3">{{ user.name }}</div>
+        <div class="subtitle4" v-if="user.email">{{ user.email }}</div>
         <div>Score : {{ user.score }}</div>
         <div v-if="user.description" class="q-pa-md subtitle6">
           {{ user.description }}

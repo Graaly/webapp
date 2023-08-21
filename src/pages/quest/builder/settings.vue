@@ -1048,46 +1048,51 @@
       <!------------------ PAYMENTS TAB ------------------------>
 
       <div v-if="tabs.selected === 'payments' && isEdition" class="q-pa-md arial" :class="{'desktop-only': chapters.showNewStepOverview}">
-        <q-list class="shadow-2 rounded-borders">
-          <q-item v-for="payment in payments" :key="payment._id">
-            <q-item-section avatar>
-              <q-avatar rounded>
-                <img :src="uploadUrl + '/upload/tiers/' + payment.qrCode + '.png'">
-              </q-avatar>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label lines="1">{{ payment.qrCode.replace('tierplay_', '') }}</q-item-label>
-              <q-item-label caption>{{ $t('status.' + payment.status) }} - {{payment.dateUpdate | formatDate($store.state.user.language)}}</q-item-label>
-            </q-item-section>
-            <q-item-section side>
-              <q-btn-dropdown icon="cloud_upload" split dense @click="downloadQRCode(payment.qrCode)">
-                <q-list>
-                  <q-item v-if="payment.status === 'new'" clickable v-close-popup @click="removeCode(payment._id)">
-                    <q-item-section avatar>
-                      <q-avatar icon="delete" />
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label>{{ $t('label.Remove') }}</q-item-label>
-                    </q-item-section>
-                  </q-item>
-                  <q-item v-if="payment.status === 'new'">
-                    <q-item-section avatar>
-                      URL :
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label><input :value="'https://app.graaly.com/webapp/#/quest/play/' + questId + '/' + payment.qrCode" /></q-item-label>
-                    </q-item-section>
-                  </q-item>
-                </q-list>
-              </q-btn-dropdown>
-            </q-item-section>
-          </q-item>
-        </q-list>
-        <div class="centered">
-          <q-btn class="glossy large-button" color="primary" @click="createNewPaymentQRCode"><span>{{ $t('label.CreateNewQRCodeForPlay') }}</span></q-btn>
-          <q-btn class="button" flat color="primary" @click="createMultipleNewPaymentQRCode(10)"><span>{{ $t('label.Create10NewQRCodeForPlay') }}</span></q-btn>
-          <q-btn class="button" flat color="primary" @click="createMultipleNewPaymentQRCode(50)"><span>{{ $t('label.Create50NewQRCodeForPlay') }}</span></q-btn>
-          <q-btn class="glossy large-button" flat color="primary" @click="printQRCode"><span>{{ $t('label.PrintQRCodePages') }}</span></q-btn>
+        <div v-if="this.paymentIsLoading">
+          {{ $t('label.creationOfQRCodes') }} ...
+        </div>
+        <div v-if="!this.paymentIsLoading">
+          <q-list class="shadow-2 rounded-borders">
+            <q-item v-for="payment in payments" :key="payment._id">
+              <q-item-section avatar>
+                <q-avatar rounded>
+                  <img :src="uploadUrl + '/upload/tiers/' + payment.qrCode + '.png'">
+                </q-avatar>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label lines="1">{{ payment.qrCode.replace('tierplay_', '') }}</q-item-label>
+                <q-item-label caption>{{ $t('status.' + payment.status) }} - {{payment.dateUpdate | formatDate($store.state.user.language)}}</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-btn-dropdown icon="cloud_upload" split dense @click="downloadQRCode(payment.qrCode)">
+                  <q-list>
+                    <q-item v-if="payment.status === 'new'" clickable v-close-popup @click="removeCode(payment._id)">
+                      <q-item-section avatar>
+                        <q-avatar icon="delete" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>{{ $t('label.Remove') }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                    <q-item v-if="payment.status === 'new'">
+                      <q-item-section avatar>
+                        URL :
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label><input :value="'https://app.graaly.com/webapp/#/quest/play/' + questId + '/' + payment.qrCode" /></q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-btn-dropdown>
+              </q-item-section>
+            </q-item>
+          </q-list>
+          <div class="centered">
+            <q-btn class="glossy large-button" color="primary" @click="createNewPaymentQRCode"><span>{{ $t('label.CreateNewQRCodeForPlay') }}</span></q-btn>
+            <q-btn class="button" flat color="primary" @click="createMultipleNewPaymentQRCode(10)"><span>{{ $t('label.Create10NewQRCodeForPlay') }}</span></q-btn>
+            <q-btn class="button" flat color="primary" @click="createMultipleNewPaymentQRCode(50)"><span>{{ $t('label.Create50NewQRCodeForPlay') }}</span></q-btn>
+            <q-btn class="glossy large-button" flat color="primary" @click="printQRCode"><span>{{ $t('label.PrintQRCodePages') }}</span></q-btn>
+          </div>
         </div>
       </div>
 
@@ -1816,6 +1821,7 @@ export default {
       canPass: false,
       showPaymentBox: false,
       showTierPaymentBox: false,
+      paymentIsLoading: false,
       storage: "",
       itemUsed: null,
       isIOs: utils.isIOS(),
@@ -4041,8 +4047,10 @@ export default {
      * Create a new QR Code for a player that paied
      */
     async createNewPaymentQRCode() {
+      this.paymentIsLoading = true
       await QuestService.createTierPayment(this.questId, this.quest.premiumPrice.manual)
       await this.listPayments()
+      this.paymentIsLoading = false
     },
     /*
      * Create N new QR Code for a player that paied
