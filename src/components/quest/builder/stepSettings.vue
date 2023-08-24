@@ -1587,7 +1587,7 @@ export default {
           answerType: 'text',
           defaultNbAnswers: 4,
           minNbAnswers: 2,
-          maxNbAnswers: 10,
+          maxNbAnswers: 15,
           answers: []
         },
         character: {
