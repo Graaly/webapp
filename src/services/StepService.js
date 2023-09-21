@@ -532,8 +532,8 @@ export default {
    * @param   {String}    questId        ID of the quest
    * @param   {Object}    formData           data to upload, created using `new FormData()`
    */
-  async uploadSnapshot(questId, formData) {
-    return Api().post("/quest/" + questId + "/snapshot/upload", formData, { timeout: 600000, headers: { 'Content-Type': `multipart/form-data; boundary=${formData._boundary}` } })
+  async uploadSnapshot(questId, runId, stepId, formData) {
+    return Api().post("/quest/" + questId + "/snapshot/upload/" + runId + "/" + stepId, formData, { timeout: 600000, headers: { 'Content-Type': `multipart/form-data; boundary=${formData._boundary}` } })
   },
   /*
    * Export the texts of the game

@@ -590,7 +590,7 @@ export default {
     async sendForgottenPasswordCode() {
       this.submitting = true
 
-      let codeSent = await AuthService.sendForgottenPasswordCode(this.form.email)
+      let codeSent = await AuthService.sendForgottenPasswordCode(this.form.email, this.$t('label.shortLang'))
 
       if (codeSent && codeSent.status === 200) {
         this.step = 'forgottenpassword'

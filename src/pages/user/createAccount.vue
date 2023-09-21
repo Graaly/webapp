@@ -4,7 +4,7 @@
       <div class="centered">
         <img src="statics/new/logo-color-white.png" class="login-logo-top"/>
       </div>
-      <div class="login-form">
+      <div class="login-form q-pa-md">
         <create-profil-stepper/>
         <div class="centered q-mt-lg q-mb-lg">
           <a @click="goToSignIn()">{{ $t('label.IAlreadyHaveAnAccount') }}</a>

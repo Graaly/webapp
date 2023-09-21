@@ -429,12 +429,12 @@
             </tr>
             <tr>
               <td v-for="(code, index) in playerCode" :key="index">
-                <img v-if="step.options[lang].images[code]" :id="'image-code-' + index" @click="enlargeThePicture(index)" :src="step.options[lang].images[code].imagePath.indexOf('blob:') !== -1 ? step.options[lang].images[code].imagePath : uploadUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options[lang].images[code].imagePath" />
+                <img v-if="step.options[lang] && step.options[lang].images && step.options[lang].images[code]" :id="'image-code-' + index" @click="enlargeThePicture(index)" :src="step.options[lang].images[code].imagePath.indexOf('blob:') !== -1 ? step.options[lang].images[code].imagePath : uploadUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options[lang].images[code].imagePath" />
               </td>
             </tr>
             <tr v-show="rightAnswer">
               <td v-for="(code, index) in rightAnswer" :key="index" class="right">
-                <img v-if="step.options[lang].images[code]" :src="step.options[lang].images[code].imagePath.indexOf('blob:') !== -1 ? step.options[lang].images[code].imagePath : uploadUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options[lang].images[code].imagePath" />
+                <img v-if="step.options[lang] && step.options[lang].images && step.options[lang].images[code]" :src="step.options[lang].images[code].imagePath.indexOf('blob:') !== -1 ? step.options[lang].images[code].imagePath : uploadUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options[lang].images[code].imagePath" />
               </td>
             </tr>
             <tr>
@@ -3141,6 +3141,7 @@ export default {
     * @param   {Number}    key            Index in the code list array
     */
     forceImageRefresh(key) {
+    console.log("test1-1")
       if (document.getElementById('image-code-' + key) !== null) {
         if (this.step.options[this.lang].images[this.playerCode[key]].imagePath && this.step.options[this.lang].images[this.playerCode[key]].imagePath.indexOf('blob:') !== -1) {
           document.getElementById('image-code-' + key).src = this.step.options[this.lang].images[this.playerCode[key]].imagePath
@@ -3148,17 +3149,20 @@ export default {
           document.getElementById('image-code-' + key).src = this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + this.step.options[this.lang].images[this.playerCode[key]].imagePath
         }
       }
+      console.log("test1-2")
     },
     /*
      * Get the number of images for the image code pad
      */
     getNbImageUploadedForCode() {
+    console.log("test2-1")
       var nbImagesUploaded = 0
       for (var i = 0; i < this.step.options[this.lang].images.length; i++) {
         if (this.step.options[this.lang].images[i] && this.step.options[this.lang].images[i].imagePath) {
           nbImagesUploaded++
         }
       }
+      console.log("test2-2")
       return nbImagesUploaded
     },
     /*
@@ -3879,7 +3883,7 @@ export default {
         try {
           let formData = new FormData()
           formData.append("image", blob, filename)
-          await StepService.uploadSnapshot(this.step.questId, formData)
+          await StepService.uploadSnapshot(this.step.questId, this.runId, this.step._id, formData)
           Notification(this.$t('label.SnapshotTaken'), 'info')
         } catch (err) {
           console.error(err)
@@ -4672,11 +4676,13 @@ export default {
      * @param   {string}    pictureUrl            picture URL
      */
     enlargeThePicture (index) {
+    console.log("test3-1")
       if (!this.step.options || !this.step.options.hideEnlargeMessage) {
         this.enlargePicture.show = true
         var pictureUrl = this.step.options[this.lang].images[this.playerCode[index]].imagePath
         this.enlargePicture.url = (pictureUrl && pictureUrl.indexOf('blob:') !== -1) ? pictureUrl : this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + pictureUrl
       }
+      console.log("test3-1")
     },
     /**
      * Triggers an IoT event
