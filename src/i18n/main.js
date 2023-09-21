@@ -174,7 +174,7 @@ module.exports = {
       AccountInfo: "Information",
       ModifyAccount: "Modify your account",
       ValidateAccount: "Validation",
-      ErrorAccount: "Please complete all fields",
+      ErrorAccount: "Please complete all fields with a *",
       AccountCreated: "Your account was created",
       AccountModified: "Your account has been changed",
       orSignInWith: "Or sign-in with",
@@ -1163,7 +1163,7 @@ module.exports = {
       PleaseWaitLoadingAndGPSInit: "PLEASE WAIT, DATA AND GPS INITIALIZATION",
       MoveToNextStepAutomaticallyDuration: "Seconds before moving to next step",
       UseAModel: "I use a model",
-      AddToInventoryAndPass: "Add in inventory and pass this step",
+      AddToInventoryAndPass: "Add in inventory without showing this step",
       holdVerticaly: "For the best experience with augmented reality, please hold your phone upright.",
       startScan: "Start Scan",
       noSensorFound: "No sensors found on your device",
@@ -1283,7 +1283,8 @@ module.exports = {
       ChooseYourLanguage: "Choose the language",
       hideSoundPause: "Hide audio player pause button",
       InvalidQuest: "This game does not exist, has not yet been published or has been deactivated.",
-      creationOfQRCodes: "QR codes creation"
+      creationOfQRCodes: "QR codes creation",
+      UserLanguageNotTheOneOfTheGame: "This is not the language of your Graaly account. Would you like to change the language of your account?"
     }
   },
   
@@ -1450,7 +1451,7 @@ module.exports = {
 		"AccountInfo": "Información",
 		"ModifyAccount": "Modificar su cuenta",
 		"ValidateAccount": "Validación",
-		"ErrorAccount": "Rellene todos los campos",
+		"ErrorAccount": "Rellene todos los campos con *",
 		"AccountCreated": "Su cuenta ha sido creada",
 		"AccountModified": "Su cuenta ha sido modificada",
 		"orSignInWith": "O regístrese con",
@@ -2558,7 +2559,8 @@ module.exports = {
     ChooseYourLanguage: "Elija su idioma",
     hideSoundPause: "Ocultar el botón de pausa del reproductor de audio",
     InvalidQuest: "Este juego no existe, aún no ha sido publicado o ha sido desactivado.",
-    creationOfQRCodes: "Creación de códigos QR"
+    creationOfQRCodes: "Creación de códigos QR",
+    UserLanguageNotTheOneOfTheGame: "Este no es el idioma de tu cuenta Graaly. Quieres cambiar el idioma de tu cuenta?"
 	}
 },
   
@@ -2725,7 +2727,7 @@ module.exports = {
       AccountInfo: "Informations",
       ModifyAccount: "Modifier votre compte",
       ValidateAccount: "Validation",
-      ErrorAccount: "Veuillez remplir tous les champs",
+      ErrorAccount: "Veuillez remplir tous les champs qui ont une *",
       AccountCreated: "Votre compte a ete créé",
       AccountModified: "Votre compte a ete modifié",
       orSignInWith: "Ou connectez-vous avec",
@@ -3629,7 +3631,7 @@ module.exports = {
       ShareUserDataWithCreatorHelp: "Un joueur accepte de partager ses données avec Graaly. Vous pouvez demander aux joueurs de partager leurs données avec vous, nous vous conseillons pour les motiver de faire gagner quelque chose (jeu concours, tirage au sort, bon de réduction, ...)",
       YouNeedToCreateYourAccountToPlay: "Vous devez créer votre compte pour joueur à ce jeu",
       ShareDataWithPartner: "Partager vos données avec le créateur du jeu",
-      PartnerAskForYouData: "Le créateur du jeu souhaiterais accéder à vos données (adresse email, nom). Cela peut être pour vous permettre de participer à un tirage au sort, un jeu concours ou vous faire gagner un bon de réduction. Veuillez lire la description du jeu pour en savoir plus",
+      PartnerAskForYouData: "Le créateur du jeu souhaiterait accéder à vos données (adresse email, nom). Cela peut être pour vous permettre de participer à un tirage au sort, un jeu concours ou vous faire gagner un bon de réduction. Veuillez lire la description du jeu pour en savoir plus",
       UseHtmlInDescription: "Utiliser des balises HTML dans la question",
       DoNotDisplay: "Ne pas afficher",
       AddAnGPSLocation: "Ajouter un point GPS",
@@ -3715,7 +3717,7 @@ module.exports = {
       PleaseWaitLoadingAndGPSInit: "CHARGEMENT DES DONNEES ET GPS EN COURS ...",
       MoveToNextStepAutomaticallyDuration: "Secondes avant de passer à l'étape suivante",
       UseAModel: "J'utilise un modèle :",
-      AddToInventoryAndPass: "Ajouter à l'inventaire et passer cette étape",
+      AddToInventoryAndPass: "Ajouter à l'inventaire sans afficher cette étape",
       holdVerticaly: "Pour une meilleure expérience avec la réalité augmentée, merci de tenir votre téléphone à la verticale.",
       startScan: "Démarrer",
       noSensorFound: "Pas de capteurs trouvés sur votre appareil",
@@ -3835,7 +3837,8 @@ module.exports = {
       ChooseYourLanguage: "Choisissez la langue",
       hideSoundPause: "Cacher le bouton de pause du lecteur audio",
       InvalidQuest: "Ce jeu n'existe pas, n'est pas encore publié ou a été désactivé",
-      creationOfQRCodes: "Création de QR codes"
+      creationOfQRCodes: "Création de QR codes",
+      UserLanguageNotTheOneOfTheGame: "Cette langue n'est pas celle de votre compte Graaly. Voulez-vous changer la langue de votre compte ?"
     }
   }
 }

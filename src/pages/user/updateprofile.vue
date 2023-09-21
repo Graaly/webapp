@@ -19,253 +19,206 @@
           </div>
         </div>
       </div>
-      <div>
-        <div v-if="profile.form.name === ''">
-          <div class="centered subtitle5 q-mt-lg">
-            {{ $t('label.WeNeedMoreInformationAboutYou') }}
-          </div>
-          <div class="centered subtitle6">
-            {{ $t('label.WeNeedMoreInformationAboutYouDesc') }}
+      <q-form 
+        ref="form"
+        class="q-mt-lg"
+        @submit="saveProfileChanges"
+      >
+        <div class="title flex justify-between items-center q-mb-md">
+          <div style="text-transform:uppercase;" class="flex items-center">
+            <q-icon name="person" class="q-mr-sm material-icons-outlined"/>
+            <span v-if="!newAccount">{{ $t('label.ModifyAccount') }}</span>
+            <span v-if="newAccount">{{ $t('label.WeNeedMoreInformationAboutYou') }}</span>
           </div>
         </div>
-      </div>
-      <form>
-      <q-stepper
-        v-model="step"
-        ref="stepper"
-        color="primary"
-        alternative-labels
-        animated
-        flat
-        class="bg-transparent"
-      >
-        <q-step
-          :name="1"
-          :title="displayPassword ? $t('label.CreateAccount') : $t('label.ModifyAccount')"
-          icon="face"
-          color="secondary"
-          :done="displayPassword ? !errorStepOne : false"
-          done-icon="done"
-          done-color="positive"
-          style="min-height: 200px;"
-        >
-          <q-input
-            dark
-            v-model="profile.form.name"
-            :label="$t('label.YourName')"
-            placeholder="John Doe"
-            @blur="$v.profile.form.name.$touch"
-            bottom-slots
-            :error="$v.profile.form.name.$error"
-            :error-message="$t('label.PleaseEnterYourName')"
-          />
-
-          <q-input
-            dark
-            v-model="profile.form.email"
-            :label="$t('label.YourEmail')"
-            placeholder="john.doe@gmail.com"
-            @blur="$v.profile.form.email.$touch"
-            bottom-slots
-            lazy-rules
-            :rules="[
-                val => val.length !== 0 || $t('label.PleaseEnterYourEmailAddress'),
-                val => $v.profile.form.email.email || $t('label.PleaseEnterAValidEmailAddress'),
-                displayPassword ? emailRules : ''
-              ]"
-          />
-
-          <q-input
-            dark
-            v-if="displayPassword"
-            type="password"
-            v-model="profile.form.password"
-            :label="$t('label.YourPassword')"
-            @blur="$v.profile.form.password.$touch"
-            bottom-slots
-            :error="$v.profile.form.password.$error"
-            :error-message="!$v.profile.form.password.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.profile.form.password.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
-          />
-
-          <q-input
-            dark
-            v-model="profile.form.description"
-            :label="$t('label.YourPresentation')"
-            bottom-slots
-            type="textarea"
-            :min-rows="3"
-          />
-          <q-stepper-navigation>
-            <div class="flex no-wrap">
-              <icon-btn-square v-if="!displayPassword" class="q-mr-lg" color="primary" icon="arrow_forward" @click.native="() => nextStep()"/>
-              <text-btn-square
-                class="q-mb-lg"
-                @click.native="() => { displayPassword ? nextStep() : saveProfileChanges('one') }"
-                :title="displayPassword ? $t('label.Next') : $t('label.Save')"
-                color="secondary"
-                :icon="displayPassword ? 'arrow_forward' : 'save'"
-              />
-            </div>
-          </q-stepper-navigation>
-        </q-step>
-
-        <q-step
-          :name="2"
-          :title="$t('label.AccountInfo')"
-          icon="info"
-          color="primary"
-          :done="!errorStepTwo"
-          done-icon="done"
-          done-color="positive"
-          style="min-height: 200px;"
-
-        >
-          <div class="flex no-wrap justify-between items-center">
-            <div class="full-width q-pr-md">
-              <q-select
-                dark
-                :label="$t('label.YourCountry')"
-                v-model="profile.form.country"
-                :options="countries"
-                emit-value
-                map-options
-                bottom-slots
-                @blur="getLocation"
-                :error="$v.profile.form.country.$error"
-                :error-message="$t('label.PleaseSelectYourCountry')">
-                <template v-slot:after>
-
-                </template>
-              </q-select>
-
-              <q-input
-                dark
-                v-model="profile.form.zipCode"
-                :label="$t('label.YourZipCode')"
-                placeholder="38500"
-                bottom-slots
-                @blur="getLocation"
-                :error="$v.profile.form.zipCode.$error"
-                :error-message="$t('label.PleaseEnterYourZipCode')">
-              </q-input>
-
-              <q-select
-                dark
-                :label="$t('label.YourLanguage')"
-                v-model="profile.form.language"
-                :options="languages"
-                emit-value
-                map-options
-                @input="changeLanguage" />
-
-              <q-select
-                dark
-                :label="$t('label.YourSex')"
-                v-model="profile.form.sex"
-                :options="sexes"
-                emit-value
-                map-options
-                bottom-slots>
-              </q-select>
-
-              <q-select
-                dark
-                :label="$t('label.YourAge')"
-                v-model="profile.form.age"
-                :options="ages"
-                emit-value map-options
-                @blur="$v.profile.form.age.$touch"
-                bottom-slots
-                :error="$v.profile.form.age.$error"
-                :error-message="$t('label.PleaseSelectYourAge')">
-              </q-select>
-
-              <q-input
-                dark
-                v-model="profile.form.phone"
-                :label="$t('label.YourPhoneNumber')"
-                :placeholder="$t('label.phoneExample')">
-              </q-input>
-            </div>
-
-          </div>
-          <q-stepper-navigation>
-            <div class="flex no-wrap">
-            <icon-btn-square class="q-mr-lg" color="primary" icon="arrow_back" @click.native="() => { step = 1 }"/>
-            <text-btn-square
-              class="q-mb-lg"
-              :type="displayPassword ? 'button' : 'submit'"
-              @click.native="() => { displayPassword ? validationStep() : saveProfileChanges('two') }"
-              :title="displayPassword ? $t('label.Next') : $t('label.Save')"
-              color="primary"
-              :icon="displayPassword ? 'arrow_forward' : 'save'"
+        <div class="flex no-wrap justify-between items-center">
+          <div class="full-width q-pr-md">
+            <q-input
+              dark
+              v-model="profile.form.name"
+              :label="$t('label.YourName') + ' *'"
+              placeholder="John Doe"
+              @blur="$v.profile.form.name.$touch"
+              bottom-slots
+              :rules="[ val => val && val.length > 0 || $t('label.PleaseEnterYourName')]"
             />
-            </div>
-          </q-stepper-navigation>
-        </q-step>
 
-        <q-step
-          :name="3"
-          v-if="displayPassword"
-          :title="$t('label.ValidateAccount')"
-          icon="person_add"
-          color="accent"
-          style="min-height: 200px;"
-        >
-          <div class="row">
-            <div class="col-2">
-              <q-checkbox dark v-model="profile.form.terms"/>
-            </div>
-            <div class="col secondary-font-small text-white">
-              <span v-html="$t('label.IAgreeTheTermsAndConditions')"/>
-              <div class="q-field-bottom" v-if="$v.profile.form.terms.$error">
-                <div class="q-field-error">{{ $t('label.PleaseAgreeTheTermsAndConditions') }}</div>
-              </div>
-            </div>
+            <q-input
+              dark
+              v-model="profile.form.email"
+              :label="$t('label.YourEmail') + ' *'"
+              placeholder="john.doe@gmail.com"
+              @blur="$v.profile.form.email.$touch"
+              bottom-slots
+              lazy-rules
+              :rules="[
+                  val => val && val.length > 0 || $t('label.PleaseEnterYourEmailAddress'),
+                  val => $v.profile.form.email.email || $t('label.PleaseEnterAValidEmailAddress'),
+                  displayPassword ? emailRules : ''
+                ]"
+            />
+
+            <q-input
+              dark
+              v-if="displayPassword"
+              type="password"
+              v-model="profile.form.password"
+              :label="$t('label.YourPassword') + ' *'"
+              @blur="$v.profile.form.password.$touch"
+              bottom-slots
+              :rules="[
+                val => val && val.length > 0 || $t('label.PleaseEnterYourPassword'),
+                val => val && val.length >= 8 || $t('label.YourPasswordMustBe8digitsLength'),
+                val => checkPasswordComplexity(val) || $t('label.PasswordComplexityRule')
+              ]"
+            />
+
+            <q-input
+              dark
+              v-model="profile.form.description"
+              :label="$t('label.YourPresentation')"
+              bottom-slots
+              type="textarea"
+              :min-rows="3"
+            />
+          </div>
+        </div>
+
+        <div class="flex no-wrap justify-between items-center">
+          <div class="full-width q-pr-md">
+            <q-select
+              dark
+              :label="$t('label.YourCountry') + ' *'"
+              v-model="profile.form.country"
+              :options="countries"
+              emit-value
+              map-options
+              bottom-slots
+              @blur="getLocation">
+            </q-select>
+
+            <q-input
+              dark
+              v-model="profile.form.zipCode"
+              :label="$t('label.YourZipCode') + ' *'"
+              placeholder="38500"
+              bottom-slots
+              @blur="getLocation"
+              :rules="[
+                val => val && val.length > 0 || $t('label.PleaseEnterYourZipCode'),
+              ]"
+            </q-input>
+
+            <q-select
+              dark
+              :label="$t('label.YourLanguage')"
+              v-model="profile.form.language"
+              :options="languages"
+              emit-value
+              map-options
+              @input="changeLanguage" />
+
+            <q-select
+              dark
+              :label="$t('label.YourSex')"
+              v-model="profile.form.sex"
+              :options="sexes"
+              emit-value
+              map-options
+              bottom-slots>
+            </q-select>
+
+            <q-select
+              dark
+              :label="$t('label.YourAge')"
+              v-model="profile.form.age"
+              :options="ages"
+              emit-value map-options
+              @blur="$v.profile.form.age.$touch"
+              bottom-slots
+            >
+            </q-select>
+
+            <q-input
+              dark
+              v-model="profile.form.phone"
+              :label="$t('label.YourPhoneNumber')"
+              :placeholder="$t('label.phoneExample')">
+            </q-input>
           </div>
 
-          <div class="row">
-            <div class="col-2">
-              <q-checkbox dark v-model="profile.form.privacy"/>
-            </div>
-            <div class="col secondary-font-small text-white">
-              <span v-html="$t('label.IAgreeThePrivacyPolicy')"/>
-              <div class="q-field-bottom" v-if="$v.profile.form.privacy.$error">
-                <div class="q-field-error">{{ $t('label.PleaseAgreeThePrivacyPolicy') }}</div>
-              </div>
+        </div>
+        
+        <div class="row q-pt-md" v-if="newAccount">
+          <div class="col-2">
+            <q-checkbox dark v-model="profile.form.terms"/>
+          </div>
+          <div class="col secondary-font-small text-white">
+            <span v-html="$t('label.IAgreeTheTermsAndConditions')"/>
+            <div class="q-field-bottom" v-if="$v.profile.form.terms.$error">
+              <div class="q-field-error">{{ $t('label.PleaseAgreeTheTermsAndConditions') }}</div>
             </div>
           </div>
-          <q-stepper-navigation>
-            <div class="flex no-wrap">
-              <icon-btn-square class="q-mr-lg" color="accent" icon="arrow_back" @click.native="() => { step = 2 }"/>
-              <text-btn-square
-                :disable="!profile.form.terms || !profile.form.privacy"
-                class="q-mb-lg"
-                type="submit"
-                :title="$t('label.CreateAccount')"
-                color="accent"
-                icon="person_add"
-                @click.native="createNewAccount"
-              />
+        </div>
+
+        <div class="row" v-if="newAccount">
+          <div class="col-2">
+            <q-checkbox dark v-model="profile.form.privacy"/>
+          </div>
+          <div class="col secondary-font-small text-white">
+            <span v-html="$t('label.IAgreeThePrivacyPolicy')"/>
+            <div class="q-field-bottom" v-if="$v.profile.form.privacy.$error">
+              <div class="q-field-error">{{ $t('label.PleaseAgreeThePrivacyPolicy') }}</div>
             </div>
-          </q-stepper-navigation>
-        </q-step>
-        <template v-slot:message>
+          </div>
+        </div>
+        <div class="row q-pt-md" v-if="profile.form.name === ''">
+          {{ $t('label.HowWeUseYourData') }}
+          <q-btn round dense flat icon="help" @click="helpFields" size="md"/>
+        </div>
+        <div class="flex no-wrap q-pt-md" v-if="newAccount">
+          <text-btn-square
+            :disable="!profile.form.terms || !profile.form.privacy"
+            class="q-mb-lg"
+            type="submit"
+            :title="$t('label.CreateAccount')"
+            color="accent"
+            icon="person_add"
+            submit
+          />
+        </div>
+        <div class="flex no-wrap q-pt-md" v-if="!newAccount">
+          <text-btn-square
+            class="q-mb-lg"
+            type="submit"
+            :title="$t('label.ModifyAccount')"
+            color="accent"
+            icon="person_add"
+            submit
+          />
+        </div>
+        
+<!--        <template v-slot:message>
 <!--          <q-banner v-if="step === 1" class="bg-secondary text-white q-px-lg">-->
 <!--            <span v-if="!displayPassword">Vous pouvez modifié votre compte ici</span>-->
 <!--            <span v-else>Commencez par remplir ces champs</span>-->
-<!--          </q-banner>-->
+<!--          </q-banner>
           <q-banner v-if="step === 2" class="bg-orange-8 text-white q-px-lg">
             {{ $t('label.HowWeUseYourData') }}
             <q-btn round dense flat icon="help" @click="helpFields" size="md"/>
           </q-banner>
 <!--          <q-banner v-if="step === 3" class="bg-accent text-white q-px-lg">-->
 <!--            C'est la dernière étape pour la création de votre profil-->
-<!--          </q-banner>-->
-        </template>
-      </q-stepper>
-      </form>
-      <form v-if="!displayPassword">
+<!--          </q-banner>
+        </template>-->
+      </q-form>
+      <form v-if="!displayPassword" class="q-mt-lg">
+        <div class="title flex justify-between items-center q-mb-md">
+          <div style="text-transform:uppercase;" class="flex items-center">
+            <q-icon name="lock" class="q-mr-sm material-icons-outlined"/>
+            <span>{{ $t('label.ChangeYourPassword') }}</span>
+          </div>
+        </div>
         <div class="q-px-lg">
             <q-input
               dark
@@ -406,6 +359,7 @@ export default {
           privacy: false
         }
       },
+      newAccount: false,
       position: null,
       countries: this.$i18n.locale === 'fr' ? countriesFR : (this.$i18n.locale === 'es' ? countriesES : countriesEN),
       sexes: [{label: this.$t('label.Male'), value: 'male'}, {label: this.$t('label.Female'), value: 'female'}],
@@ -417,7 +371,7 @@ export default {
       serverUrl: process.env.SERVER_URL,
       uploadUrl: process.env.UPLOAD_URL,
       // Error Step
-      isBadMail: true,
+      isBadMail: false,
       errorStepOne: false,
       errorStepTwo: true
     }
@@ -438,6 +392,7 @@ export default {
       terms: false,
       privacy: false
     }
+    this.newAccount = this.profile.form.name === ''
     if (this.$store.state.user.missingPassword) {
       this.displayPassword = true
     }
@@ -445,6 +400,10 @@ export default {
   methods: {
     checkStepOne() {
       if (this.displayPassword) {
+      console.log(this.$v.profile.form.name.$error)
+      console.log(this.$v.profile.form.email.$error)
+      console.log(this.$v.profile.form.password.$error)
+      console.log(this.isBadMail)
         if (!this.$v.profile.form.name.$error && !this.$v.profile.form.email.$error && !this.$v.profile.form.password.$error && !this.isBadMail) {
           this.errorStepOne = false
           return true
@@ -490,24 +449,43 @@ export default {
         }
       }
     },
+    checkPasswordComplexity(password) {
+      // Minimum of 1 Uppercase Letter
+      if (/[A-Z]/.test(password) === false) {
+        return false;
+      }
+
+      // Minimum of 1 Number
+      if (/\d/.test(password) === false) {
+        return false;
+      }
+
+      return true;
+    },
     /*
     * Email Verification and return Message
     */
     emailRules() {
+    console.log('email rule1')
       return new Promise(async(resolve, reject) => {
         const userExisting = await this.checkUserIsExisting(this.profile.form.email)
+        console.log('email rule2')
         if (userExisting && userExisting.status) {
+        console.log('email rule3')
           if (userExisting.status === 'active') {
+          console.log('email rule4')
             Notification(this.$t('label.EmailAlreadyUsed'), 'error')
             this.isBadMail = true
             resolve(false || this.$t('label.RejectedEmail'))
           }
           else if (userExisting.status === 'blocked') {
+          console.log('email rule5')
             Notification(this.$t('label.YourAccountIsBlocked'), 'warning')
             this.isBadMail = true
             resolve(false || this.$t('label.RejectedEmail'))
           }
           else {
+          console.log('email rule6')
             this.isBadMail = false
             resolve(true)
           }
@@ -544,25 +522,12 @@ export default {
     /*
      * Submit account changes
      */
-    async saveProfileChanges(step) {
-      if (step === 'one') {
-        this.$v.profile.form.name.$touch()
-        this.$v.profile.form.email.$touch()
-        if (!this.checkStepOne()) {
-          Notification(this.$t('label.ErrorAccount'), 'error')
-          return
-        }
-      }
-      if (step === 'two') {
-        this.$v.profile.form.country.$touch()
-        this.$v.profile.form.zipCode.$touch()
-        this.$v.profile.form.age.$touch()
-        if (!this.checkStepTwo()) {
-          Notification(this.$t('label.ErrorAccount'), 'error')
-          return
-        }
-      }
-      console.log('UPDATE')
+    async saveProfileChanges() {
+      //this.$v.profile.form.name.$touch()
+      //this.$v.profile.form.email.$touch()
+      //this.$v.profile.form.country.$touch()
+      //this.$v.profile.form.zipCode.$touch()
+      //this.$v.profile.form.age.$touch()
       let modifications = {
         name: this.profile.form.name,
         email: this.profile.form.email,
@@ -619,7 +584,6 @@ export default {
       }*/
     },
     async createNewAccount() {
-      console.log('CREATE')
       if (!this.profile.form.terms || !this.profile.form.privacy) {
         return
       }

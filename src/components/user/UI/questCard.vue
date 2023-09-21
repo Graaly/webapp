@@ -135,7 +135,9 @@
 <script>
 import { colors } from 'quasar'
 import creatorBadge from "./creatorBadge";
+import Notification from 'boot/NotifyHelper'
 import UserService from "services/UserService";
+import AuthService from "services/AuthService";
 
 export default {
   name: "questCard",
@@ -248,6 +250,32 @@ export default {
     },
     switchLanguage(lang) {
       this.$emit('changeLanguage', lang)
+      if (lang !== this.$store.state.user.language) {
+        this.$q.dialog({
+          message: this.$t('label.UserLanguageNotTheOneOfTheGame'),
+          ok: this.$t('label.Edit'),
+          cancel: this.$t('label.Cancel')
+        }).onOk(() => {
+          this.changeUserLanguage(lang)
+        }).onCancel(() => {
+          return false
+        })
+      }
+    },
+    async changeUserLanguage(lang) {
+      let modifications = {
+        language: lang
+      }
+      this.$q.loading.show()
+      let modificationStatus = await AuthService.modifyAccount(modifications)
+      this.$q.loading.hide()
+
+      if (modificationStatus.status >= 300 && modificationStatus.data && modificationStatus.data.message) {
+        Notification(this.$t('label.' + modificationStatus.data.message), 'warning')
+      } else {
+        Notification(this.$t('label.AccountModified'), 'positive')
+      }
+      this.$i18n.locale = lang
     },
     isLanguage(lang) {
       if (this.languages && this.languages.length > 0) {

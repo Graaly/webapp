@@ -134,9 +134,9 @@ export default {
    * Send a code to secure password modification (user not authentifyed)
    * @param   {String}    email         User email
    */
-  sendForgottenPasswordCode(email) {
+  sendForgottenPasswordCode(email, lang) {
     return Api()
-      .post("user/forgottenpassword/code/generate", { email: email })
+      .post("user/forgottenpassword/code/generate/" + lang, { email: email })
       .catch(error => console.log(error.request));
   },
   /*

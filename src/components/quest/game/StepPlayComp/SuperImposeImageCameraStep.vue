@@ -55,7 +55,7 @@
           :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''"
           :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
           @click="takeVideoSnapShot()">{{ $t('label.ApplyRedFilter') }}</q-btn>
-          <q-btn v-if="imageOverFlow.snapshot !== ''" flat @click="cancelTakeVideoSnapShot()">{{ $t('label.Cancel') }}</q-btn>
+        <q-btn v-if="imageOverFlow.snapshot !== ''" flat @click="cancelTakeVideoSnapShot()">{{ $t('label.Cancel') }}</q-btn>
       </div>
     </div>
   </div>
