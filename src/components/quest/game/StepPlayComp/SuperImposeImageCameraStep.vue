@@ -104,6 +104,8 @@ export default {
     },
     async prepareSnapshot() {
       this.$q.loading.show()
+      setTimeout(() => { this.$q.loading.hide() }, 5000)
+      
       this.takingSnapshot = true
       // if red filter, do not hide buttons
       if (!(this.isIOs && this.step.options && this.step.options.redFilter)) {
