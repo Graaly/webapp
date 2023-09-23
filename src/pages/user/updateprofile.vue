@@ -400,10 +400,6 @@ export default {
   methods: {
     checkStepOne() {
       if (this.displayPassword) {
-      console.log(this.$v.profile.form.name.$error)
-      console.log(this.$v.profile.form.email.$error)
-      console.log(this.$v.profile.form.password.$error)
-      console.log(this.isBadMail)
         if (!this.$v.profile.form.name.$error && !this.$v.profile.form.email.$error && !this.$v.profile.form.password.$error && !this.isBadMail) {
           this.errorStepOne = false
           return true
@@ -439,7 +435,6 @@ export default {
       }
     },
     validationStep() {
-      console.log("validation")
       if (this.displayPassword) {
         this.$v.profile.form.country.$touch()
         this.$v.profile.form.zipCode.$touch()
@@ -466,26 +461,20 @@ export default {
     * Email Verification and return Message
     */
     emailRules() {
-    console.log('email rule1')
       return new Promise(async(resolve, reject) => {
         const userExisting = await this.checkUserIsExisting(this.profile.form.email)
-        console.log('email rule2')
         if (userExisting && userExisting.status) {
-        console.log('email rule3')
           if (userExisting.status === 'active') {
-          console.log('email rule4')
             Notification(this.$t('label.EmailAlreadyUsed'), 'error')
             this.isBadMail = true
             resolve(false || this.$t('label.RejectedEmail'))
           }
           else if (userExisting.status === 'blocked') {
-          console.log('email rule5')
             Notification(this.$t('label.YourAccountIsBlocked'), 'warning')
             this.isBadMail = true
             resolve(false || this.$t('label.RejectedEmail'))
           }
           else {
-          console.log('email rule6')
             this.isBadMail = false
             resolve(true)
           }

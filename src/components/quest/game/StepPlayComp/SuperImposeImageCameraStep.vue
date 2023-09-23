@@ -156,8 +156,8 @@ export default {
           //let imgOverflow = this.$refs['imageOverflowForCapture']
           if (this.getBackgroundImage() != null) {
             let imgOverflow = new Image()
-            imgOverflow.crossOrigin = 'anonymous'
-            imgOverflow.src = this.getBackgroundImage()
+            imgOverflow.crossOrigin = 'Anonymous'
+            imgOverflow.src = this.getBackgroundImage() + "?t=" + Math.floor(Math.random() * 10000)
             imgOverflow.onload = async () => {
               try { // Added by EMA when no picture added, it breaks
                 draw.drawImageProp(context, imgOverflow)
