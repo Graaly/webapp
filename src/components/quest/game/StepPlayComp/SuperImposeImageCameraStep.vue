@@ -69,7 +69,7 @@ import utils from "src/includes/utils";
 
 export default {
   name: "SuperImposeImageCameraStep",
-  props: ["quest", "step", "customization"],
+  props: ["quest", "step", "customization", "runId"],
   data () {
     return {
       serverUrl: process.env.SERVER_URL,
@@ -210,6 +210,7 @@ export default {
         isHybrid: isHybrid,
         quest: this.quest,
         step: this.step,
+        runId: this.runId,
         color: (this.customization && this.customization.color && this.customization.color !== '') ? this.customization.color : 'primary'
       }).onCancel(async () => {
         this.$emit('showButtons')

@@ -39,7 +39,7 @@ import StepService from 'src/services/StepService'
 
 export default {
   name: "snapshotDialogComponent",
-  props: ['snapshotFilename', 'blob', 'quest', 'step', 'isHybrid', 'color'],
+  props: ['snapshotFilename', 'blob', 'quest', 'step', 'isHybrid', 'color', 'runId'],
 
   data() {
     return {
@@ -139,7 +139,7 @@ export default {
         try {
           let formData = new FormData()
           formData.append("image", blob, filename)
-          await StepService.uploadSnapshot(this.step.questId, formData)
+          await StepService.uploadSnapshot(this.step.questId, this.runId, this.step.stepId, formData)
           Notification(this.$t('label.SnapshotTaken'), 'info')
         } catch (err) {
           console.error(err)
