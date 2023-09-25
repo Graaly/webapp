@@ -3859,7 +3859,7 @@ export default {
         var data = new FormData()
         data.append('image', picture)
         //var _this = this
-        await StepService.uploadSnapshot(this.step.questId, data)
+        await StepService.uploadSnapshot(this.step.questId, this.runId, this.step._id, data)
         /*StepService.uploadSnapshot(this.step.questId, data, function(err, result) {
           if (err) {
             Notification(this.$t('label.ErrorTakingSnapshot'), 'error')

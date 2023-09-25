@@ -2,7 +2,7 @@
   <q-dialog ref="snapshotDialog" persistent maximized position="bottom">
     <q-card class="full-height">
 
-      <q-card-section class="row items-center q-pb-none">
+      <q-card-section class="row items-center q-pb-none q-mt-lg">
         <div class="text-h6"></div>
         <q-space />
         <q-btn icon="close" flat round dense @click="onCancelClick" />

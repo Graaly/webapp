@@ -1899,18 +1899,21 @@ export default {
           this.$set(this.selectedStep.form.extraText, this.lang, this.selectedStep.form.extraText[this.quest.mainLanguage])
         }
       }
+      
       // define the default image for the step
       if (!this.selectedStep.form.backgroundImage[this.lang] || this.selectedStep.form.backgroundImage[this.lang] === '') {
         if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.backgroundImage[this.quest.mainLanguage] !== '') {
           this.$set(this.selectedStep.form.backgroundImage, this.lang, this.selectedStep.form.backgroundImage[this.quest.mainLanguage])
         }
       }
+
       // define the default video for the step
       if (!this.selectedStep.form.videoStream[this.lang] || this.selectedStep.form.videoStream[this.lang] === '') {
-        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.videoStream[this.quest.mainLanguage] !== '') {
+        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.videoStream[this.quest.mainLanguage] && this.selectedStep.form.videoStream[this.quest.mainLanguage] !== '') {
           this.$set(this.selectedStep.form.videoStream, this.lang, this.selectedStep.form.videoStream[this.quest.mainLanguage])
         }
       }
+
       // define the default hint for the step
       if (!this.selectedStep.form.hint[this.lang] || this.selectedStep.form.hint[this.lang] === '') {
         if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.hint[this.quest.mainLanguage] && this.selectedStep.form.hint[this.quest.mainLanguage].length > 0) {
@@ -1970,7 +1973,7 @@ export default {
       
       await this.getQuestItemsAsOptions()
       this.getUnderstandableConditions()
-      
+
       // initialize specific steps
       if (this.options.type.code === 'choose') {
         if (!this.selectedStep.form.options || !this.selectedStep.form.options.items || !Array.isArray(this.selectedStep.form.options.items)) {
@@ -2019,7 +2022,6 @@ export default {
       } else if (this.options.type.code === 'code-image') {
         // init images list
         if (!this.selectedStep.form.options || !this.selectedStep.form.options[this.lang] || !this.selectedStep.form.options[this.lang].images) {
-          console.log(this.selectedStep.form.options)
           if (!this.selectedStep.form.options) {
             this.selectedStep.form.options = {hideHideButton: true}
           }

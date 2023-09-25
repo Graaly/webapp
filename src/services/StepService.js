@@ -533,7 +533,11 @@ export default {
    * @param   {Object}    formData           data to upload, created using `new FormData()`
    */
   async uploadSnapshot(questId, runId, stepId, formData) {
-    return Api().post("/quest/" + questId + "/snapshot/upload/" + runId + "/" + stepId, formData, { timeout: 600000, headers: { 'Content-Type': `multipart/form-data; boundary=${formData._boundary}` } })
+    if (formData) {
+      return Api().post("/quest/" + questId + "/snapshot/upload/" + runId + "/" + stepId, formData, { timeout: 600000, headers: { 'Content-Type': `multipart/form-data; boundary=${formData._boundary}` } })
+    } else {
+      return Api().post("/quest/" + questId + "/snapshot/upload/" + runId + "/" + stepId, formData, { timeout: 600000, headers: { 'Content-Type': `multipart/form-data` } })
+    }
   },
   /*
    * Export the texts of the game

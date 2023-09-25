@@ -329,6 +329,8 @@ Comment line : AppEventsLogger.augmentWebView((WebView) this.webView.getView(), 
 #### Error "Votre application cible actuellement le niveau d'API 29"
 
 https://kdjguru.com/how-to-fix-change-the-default-target-sdk-to-api-level-30-cordova-quasar/
+Modify src-cordova/config.xml :
+<preference name="android-targetSdkVersion" value="33" />
 
 ### Cordova iPhone Build unsuccessful
 
