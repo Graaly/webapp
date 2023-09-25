@@ -849,6 +849,7 @@
         v-if="step.type == 'image-over-flow'"
         :quest="quest"
         :step="step"
+        :runId="runId"
         :customization="customization"
         v-on:showButtons="$emit('showButtons')"
         v-on:hideButtons="$emit('hideButtons')"
