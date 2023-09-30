@@ -1357,7 +1357,7 @@ export default {
         this.hideHint()
       }
       // save offline run
-      await this.saveOfflineAnswer(true, false, false, forceStepId)
+      await this.saveOfflineAnswer(true, answer, false, forceStepId)
 
       // move to next step if right answer not displayed
       if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
@@ -2169,7 +2169,7 @@ export default {
       }
 
       // compute nb points
-      answer = {stepId: this.step.stepId, stepNumber: this.step.number, nbTry: answer.nbTry ? answer.nbTry : 1, ended: ended, score: score, reward: 0, status: stepStatus, useHint: false, date: new Date(), online: false}
+      answer = {stepId: this.step.stepId, stepNumber: this.step.number, nbTry: (answer && answer.nbTry) ? answer.nbTry : 1, ended: ended, score: score, reward: 0, status: stepStatus, useHint: false, date: new Date(), online: false}
       // add new item in inventory
       if (this.step.type === 'new-item') {
         if (this.run.inventory) {
@@ -2189,7 +2189,7 @@ export default {
           for (var i = 0; i < this.run.answers.length; i++) {
             if (this.run.answers[i] && this.run.answers[i].stepId && this.run.answers[i].stepId !== null && this.run.answers[i].stepId === this.step.stepId) {
               update = true
-              answer.nbTry = this.run.answers[i].nbTry + 1
+              answer.nbTry = (this.run && this.run.answers[i]) ? this.run.answers[i].nbTry + 1 : 1
               answer.useHint = this.run.answers[i].useHint
               this.run.answers[i] = answer
             }
@@ -2231,6 +2231,7 @@ export default {
       if (this.isMultiplayer) {
         return false
       }
+
       this.run.conditionsDone = this.updateConditions(this.run.conditionsDone, stepId, false, this.step.type, true, this.player)
       //this.run.conditionsDone.push('stepFail_' + stepId)
       await this.saveOfflineRun(this.questId, this.run, true)
@@ -2549,7 +2550,7 @@ export default {
               }
               let nextStepId
 
-              if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
+              if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {           
                 this.removeAllConditionsOfAChapter(this.offline.steps, conditionsDone, stepsofChapter[i].chapterId)
               } else {
                 // reset progression of this chapter
@@ -2580,6 +2581,7 @@ export default {
                 extra.timer = await this.getOfflineChapterTimer(this.run.version)
                 extra.chapter = "new"
               }
+
               //await this.addStepToHistory(nextStepId)
               return {id: nextStepId, extra: extra}
             } else { // if (markerCode || stepsofChapter[i].type !== 'locate-marker') { // if locate marker, do not start the step until user flash the marker
@@ -2876,7 +2878,7 @@ export default {
     async removeAllConditionsOfAChapter(steps, currentConditions, chapterId) {
       const stepsofChapter = await this.listForAChapter(steps, chapterId)
       if (stepsofChapter && stepsofChapter.length > 0) {
-        for (i = 0; i < stepsofChapter.length; i++) {
+        for (let i = 0; i < stepsofChapter.length; i++) {
           currentConditions = this.removeStepFromConditions(currentConditions, stepsofChapter[i].stepId)
         }
       }

@@ -909,7 +909,7 @@
             <q-btn color="primary" class="glossy large-button" icon="play_arrow" @click="testQuest()">{{ $t('label.SeeYourQuestPage') }}</q-btn>
           </p>
 
-          <q-item v-if="quest.access === 'private'">
+          <!--<q-item v-if="quest.access === 'private'">
             <q-item-section side top>
               <q-icon name="people" class="left-icon" />
             </q-item-section>
@@ -936,21 +936,29 @@
                 </template>
               </q-input>
             </q-item-section>
-          </q-item>
+          </q-item>-->
 
-          <q-item>
-            <q-item-section side top>
-              <q-icon name="visibility" class="left-icon" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="big-label">{{ $t('label.' + (quest.type === 'quest' ? (quest.access === 'public' ? 'LanguagesPublished' : 'LanguagesPublishedForPrivate') : 'PageLanguagesPublished')) }}</q-item-label>
+          <div v-if="quest.status !== 'tovalidate'">
+            <q-item>
+              <q-item-section side top>
+                <q-icon name="visibility" class="left-icon" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="big-label">{{ $t('label.' + (quest.type === 'quest' ? (quest.access === 'public' ? 'LanguagesPublished' : 'LanguagesPublishedForPrivate') : 'PageLanguagesPublished')) }}</q-item-label>
+              </q-item-section>
+            </q-item>
+            <div class="centered" v-show="!selectLanguageForPublishing">
+              <q-btn color="primary" class="glossy large-button q-ma-sm" @click="publish()">{{ $t('label.' + (form.fields.languages.length <= 1 ? 'AskToPublish' : 'PublishInAllLanguages')) }}</q-btn>
+              <div v-if="form.fields.languages.length > 1" class="centered"><a class="cursor-pointer text-primary" @click="selectLanguageForPublishing = !selectLanguageForPublishing">{{ $t('label.SelectLanguageForPublishing') }}</a></div>
+            </div>
+            <div v-show="selectLanguageForPublishing" class="q-px-lg">
               <p v-for="lang in form.fields.languages" :key="lang.lang">
                 <q-toggle :disable="quest.status === 'tovalidate'" v-model="lang.published" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
               </p>
               <q-item-label caption v-if="quest.access === 'public' && quest.type === 'quest'">{{ $t('label.ActivateTheLanguageVisible') }}</q-item-label>
               <q-item-label caption v-if="quest.access === 'private'">{{ $t('label.ActivateTheLanguageVisiblePrivate') }}</q-item-label>
-            </q-item-section>
-          </q-item>
+            </div>
+          </div>
 
           <q-item>
             <q-item-section side top>
@@ -1822,6 +1830,7 @@ export default {
       showPaymentBox: false,
       showTierPaymentBox: false,
       paymentIsLoading: false,
+      selectLanguageForPublishing: false,
       storage: "",
       itemUsed: null,
       isIOs: utils.isIOS(),
@@ -2837,59 +2846,75 @@ export default {
     async publish(lang) {
       let isPublishing = await this.checkIfTestable()
       if (isPublishing) {
-        // if quest is already published in a language, accept automatically other language
-        var action = 'unpublish'
-        // check if at least one language is published
-        for (var i = 0; i < this.form.fields.languages.length; i++) {
-          if (this.form.fields.languages[i].lang && this.form.fields.languages[i].lang === lang) {
-            if (this.form.fields.languages[i].published) {
-              action = 'publish'
+        if (lang) {
+          // if quest is already published in a language, accept automatically other language
+          var action = 'unpublish'
+          // check if at least one language is published
+          for (var i = 0; i < this.form.fields.languages.length; i++) {
+            if (this.form.fields.languages[i].lang && this.form.fields.languages[i].lang === lang) {
+              if (this.form.fields.languages[i].published) {
+                action = 'publish'
+              }
             }
           }
-        }
-        if (action === 'publish') {
-          if (this.quest.status === 'unpublished' || this.quest.status === 'draft') {
-            if (this.quest.access === 'private' && !this.quest.isPremium) {
+          if (action === 'publish') {
+            if (this.quest.status === 'unpublished' || this.quest.status === 'draft') {
+              if (this.quest.access === 'private' && !this.quest.isPremium) {
+                this.$q.loading.show()
+                await QuestService.publish(this.questId, lang)
+                //TODO: manage if publishing failed
+                this.$q.loading.hide()
+                this.quest.status = 'published'
+              } else {
+                var _this = this
+                this.$q.dialog({
+                  dark: true,
+                  message: this.$t('label.AreYouSureYouWantToPublishThisQuest'),
+                  ok: true,
+                  cancel: true
+                }).onOk(async () => {
+                  _this.$q.loading.show()
+                  await QuestService.publish(_this.questId, lang)
+                  //TODO: manage if publishing failed
+                  _this.$q.loading.hide()
+                  _this.quest.status = 'tovalidate'
+                }).onCancel(async () => {
+                  for (var i = 0; i < _this.form.fields.languages.length; i++) {
+                    _this.form.fields.languages[i].published = false
+                  }
+                })
+              }
+              this.readOnly = true
+            } else {
               this.$q.loading.show()
               await QuestService.publish(this.questId, lang)
               //TODO: manage if publishing failed
               this.$q.loading.hide()
-              this.quest.status = 'published'
-            } else {
-              var _this = this
-              this.$q.dialog({
-                dark: true,
-                message: this.$t('label.AreYouSureYouWantToPublishThisQuest'),
-                ok: true,
-                cancel: true
-              }).onOk(async () => {
-                _this.$q.loading.show()
-                await QuestService.publish(_this.questId, lang)
-                //TODO: manage if publishing failed
-                _this.$q.loading.hide()
-                _this.quest.status = 'tovalidate'
-              }).onCancel(async () => {
-                for (var i = 0; i < _this.form.fields.languages.length; i++) {
-                  _this.form.fields.languages[i].published = false
-                }
-              })
             }
-            this.readOnly = true
+            this.tabs.progress = 3
           } else {
+            // no language is published => unpublish the quest
             this.$q.loading.show()
-            await QuestService.publish(this.questId, lang)
-            //TODO: manage if publishing failed
+            await QuestService.unpublish(this.questId, lang)
             this.$q.loading.hide()
-          }
-          this.tabs.progress = 3
-        } else {
-          // no language is published => unpublish the quest
-          this.$q.loading.show()
-          await QuestService.unpublish(this.questId, lang)
-          this.$q.loading.hide()
 
-          this.quest.status = 'unpublished'
-          this.tabs.progress = 2
+            this.quest.status = 'unpublished'
+            this.tabs.progress = 2
+          }
+        } else {
+          var _this = this
+          this.$q.dialog({
+            dark: true,
+            message: this.$t('label.AreYouSureYouWantToPublishThisQuest'),
+            ok: true,
+            cancel: true
+          }).onOk(async () => {
+            _this.$q.loading.show()
+            await QuestService.publish(_this.questId, 'all')
+            //TODO: manage if publishing failed
+            _this.$q.loading.hide()
+            _this.quest.status = 'tovalidate'
+          })
         }
       } else {
         Notification(this.$t('label.YourQuestContainsErrorsInSteps'), 'error')

@@ -1284,7 +1284,10 @@ module.exports = {
       hideSoundPause: "Hide audio player pause button",
       InvalidQuest: "This game does not exist, has not yet been published or has been deactivated.",
       creationOfQRCodes: "QR codes creation",
-      UserLanguageNotTheOneOfTheGame: "This is not the language of your Graaly account. Would you like to change the language of your account?"
+      UserLanguageNotTheOneOfTheGame: "This is not the language of your Graaly account. Would you like to change the language of your account?",
+      PublishInAllLanguages: "Publish in all languages",
+      SelectLanguageForPublishing: "Choose the language to publish",
+      AskToPublish: "Ask for publication"
     }
   },
   
@@ -2560,7 +2563,10 @@ module.exports = {
     hideSoundPause: "Ocultar el botón de pausa del reproductor de audio",
     InvalidQuest: "Este juego no existe, aún no ha sido publicado o ha sido desactivado.",
     creationOfQRCodes: "Creación de códigos QR",
-    UserLanguageNotTheOneOfTheGame: "Este no es el idioma de tu cuenta Graaly. Quieres cambiar el idioma de tu cuenta?"
+    UserLanguageNotTheOneOfTheGame: "Este no es el idioma de tu cuenta Graaly. Quieres cambiar el idioma de tu cuenta?",
+    PublishInAllLanguages: "Publicar en todos los idiomas",
+    SelectLanguageForPublishing: "Elija el idioma de publicación",
+    AskToPublish: "Solicitar publicación"
 	}
 },
   
@@ -3838,7 +3844,10 @@ module.exports = {
       hideSoundPause: "Cacher le bouton de pause du lecteur audio",
       InvalidQuest: "Ce jeu n'existe pas, n'est pas encore publié ou a été désactivé",
       creationOfQRCodes: "Création de QR codes",
-      UserLanguageNotTheOneOfTheGame: "Cette langue n'est pas celle de votre compte Graaly. Voulez-vous changer la langue de votre compte ?"
+      UserLanguageNotTheOneOfTheGame: "Cette langue n'est pas celle de votre compte Graaly. Voulez-vous changer la langue de votre compte ?",
+      PublishInAllLanguages: "Publier dans toutes les langues",
+      SelectLanguageForPublishing: "Choisir la langue de publication",
+      AskToPublish: "Demander la publication"
     }
   }
 }

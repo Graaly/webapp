@@ -37,6 +37,15 @@ import CustomerQuestPlayEnd from '../customers/td-synnex/pages/quest/game/end'
 import CustomerHome from '../customers/td-synnex/pages/home'
 */
 
+// ============== AUTONOMY =============
+/*
+import CustomerUserLogin from '../customers/autonomy/pages/user/login'
+import CustomerQuestPlayHome from '../customers/autonomy/pages/quest/game/intro'
+//import CustomerQuestPlayStep from '../customers/autonomy/pages/quest/game/step'
+import CustomerQuestPlayEnd from '../customers/autonomy/pages/quest/game/end'
+import CustomerHome from '../customers/autonomy/pages/home'
+*/
+
 export default {
   // CONSEIL DE L'EUROPE
 /*
@@ -73,6 +82,14 @@ export default {
 /*
   LOGIN_PAGE: CustomerUserLogin,
   QUEST_PLAY_HOME: CustomerQuestPlayHome,
+  QUEST_PLAY_END: CustomerQuestPlayEnd,
+  HOME: CustomerHome
+*/
+  // AUTONOMY
+/*
+  LOGIN_PAGE: CustomerUserLogin,
+  QUEST_PLAY_HOME: CustomerQuestPlayHome,
+  //QUEST_PLAY_STEP: CustomerQuestPlayStep,
   QUEST_PLAY_END: CustomerQuestPlayEnd,
   HOME: CustomerHome
 */
