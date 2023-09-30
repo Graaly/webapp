@@ -17,7 +17,7 @@
       </q-card>
     </div>
     <div class="bg-accent text-white q-pa-md" v-if="warnings.isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
-    <div v-if="startDate.enabled" class="bg-white centered q-pa-lg">
+    <div v-if="startDate.enabled" class="centered q-pa-lg">
       <img :src="getLogoImage()" v-if="info.quest.customization && info.quest.customization.logo && info.quest.customization.logo !== ''" />
       <img src="statics/icons/app-logo/icon-96x96.png" v-if="!info.quest.customization || !info.quest.customization.logo || info.quest.customization.logo === ''" />
       <div class="text-h6">{{ $t('label.ThisStepIsAvailableIn') }}</div>
@@ -37,7 +37,6 @@
     <div :class="{'fit': (step.type !== 'image-over-flow')}"><!-- Keep this div for iphone, for red filter display -->
 
       <stepPlay
-        v-if="!startDate.enabled"
         :step="step"
         :runId="runId"
         :inventory="inventory"
@@ -46,7 +45,6 @@
         :lang="lang"
         :customization="info.quest.customization ? info.quest.customization : {color: 'primary'}"
         :answer="offline.answer"
-        :nbTryAlreadyPlayed="nbTry"
         :player="player"
         :timer="countDownTime"
         :quest="info.quest"
@@ -55,14 +53,12 @@
         @success="trackStepSuccess"
         @fail="trackStepFail"
         @pass="trackStepPass"
-        @retry="trackStepRetry"
         @closeAllPanels="closeAllPanels"
         @forceMoveNext="nextStep(true)"
         @suggestNext="alertOnNext"
         @hideButtons="hideFooterButtons"
         @showButtons="showFooterButtons"
         @openInventory="zoomOrUse"
-        @readMoreRead="setReadMoreAsRead"
         @msg="trackMessage">
       </stepPlay>
     </div>
@@ -88,7 +84,7 @@
               <q-btn-group>
                 <q-btn padding="xs" size="md" color="primary" icon="zoom_in" @click="zoomItem(item)" />
                 <q-btn padding="xs" size="md" v-if="step.type === 'use-item'" color="primary" icon="done" @click="useItem(item)" />
-                <q-btn padding="xs" size="md" v-if="inventory.items.length > 0 && info.quest.editorMode !== 'simple' && !(info.quest.customization && info.quest.customization.hideObjectCombination)" :color="inventory.selectedItems.indexOf(item.picture) === -1 ? 'primary' : 'secondary'" icon="merge_type" @click="selectItem(item)" />
+                <q-btn padding="xs" size="md" v-if="inventory.items.length > 0 && info.quest.editorMode !== 'simple'" :color="inventory.selectedItems.indexOf(item.picture) === -1 ? 'primary' : 'secondary'" icon="merge_type" @click="selectItem(item)" />
               </q-btn-group>
             </div>
           </div>
@@ -170,7 +166,7 @@
             </p>
             <p>
               <q-btn
-              v-if="!info.quest || !info.quest.customization || (!info.quest.customization.removeScoring && !info.quest.customization.userCanNotQuit)"
+              v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring"
               class="glossy large-button"
               :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
               :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
@@ -182,7 +178,7 @@
             </p>
             <p>
               <q-btn
-                v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2 && (!info.quest.customization || info.quest.customization.userReplay == 'yes')" class="glossy large-button"
+                v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2" class="glossy large-button"
                 :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
                 :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
                 @click="restartGame">
@@ -248,7 +244,7 @@
 
     <!--====================== COUNTDOWN MESSAGE =================================-->
 
-    <div v-show="countDownTime.enabled" class="fadein-message" style="font-size: 48px;"><q-icon color="white" name="timer" /> {{ $t('label.ItRemainsMinutes', {time: Math.ceil(countDownTime.remainingMinutes)}) }}</div>
+    <div v-show="countDownTime.enabled" class="fadein-message" style="font-size: 48px;"><q-icon color="white" name="timer" /> {{ $t('label.ItRemainsMinutes', {time: countDownTime.remainingMinutes}) }}</div>
 
     <!--====================== FEEDBACK =================================-->
 
@@ -506,8 +502,7 @@ export default {
         isIOs: utils.isIOS(),
         // timer
         countDownTime: {
-          remaining: 0,
-          start: null
+          remaining: 0
         },
         // for step type 'use-item'
         selectedItem: null,
@@ -612,7 +607,6 @@ export default {
       this.loadStepData = true
       
       this.refreshCurrentDate()
-      
     },
     /*sendDataToGameMaster() {
       GMMS.Send(this.run.questId, {
@@ -665,7 +659,7 @@ export default {
      * Move to a step
      * @param {String} forceStepId optional - Id of step to load
      */
-    async moveToStep(forceStepId, extra) {
+    async moveToStep(forceStepId) {
       // keeping stepId info is required when network is interrupted & quest is played in online mode
       this.navigatingToStepId = forceStepId
 
@@ -687,7 +681,7 @@ export default {
       this.player = await this.getPlayer()
 
       // get current step
-      await this.getStep(forceStepId, extra)
+      await this.getStep(forceStepId)
 
       // send stepId to parent if in a frame
       this.sendStepIdToParent()
@@ -875,28 +869,12 @@ export default {
       this.warnings.stepDataMissing = false
 
       // --- load step Id ---
-      //if (typeof forceStepId !== 'undefined' && forceStepId !== null && forceStepId !== 'geolocation') {
       if (typeof forceStepId !== 'undefined' && forceStepId !== null) {
         stepId = forceStepId
-        if (stepId === 'locationMarker') {
-          // QR Code scanner step
-          this.step = {
-            id: "sensor"
-          }
-          return false
-        }
       } else if (!this.offline.active) {
         response = await RunService.getNextStep(this.questId, this.player, extra)
 
         if (response && response.data && response.status === 200) {
-          // timer
-          if (response.data.extra && response.data.extra.chapter) {
-            this.stopChapterCountDown()
-          }
-          if (response.data.extra && response.data.extra.timer) {
-            this.startChapterCountDown(response.data.extra.timer)
-          }
-          
           // check if a step is triggered
           if (response.data.next) {
             if (response.data.next === 'locationMarker') {
@@ -951,7 +929,7 @@ export default {
         }
       } else {
         // use offline content
-        let stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player, extra)
+        const stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player, extra)
         if (!stepIdResponse || !stepIdResponse.id) {
           // if no step is triggered, display the waiting screen
           if (this.isMultiplayer) {
@@ -961,26 +939,11 @@ export default {
           return false
         } else {
           stepId = stepIdResponse.id
-          if (stepId === "") {
-            // restart without extra
-            stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player)
-            if (stepIdResponse && stepIdResponse.id) {
-              stepId = stepIdResponse.id
-            }
-          }
           // if combine objects return stepId
           if (extra && extra.type === "combine") {
             return stepId
           }
         }
-        // timer
-        if (stepIdResponse && stepIdResponse.extra && stepIdResponse.extra.chapter) {
-          this.stopChapterCountDown()
-        }
-        if (stepIdResponse.extra && stepIdResponse.extra.timer) {
-          this.startChapterCountDown(stepIdResponse.extra.timer)
-        }
-        
         if (stepId === 'locationMarker') {
           // QR Code scanner step
           this.step = {
@@ -1047,11 +1010,10 @@ export default {
             this.hint.remainingNumber = tempStep.hint.length
           }
 
-          const stepAccess = await this.offlineCheckAccess(tempStep)
-
+          const stepAccess = this.offlineCheckAccess(tempStep)
           if (stepAccess && stepAccess.message) {
-            if (stepAccess.message === 'Step not yet available') {
-              this.showStepBlockedMessage(stepAccess.date)
+            if (stepAccessMessage === 'Step not yet available') {
+              this.showStepBlockedMessage(stepAccess.startDate)
             }
           }
 
@@ -1115,33 +1077,15 @@ export default {
               }
             }
           }
-          if (tempStep.type === 'code-image' && tempStep.options && tempStep.options[this.lang] && tempStep.options[this.lang].images) {
-            for (k = 0; k < tempStep.options[this.lang].images.length; k++) {
-              if (tempStep.options[this.lang].images[k].imagePath) {
-                var codeImageUrl = await utils.readBinaryFile(this.questId, tempStep.options[this.lang].images[k].imagePath)
+          if (tempStep.type === 'code-image' && tempStep.options && tempStep.options.images) {
+            for (k = 0; k < tempStep.options.images.length; k++) {
+              if (tempStep.options.images[k].imagePath) {
+                var codeImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.images[k].imagePath)
                 if (codeImageUrl) {
-                  tempStep.options[this.lang].images[k].imagePath = codeImageUrl
+                  tempStep.options.images[k].imagePath = codeImageUrl
                 } else {
                   this.warnings.stepDataMissing = true
                 }
-              }
-            }
-            if (tempStep.options.imageBelow) {
-              const imageBelowUrl = await utils.readBinaryFile(this.questId, tempStep.options.imageBelow)
-              if (imageBelowUrl) {
-                tempStep.options.imageBelow = imageBelowUrl
-              } else {
-                this.warnings.stepDataMissing = true
-              }
-            }
-          }
-          if (tempStep.type === 'write-text') {
-            if (tempStep.options.imageBelow) {
-              const imageBelowUrl = await utils.readBinaryFile(this.questId, tempStep.options.imageBelow)
-              if (imageBelowUrl) {
-                tempStep.options.imageBelow = imageBelowUrl
-              } else {
-                this.warnings.stepDataMissing = true
               }
             }
           }
@@ -1181,14 +1125,6 @@ export default {
             if (characterPictureUrl) {
               tempStep.options.character = characterPictureUrl
             }
-            // load characters when multiple characters on a single step
-            if (tempStep.options.multiple && tempStep.options.multiple.length > 0) {
-              for (let i = 0; i < tempStep.options.multiple.length; i++) {
-                if (tempStep.options.multiple[i] && tempStep.options.multiple[i].picture) {
-                  await utils.readBinaryFile(this.questId, tempStep.options.multiple[i].picture)
-                }
-              }
-            } 
           }
           if ((tempStep.type === 'find-item' || tempStep.type === 'use-item') && tempStep.options && tempStep.options.altFile && tempStep.options.altFile !== '') {
             const altPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.altFile)
@@ -1198,10 +1134,6 @@ export default {
           }
           this.step = tempStep
           this.step.id = this.step.stepId
-          
-          // get the number of tries already done on this step
-          this.nbTry = this.getNbTry()
-          
           // get previous button redirect
           this.getPreviousStep()
 
@@ -1211,16 +1143,6 @@ export default {
           return true
         }
       }
-    },
-    getNbTry() {
-      if (this.run.answers && this.run.answers.length > 1) {
-        for (let i = 0; i < this.run.answers.length; i++) {
-          if (this.run.answers[i] && this.run.answers[i].stepId && this.run.answers[i].stepId !== null && this.run.answers[i].stepId === this.step.stepId) {
-            return this.run.answers[i].nbTry
-          }
-        }
-      }
-      return 0
     },
     /*
      * Send stepId to parent frame
@@ -1296,7 +1218,7 @@ export default {
       }
     },
     /*
-     * Start the quest countdown
+     * Start the countdown
      */
     startCountDown () {
       if (this.info.quest.countDownTime && this.info.quest.countDownTime.enabled) {
@@ -1315,38 +1237,9 @@ export default {
       }
     },
     /*
-     * Start the chapter countdown
-     */
-    async startChapterCountDown (duration) {
-      if (duration) {
-        this.countDownTime = {
-          enabled: true, 
-          duration: duration,
-          remainingMinutes: duration,
-          remaining: 1,
-          start: new Date()
-        }
-      } else {
-        this.countDownTime.remainingMinutes = this.countDownTime.duration - utils.getDurationFromNow(this.countDownTime.start, 'm')//-= 1 / 60
-        this.countDownTime.remaining = this.countDownTime.remainingMinutes / this.countDownTime.duration
-      }
-      if (this.countDownTime.enabled === true) {
-        if (this.countDownTime.remaining <= 0.016) {
-          this.countDownTime.enabled = false
-          await this.moveToNextStep(null, {type: "chapterCounterOver"})
-        } else {
-          setTimeout(this.startChapterCountDown, 1000)
-        }
-      }
-    },
-    stopChapterCountDown() {
-      this.countDownTime.enabled = false
-    },
-    
-    /*
      * Track step success
      */
-    async trackStepSuccess (score, offline, showResult, answer, forceStepId) {
+    async trackStepSuccess (score, offline, showResult, answer) {
       if (showResult) {
         // add step score to general score
         this.info.score += score
@@ -1356,8 +1249,9 @@ export default {
       if (this.step.type !== 'image-over-flow' && this.step.type !== 'binocular') {
         this.hideHint()
       }
+
       // save offline run
-      await this.saveOfflineAnswer(true, answer, false, forceStepId)
+      await this.saveOfflineAnswer(true, false, false)
 
       // move to next step if right answer not displayed
       if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
@@ -1407,29 +1301,6 @@ export default {
         this.nextStep()
       }
     },
-    /*
-     * Track step retry
-     */
-    async trackStepRetry (offline, nbTry) {
-      let updated = false
-      if (this.run.answers && this.run.answers.length > 1) {
-        for (var i = 0; i < this.run.answers.length; i++) {
-          if (this.run.answers[i] && this.run.answers[i].stepId && this.run.answers[i].stepId !== null && this.run.answers[i].stepId === this.step.stepId) {
-            this.run.answers[i].nbTry = nbTry
-            updated = true
-          }
-        }
-      }
-      // if step does not yet exists in the run data
-      if (!updated) {
-        const answer = {stepId: this.step.stepId, stepNumber: this.step.number, nbTry: nbTry, date: new Date(), online: true}
-        this.run.answers.push(answer)
-      }
-      
-      let updateAnswer = await this.saveOfflineRun(this.questId, this.run, new Date())
-
-    },
-    
     /*
      * Track message sent
      */
@@ -1638,7 +1509,7 @@ export default {
     /*
      * Move to next step
      */
-    async moveToNextStep(type, extra) {
+    async moveToNextStep(type) {
       // sync offline run
       await this.saveOfflineRun(this.questId, this.run, false)
       //hide button
@@ -1655,7 +1526,7 @@ export default {
       }
 
       //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + type + '_' + this.step.stepId + '_' + utils.randomId() + '/' + this.$route.params.lang)
-      this.moveToStep(null, extra)
+      this.moveToStep()
     },
     /*
      * Return to previous step
@@ -1901,7 +1772,7 @@ export default {
      */
     async computeRemainingTime() {
       const today = new Date()
-      const startDate = new Date(this.startDate.date.substr(0, 4), (parseInt(this.startDate.date.substr(5, 2), 10) - 1), this.startDate.date.substr(8, 2), 0, 0, 0)
+      const startDate = new Date(this.startDate.date.substr(0, 4), (this.startDate.date.substr(5, 2) - 1), this.startDate.date.substr(8, 2), 0, 0, 0)
 
       var diff = (startDate - today.getTime()) / 1000
       if (diff < 0) {
@@ -2109,7 +1980,7 @@ export default {
     /*
      * save the offline answer for a run
      */
-    async saveOfflineAnswer(success, answer, updateRunDate, forceStepId) {
+    async saveOfflineAnswer(success, answer, updateRunDate) {
       // offline mode not activated for multiplayer
       if (this.isMultiplayer) {
         return false
@@ -2135,11 +2006,7 @@ export default {
             conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player)
           }
         } else {*/
-        if (forceStepId) {
-          conditions = this.updateConditions(conditions, forceStepId, true, "", true, this.player, answer)
-        } else {
           conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player, answer)
-        }
         /*}*/
         ended = true
 
@@ -2160,16 +2027,12 @@ export default {
             conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player)
           }
         } else {*/
-        if (forceStepId) {
-          conditions = this.updateConditions(conditions, forceStepId, false, "", true, this.player, answer)
-        } else {
           conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player, answer)
-        }          
         /*}*/
       }
 
       // compute nb points
-      answer = {stepId: this.step.stepId, stepNumber: this.step.number, nbTry: (answer && answer.nbTry) ? answer.nbTry : 1, ended: ended, score: score, reward: 0, status: stepStatus, useHint: false, date: new Date(), online: false}
+      answer = {stepId: this.step.stepId, stepNumber: this.step.number, nbTry: 1, ended: ended, score: score, reward: 0, status: stepStatus, useHint: false, date: new Date(), online: false}
       // add new item in inventory
       if (this.step.type === 'new-item') {
         if (this.run.inventory) {
@@ -2189,7 +2052,7 @@ export default {
           for (var i = 0; i < this.run.answers.length; i++) {
             if (this.run.answers[i] && this.run.answers[i].stepId && this.run.answers[i].stepId !== null && this.run.answers[i].stepId === this.step.stepId) {
               update = true
-              answer.nbTry = (this.run && this.run.answers[i]) ? this.run.answers[i].nbTry + 1 : 1
+              answer.nbTry = this.run.answers[i].nbTry + 1
               answer.useHint = this.run.answers[i].useHint
               this.run.answers[i] = answer
             }
@@ -2213,16 +2076,6 @@ export default {
       }
       return false
     },
-    async setReadMoreAsRead() {
-      // offline save
-      for (var i = 0; i < this.run.answers.length; i++) {
-        if (this.run.answers[i] && this.run.answers[i].stepId && this.run.answers[i].stepId !== null && this.run.answers[i].stepId === this.step.stepId) {
-          this.run.answers[i].readMoreRead = true
-        }
-      }
-      //online save
-      await RunService.SetReadMoreAsRead(this.runId, this.step.stepId)
-    },
     /*
      * init the run offline file
      */
@@ -2231,7 +2084,6 @@ export default {
       if (this.isMultiplayer) {
         return false
       }
-
       this.run.conditionsDone = this.updateConditions(this.run.conditionsDone, stepId, false, this.step.type, true, this.player)
       //this.run.conditionsDone.push('stepFail_' + stepId)
       await this.saveOfflineRun(this.questId, this.run, true)
@@ -2241,16 +2093,15 @@ export default {
      */
     async offlineCheckAccess(step) {
       // offline mode not activated for multiplayer
-
       if (this.isMultiplayer) {
         return false
       }
-
       if (step && step.startDate && step.startDate.enabled && step.startDate.date) {
         // check if step is available today
         const today = new Date()
-        const startDate = Date.UTC(step.startDate.date.substr(0, 4), (parseInt(step.startDate.date.substr(5, 2), 10) - 1), step.startDate.date.substr(8, 2), 0, 0, 0)
-        if (today.getTime() < startDate) {
+        const startDate = Date.UTC(step.startDate.date.substr(0, 4), step.startDate.date.substr(5, 2), step.startDate.date.substr(8, 2), 0, 0, 0)
+
+        if (today < startDate) {
           return {message: "Step not yet available", date: step.startDate.date}
         }
       }
@@ -2386,20 +2237,6 @@ export default {
           counter++
         }
       }
-      
-      // if chapter timer is over
-      /*if (extra && extra.type === 'chapterCounterOver') {
-        for (let i = 0; i < stepsofChapter.length; i++) {
-          if (stepsofChapter[i].conditions.length > 0) {
-            for (let j = 0; j < stepsofChapter[i].conditions.length; j++) {
-              if (stepsofChapter[i].conditions[j] === 'chapterTimerOver') {      
-                delete extra.type
-                return {id: stepsofChapter[i].stepId, extra: extra}
-              }
-            }
-          }
-        }
-      }*/
 
       if (stepsofChapter && stepsofChapter.length > 0) {
         let combineFound = 0
@@ -2410,21 +2247,12 @@ export default {
           if (conditionsDone && conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
             if (stepsofChapter[i].conditions && stepsofChapter[i].conditions.length > 0) {
               for (j = 0; j < stepsofChapter[i].conditions.length; j++) {
-                // check if timer over
-                if (extra && extra.type === 'chapterCounterOver') {
-                  if (stepsofChapter[i].conditions[j] !== 'chapterTimerOver') {
-                    continue stepListFor
-                  }
-                  extra.oldType = 'chapterCounterOver'
-                  delete extra.type
-                }
                 // check if a standard condition (not a counter condition)
                 if (stepsofChapter[i].conditions[j].indexOf('countergreater_') === -1 
                   && stepsofChapter[i].conditions[j].indexOf('counterlower_') === -1
                   && stepsofChapter[i].conditions[j].indexOf('haveobject_') === -1
                   && stepsofChapter[i].conditions[j].indexOf('nothaveobject_') === -1
-                  && stepsofChapter[i].conditions[j].indexOf('combineobject_') === -1
-                  && stepsofChapter[i].conditions[j] !== 'chapterTimerOver') {
+                  && stepsofChapter[i].conditions[j].indexOf('combineobject_') === -1) {
                   // if one of the conditions of the step i not ok, continue with next step
                   if (conditionsDone.indexOf(stepsofChapter[i].conditions[j]) === -1) {
                     continue stepListFor
@@ -2444,19 +2272,20 @@ export default {
                       continue stepListFor
                     }
                   }
+                  // if object is in inventory value
+                  if (stepsofChapter[i].conditions[j].indexOf('haveobject_') !== -1) {
+                    let objectToCheck = stepsofChapter[i].conditions[j].replace('haveobject_', '')
+                    if (conditionsDone.indexOf('objectWon_' + objectToCheck) === -1) {
+                      continue stepListFor
+                    }                    
+                  }
                   // if object is not in inventory value
                   if (stepsofChapter[i].conditions[j].indexOf('nothaveobject_') !== -1) {
                     let objectToCheck = stepsofChapter[i].conditions[j].replace('nothaveobject_', '')
                     if (conditionsDone.indexOf('objectWon_' + objectToCheck) !== -1) {
                       continue stepListFor
                     }                    
-                  } else if (stepsofChapter[i].conditions[j].indexOf('haveobject_') !== -1) {
-                    let objectToCheck = stepsofChapter[i].conditions[j].replace('haveobject_', '')
-                    if (conditionsDone.indexOf('objectWon_' + objectToCheck) === -1) {
-                      continue stepListFor
-                    }                    
                   }
-
                   // if counter greater than counterlower value
                   if (stepsofChapter[i].conditions[j].indexOf('combineobject_') !== -1) {
                     // If not checking combination, move to next step conditions step
@@ -2470,14 +2299,8 @@ export default {
                       continue stepListFor
                     }
                   }
-                  if (stepsofChapter[i].conditions[j] === 'chapterTimerOver' && (!extra || extra.oldType !== 'chapterCounterOver')) {
-                    continue stepListFor
-                  }
                 }
               }
-            } else if (extra && extra.type === 'chapterCounterOver') {
-              // HACK if first item of chapter with no condition
-              continue stepListFor
             }
             // if the geoloc is not requested, do not treat geoloc step
             if (stepsofChapter[i].type === 'geolocation') {
@@ -2504,7 +2327,6 @@ export default {
                 continue stepListFor
               }
             }
-            
             // if the marker is not requested, do not treat marker step
             if (stepsofChapter[i].type === 'locate-marker') {
               // if advanced mode => do not treat this step
@@ -2550,7 +2372,7 @@ export default {
               }
               let nextStepId
 
-              if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {           
+              if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
                 this.removeAllConditionsOfAChapter(this.offline.steps, conditionsDone, stepsofChapter[i].chapterId)
               } else {
                 // reset progression of this chapter
@@ -2574,14 +2396,7 @@ export default {
                 // get next step by running the process again for new chapter
                 let response = await this.getNextOfflineStep(questId, markerCode, player, extra)
                 nextStepId = response.id
-                extra = response.extra
-                if (!extra) {
-                  extra = {}
-                }
-                extra.timer = await this.getOfflineChapterTimer(this.run.version)
-                extra.chapter = "new"
               }
-
               //await this.addStepToHistory(nextStepId)
               return {id: nextStepId, extra: extra}
             } else { // if (markerCode || stepsofChapter[i].type !== 'locate-marker') { // if locate marker, do not start the step until user flash the marker
@@ -2617,11 +2432,11 @@ export default {
       }
       // if location marker step found in advance mode, return information
       if (locationMarkerFound && !geolocationFound && this.info.quest && this.info.quest.editorMode === 'advanced') {
-        if (extra.steps.length === 1) {
-          return {id: extra.steps[0], extra: extra}
-        } else {
+        //if (extra.steps.length === 1) {
+        //  return extra.steps[0]
+        //} else {
           return {id: "locationMarker", extra: extra}
-        }
+        //}
       }
       // if geolocation step found in advance mode, return information
       if (geolocationFound && this.info.quest && this.info.quest.editorMode === 'advanced') {
@@ -2652,6 +2467,7 @@ export default {
           return {id: randomIds[Math.floor(Math.random()*randomIds.length)], extra: extra}
         }
       }
+
       return {id: "", extra: extra}
     },
     /*
@@ -2878,7 +2694,7 @@ export default {
     async removeAllConditionsOfAChapter(steps, currentConditions, chapterId) {
       const stepsofChapter = await this.listForAChapter(steps, chapterId)
       if (stepsofChapter && stepsofChapter.length > 0) {
-        for (let i = 0; i < stepsofChapter.length; i++) {
+        for (i = 0; i < stepsofChapter.length; i++) {
           currentConditions = this.removeStepFromConditions(currentConditions, stepsofChapter[i].stepId)
         }
       }
@@ -2906,8 +2722,6 @@ export default {
       }
 
       this.run.currentChapter = nextChapter
-
-      this.startChapterCountDown(await this.getOfflineChapterTimer())
       return nextChapter
     },
     /*
@@ -2915,18 +2729,7 @@ export default {
      */
     async moveToChapter(chapterId) {
       this.run.currentChapter = chapterId
-
-      this.startChapterCountDown(await this.getOfflineChapterTimer())
       return chapterId
-    },
-    async getOfflineChapterTimer(version) {
-      const chapter = await StepService.getChapterById(this.questId, this.run.currentChapter, version)
-    
-      if (!chapter || !chapter.countDownTime) {
-        return 0
-      }
-
-      return chapter.countDownTime
     },
     /*
      * cut sound
@@ -3044,7 +2847,7 @@ export default {
 
   #main-view { padding: 0rem; height: inherit; min-height: inherit; }
 
-  #main-view > #play-view { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap;}
+  #main-view > #play-view { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; }
   #main-view > #play-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
 
   #controls {
@@ -3081,3 +2884,54 @@ export default {
   .actions > div > .q-btn:not(:first-child) { flex-grow: 1; margin-left: 1rem; }
 
 </style>
+<style>
+.story .character img {
+    width: 67%;
+    max-width: 400px;
+    max-height: 400px;
+}
+.find-item, use-item {
+  background: url(https://graaly-upload.s3.eu-west-3.amazonaws.com/upload/quest/6321e08cc4301449ca6092d9/step/background/1663680586952.png);
+  height: 100% !important;
+  /*margin-bottom: 80px !important;*/
+}
+.help-text .white-buttons {
+  margin-bottom: 14px;
+}
+
+body {
+  font-family: arial;
+}
+.concertone {
+  font-family: arial;
+}
+.font-standard {
+  font-family: arial;
+}
+.font-arial {
+  font-family: arial;
+}
+.bubble-middle .text-grey {
+  color: #0D77C6 !important;
+  font-weight: bold;
+}
+.q-notifications__list--bottom .bg-positive {
+  background: #fff !important;
+}
+.q-notifications__list--bottom .text-white, .q-notifications__list--bottom .text-white .q-notification__actions {
+  color: #0D77C6 !important;
+}
+.character img {
+  max-height: 40vh !important;
+}
+.code-color .color-bubbles {
+  margin-top: 10px !important;
+}
+.code-color .actions.q-mt-lg {
+  margin-top: 1px;
+}
+.q-btn__content {
+  font-weight: bold;
+}
+</style>
+
