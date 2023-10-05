@@ -356,6 +356,11 @@
                       v-model="form.fields.customization.qrCodeValidity" 
                       val="oneday"
                       :label="$t('label.QRCodeValidOneDay')" />
+                    <q-radio
+                      :disable="readOnly"
+                      v-model="form.fields.customization.qrCodeValidity" 
+                      val="onemonth"
+                      :label="$t('label.QRCodeValidOneMonth')" />
                   </div>
                 </div>
                 <div v-if="form.fields.customization">
