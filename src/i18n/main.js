@@ -1287,7 +1287,8 @@ module.exports = {
       UserLanguageNotTheOneOfTheGame: "This is not the language of your Graaly account. Would you like to change the language of your account?",
       PublishInAllLanguages: "Publish in all languages",
       SelectLanguageForPublishing: "Choose the language to publish",
-      AskToPublish: "Ask for publication"
+      AskToPublish: "Ask for publication",
+      QRCodeValidOneMonth: "As many times as desired for 1 month (from the first scan of the QR code)"
     }
   },
   
@@ -2566,7 +2567,8 @@ module.exports = {
     UserLanguageNotTheOneOfTheGame: "Este no es el idioma de tu cuenta Graaly. Quieres cambiar el idioma de tu cuenta?",
     PublishInAllLanguages: "Publicar en todos los idiomas",
     SelectLanguageForPublishing: "Elija el idioma de publicación",
-    AskToPublish: "Solicitar publicación"
+    AskToPublish: "Solicitar publicación",
+    QRCodeValidOneMonth: "Tantas veces como se desee durante 1 mes (desde el primer escaneo del código QR)"
 	}
 },
   
@@ -3847,7 +3849,8 @@ module.exports = {
       UserLanguageNotTheOneOfTheGame: "Cette langue n'est pas celle de votre compte Graaly. Voulez-vous changer la langue de votre compte ?",
       PublishInAllLanguages: "Publier dans toutes les langues",
       SelectLanguageForPublishing: "Choisir la langue de publication",
-      AskToPublish: "Demander la publication"
+      AskToPublish: "Demander la publication",
+      QRCodeValidOneMonth: "Autant de fois que souhaité pendant 1 mois (à partir du premier scan du QR code)"
     }
   }
 }

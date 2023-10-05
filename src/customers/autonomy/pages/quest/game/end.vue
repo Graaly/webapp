@@ -46,7 +46,7 @@
             <div style="padding-top: 35px" class="rounded background-lighter2 centered full-width">
               <h2 class="text-center title2 q-mt-xl q-mb-sm q-mx-xl text-uppercase">Félicitations&nbsp;!</h2>
               <div class="centered q-pb-sm">
-                Vous vous en êtes très bien sorti des différentes situations.
+                Vous êtes maintenant incollable sur les métiers du médico-social&nbsp;!
               </div>
               <div class="centered q-pb-sm" v-if="run && run.duration">
                 {{ $t('label.YourTime') }}: {{ run.duration.h }}h {{ run.duration.m }}m
