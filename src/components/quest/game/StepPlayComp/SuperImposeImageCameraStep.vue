@@ -158,8 +158,14 @@ export default {
           //let imgOverflow = this.$refs['imageOverflowForCapture']
           if (this.getBackgroundImage() != null) {
             let imgOverflow = new Image()
-            imgOverflow.crossOrigin = 'Anonymous'
-            imgOverflow.src = this.getBackgroundImage() + "?t=" + Math.floor(Math.random() * 10000)
+
+            if (this.isSafari || this.isIOs) {
+              imgOverflow.crossOrigin = 'Anonymous'
+              imgOverflow.src = this.getBackgroundImage() + "?t=" + Math.floor(Math.random() * 10000)
+            } else {
+              imgOverflow.crossOrigin = 'anonymous'
+              imgOverflow.src = this.getBackgroundImage()
+            }
             imgOverflow.onload = async () => {
               try { // Added by EMA when no picture added, it breaks
                 draw.drawImageProp(context, imgOverflow)
@@ -173,6 +179,7 @@ export default {
               // OPEN DIALOG WITH OPTIONS
               this.takingSnapshot = false
               this.$q.loading.hide()
+
               if (this.isHybrid) {
                 this.openDialog(true, finalBlob, snapshotFilename, c)
               } else { // WEBAPP
