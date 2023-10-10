@@ -96,7 +96,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "433abcec351cb6a3d0dad60dd817b140",
+    "revision": "5343faaf166fb3843b9f0fba49bb83a2",
     "url": "index.html"
   },
   {
