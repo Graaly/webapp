@@ -133,7 +133,6 @@ export default {
     },
     /* Old Function ... */
     async saveSnapshotOnServer(blob, filename) {
-      console.log(this.quest.customization.saveSelfieOnServer)
       if (this.quest.customization && this.quest.customization.saveSelfieOnServer) {
         console.log("save to server")
         try {

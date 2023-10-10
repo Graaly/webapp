@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr" style="background-color: transparent;">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width<% if (htmlWebpackPlugin.options.ctx.mode.cordova || htmlWebpackPlugin.options.ctx.mode.capacitor) { %>, viewport-fit=cover<% } %>">
+    <title><%= htmlWebpackPlugin.options.productName %></title>
+    
+    <!-- Google Tag Manager -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script><!-- https://www.multiminds.eu/blog/2016/12/06/google-analytics-and-tag-manager-with-ionic-and-cordova-apps/ -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-KDH8TH2');</script>
+    <!-- End Google Tag Manager -->
+    
+    <!-- link rel="icon" href="statics/quasar-logo.png" type="image/ " -->
+    <link rel="icon" type="image/png" sizes="32x32" href="statics/icons/app-logo/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="statics/icons/app-logo/favicon-16x16.png">
+    
+    <!-- Add to home screen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Graaly">
+    <link rel="apple-touch-icon" href="<%= htmlWebpackPlugin.files.publicPath %>statics/icons/app-logo/touch-icon-iphone.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="statics/icons/app-logo/touch-icon-ipad.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="statics/icons/app-logo/touch-icon-iphone-retina.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="statics/icons/app-logo/touch-icon-ipad-retina.png">
+    <link rel="apple-touch-startup-image" href="statics/images/apple-launch.png">
+    <script src="statics/scripts/dragdroptouch.js"></script>
+    <script src="statics/scripts/polyfills.js"></script>
+    <!-- Add to home screen for Windows -->
+    <meta name="msapplication-TileImage" content="statics/icons/ms-icon-144x144.png">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#027be3">
+    
+  </head>
+  <body style="background-color: transparent;">
+    <noscript>
+      This is your fallback content in case JavaScript fails to load.
+    </noscript>
+    <script>
+      // force https redirection for webapp
+      if ((window.location.hostname === 'graaly.com' || window.location.hostname === 'www.graaly.com') && window.location.protocol !== 'https:') {
+        window.location.href = 'https://graaly.com'
+      }
+      //document.domain = 'graaly.com';
+    </script>
+        
+    <!-- DO NOT touch the following <div> -->
+    <div id="q-app">Loading ...</div>
+    
+    <!-- built files will be auto injected here -->
+  </body>
+</html>
