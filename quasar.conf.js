@@ -229,6 +229,9 @@ module.exports = function (ctx) {
 
         // appId: 'quasar-app'
       }
+    },
+    sourceFiles: {
+      indexHtmlTemplate: ctx.mode.cordova ? 'src/index.hybrid.template.html' : 'src/index.webapp.template.html'
     }
   }
 }
