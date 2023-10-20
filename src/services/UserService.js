@@ -236,6 +236,14 @@ export default {
       .catch(error => console.log(error.request));
   },
   /*
+   * add credits to a user
+   */
+  addCredits(userId, data) {
+    return Api()
+      .post("admin/user/" + userId + "/credits/add", data)
+      .catch(error => console.log(error.request));
+  },
+  /*
    * send a feedback
    * @param   {String}   message          Message
    * @param   {Object}   context          Context of the page the feedback is sent from

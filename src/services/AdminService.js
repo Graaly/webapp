@@ -50,6 +50,12 @@ export default {
     return Api().get("admin/earnings");
   },
   /*
+   * List the missing credits
+   */
+  ListMissingCredits() {
+    return Api().get("admin/missingcredits");
+  },
+  /*
    * List the limitations (nb games buyed, ...)
    */
   ListLimitations() {
@@ -74,6 +80,14 @@ export default {
    */
   publish(id, nbplays) {
     return Api().get("admin/quests/publish/" + id + "/nbplays/" + nbplays);
+  },
+  /*
+   * Increase number of plays allowed
+   * @param   {String}    id                  ID of the quest
+   * @param   {Number}    nbplays             Number of plays allowed
+   */
+  increaseNumberOfPlaysAllowed(id, nbplays) {
+    return Api().get("admin/quests/" + id + "/nbplays/" + nbplays);
   },
   /*
    * get Mail by UserId

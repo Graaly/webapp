@@ -1288,7 +1288,15 @@ module.exports = {
       PublishInAllLanguages: "Publish in all languages",
       SelectLanguageForPublishing: "Choose the language to publish",
       AskToPublish: "Ask for publication",
-      QRCodeValidOneMonth: "As many times as desired for 1 month (from the first scan of the QR code)"
+      QRCodeValidOneMonth: "As many times as desired for 1 month (from the first scan of the QR code)",
+      NumberOfRemainingPlay: "Number of games remaining",
+      NumberOfAllowedPlay: "Number of games allowed",
+      ContactUsForMorePlays: "Please contact us to increase the number of games allowed.",
+      Credits: "Credits (available games)",
+      CreditsBought: "Credits bought",
+      CreditsUsed: "Credits used",
+      CreditsRemaining: "Credits remaining",
+      CreditsToPay: "Credits to pay"
     }
   },
   
@@ -2568,7 +2576,15 @@ module.exports = {
     PublishInAllLanguages: "Publicar en todos los idiomas",
     SelectLanguageForPublishing: "Elija el idioma de publicación",
     AskToPublish: "Solicitar publicación",
-    QRCodeValidOneMonth: "Tantas veces como se desee durante 1 mes (desde el primer escaneo del código QR)"
+    QRCodeValidOneMonth: "Tantas veces como se desee durante 1 mes (desde el primer escaneo del código QR)",
+    NumberOfRemainingPlay: "Número de partidos restantes",
+    NumberOfAllowedPlay: "Número de partidos permitidos",
+    ContactUsForMorePlays: "Póngase en contacto con nosotros para aumentar el número de juegos permitidos",
+    Credits: "Créditos (juegos disponibles)",
+    CreditsBought: "Créditos comprados",
+    CreditsUsed: "Créditos utilizados",
+    CreditsRemaining: "Créditos restantes",
+    CreditsToPay: "Créditos por pagar"
 	}
 },
   
@@ -3850,7 +3866,15 @@ module.exports = {
       PublishInAllLanguages: "Publier dans toutes les langues",
       SelectLanguageForPublishing: "Choisir la langue de publication",
       AskToPublish: "Demander la publication",
-      QRCodeValidOneMonth: "Autant de fois que souhaité pendant 1 mois (à partir du premier scan du QR code)"
+      QRCodeValidOneMonth: "Autant de fois que souhaité pendant 1 mois (à partir du premier scan du QR code)",
+      NumberOfRemainingPlay: "Nombre de parties encore jouables",
+      NumberOfAllowedPlay: "Nombre de parties autorisées",
+      ContactUsForMorePlays: "Veuillez nous contacter pour augmenter le nombre de parties autorisées",
+      Credits: "Crédits (parties)",
+      CreditsBought: "Crédits achetés",
+      CreditsUsed: "Crédits utilisés",
+      CreditsRemaining: "Crédits restants",
+      CreditsToPay: "Crédits à acheter"
     }
   }
 }
