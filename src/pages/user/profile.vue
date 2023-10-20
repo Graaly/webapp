@@ -35,6 +35,16 @@
           icon="done"
         />
       </div>
+      
+      <!--====================== CREDITS =================================-->
+      
+      <user-credits
+        v-if="isAdmin"
+        :credits="user.credits"
+        :canAdd="isAdmin"
+        :userId="userId"
+        @refresh="refresh"
+      />
 
       <!--====================== QUESTS CREATED BY OTHER USER =================================-->
 
@@ -115,6 +125,15 @@
         </div>
       </div>-->
 
+      <!--====================== CREDITS =================================-->
+      
+      <user-credits
+        v-if="user.credits && user.credits.paid && user.credits.paid > 0 && (isOwner || isAdmin)"
+        :credits="user.credits"
+        :userId="userId"
+        @refresh="refresh"
+      />
+      
       <!--====================== QUESTS CREATED BY CURRENT USER =================================-->
 
       <div v-if="$store.state.user.id === userId">
@@ -187,6 +206,7 @@ import textBtnSquare from "components/user/UI/textBtnSquare";
 import questList from "components/user/questList";
 import badgeList from "components/user/badgeList";
 import userList from "components/user/userList";
+import userCredits from "components/user/userCredits";
 
 export default {
   components: {
@@ -194,7 +214,8 @@ export default {
     textBtnSquare,
     questList,
     badgeList,
-    userList
+    userList,
+    userCredits
   },
   data () {
     return {
@@ -203,6 +224,8 @@ export default {
         proposeAQuest: true
       },
       userId: null,
+      isOwner: false,
+      isAdmin: false,
       friends: {
         list: null,
         show: false
@@ -222,26 +245,35 @@ export default {
     }
   },
   mounted() {
-    if (this.$route.params.id === 'me') {
-      this.userId = this.$store.state.user.id
-    } else {
-      this.userId = this.$route.params.id
-    }
-
-    // Get data of the user
-    this.getProfile()
-    // get list of quests created by the user
-    this.listCreatedQuests()
-    // get the list of qusts played by the user
-    this.listPlayedQuests()
-    // get friends of the user
-    this.loadFriends()
-    // get badges
-    this.loadBadges()
-    // get organisation of the user
-    //await this.loadOrganization()
+    this.refresh()
   },
   methods: {
+    refresh() {
+      if (this.$route.params.id === 'me') {
+        this.userId = this.$store.state.user.id
+      } else {
+        this.userId = this.$route.params.id
+      }
+      if (this.$store.state.user.id === this.userId) {
+        this.isOwner = true
+      }
+      if (this.$store.state.user.isAdmin) {
+        this.isAdmin = true
+      }
+
+      // Get data of the user
+      this.getProfile()
+      // get list of quests created by the user
+      this.listCreatedQuests()
+      // get the list of qusts played by the user
+      this.listPlayedQuests()
+      // get friends of the user
+      this.loadFriends()
+      // get badges
+      this.loadBadges()
+      // get organisation of the user
+      //await this.loadOrganization()
+    },
     /*
      * Get the user informations
      * @param   {string}    id            ID of the user
@@ -258,7 +290,8 @@ export default {
           country: this.$store.state.user.location.country,
           language: this.$store.state.user.language,
           statistics: this.$store.state.user.statistics,
-          level: this.$store.state.user.level
+          level: this.$store.state.user.level,
+          credits: this.$store.state.user.credits
         }
 
         if (this.user.name === '-') {

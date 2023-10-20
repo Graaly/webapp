@@ -1138,7 +1138,7 @@
           <q-separator inset />
           <q-card-section>
             <div class="title1 text-primary centered">
-              {{ statistics.statistics.nbPlayers + statistics.statistics.notFinished }}<span class="smaller" :class="{'text-red': (quest.limitations && quest.limitations.nbPlays && quest.limitations.nbPlays <= (statistics.statistics.nbPlayers + statistics.statistics.notFinished)), 'text-grey': (quest.limitations && quest.limitations.nbPlays && quest.limitations.nbPlays > (statistics.statistics.nbPlayers + statistics.statistics.notFinished))}" v-if="quest.limitations && quest.limitations.nbPlays && quest.limitations.nbPlays > 0">/{{ quest.limitations.nbPlays }}</span>
+              {{ statistics.statistics.totalPlays }}<span class="smaller" :class="{'text-red': (quest.limitations && quest.limitations.nbPlays && quest.limitations.nbPlays <= (statistics.statistics.nbPlayers + statistics.statistics.notFinished)), 'text-grey': (quest.limitations && quest.limitations.nbPlays && quest.limitations.nbPlays > (statistics.statistics.nbPlayers + statistics.statistics.notFinished))}" v-if="quest.limitations && quest.limitations.nbPlays && quest.limitations.nbPlays > 0">/{{ quest.limitations.nbPlays }}</span>
             </div>
             <div class="centered">{{ $t('label.NumberOfPlayersYesterday') }}{{ $t('label.colons') }}{{ statistics.statistics.dailyNbPlayers }} </div>
           </q-card-section>
@@ -1151,6 +1151,29 @@
           <q-card-section>
             <div class="title1 text-primary centered">
               {{ statistics.statistics.onGoing }}
+            </div>
+          </q-card-section>
+        </q-card>
+        <q-card v-if="quest.limitations.plan !== 999" bordered class="my-card q-mb-md">
+          <q-card-section>
+            <div class="subtitle3">{{ $t('label.NumberOfAllowedPlay') }}</div>
+          </q-card-section>
+          <q-separator inset />
+          <q-card-section>
+            <div class="title1 text-primary centered">
+              {{ quest.limitations.plan }}
+            </div>
+            <div class="centered"><a class="text-primary" href="mailto:sales@graaly.com">{{ $t('label.ContactUsForMorePlays') }}</a></div>
+          </q-card-section>
+        </q-card>
+        <q-card v-if="quest.limitations.plan !== 999" bordered class="my-card q-mb-md" :class="{'bg-secondary': statistics.statistics.remainingPlays < 10}">
+          <q-card-section>
+            <div class="subtitle3">{{ $t('label.NumberOfRemainingPlay') }}</div>
+          </q-card-section>
+          <q-separator inset />
+          <q-card-section>
+            <div class="title1 text-primary centered">
+              {{ statistics.statistics.remainingPlays }}
             </div>
           </q-card-section>
         </q-card>
@@ -4135,6 +4158,8 @@ export default {
       const date = new Date()
       let results = await QuestService.getStatistics(this.questId, this.quest.version, date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate())
       this.statistics = results.data
+      this.statistics.statistics.totalPlays = (this.statistics.statistics.nbPlayers ? this.statistics.statistics.nbPlayers : 0) + (this.statistics.statistics.notFinished ? this.statistics.statistics.notFinished : 0)
+      this.statistics.statistics.remainingPlays = Math.max(0, (this.quest.limitations.plan ? this.quest.limitations.plan : 50) - this.statistics.statistics.totalPlays)
     },
     /*
      * Get avatar URL given file name (may be already an URL)

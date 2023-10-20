@@ -11,6 +11,7 @@
           label="Number of plays allowed"
           v-model="numberOfPlaysAllowed"
         />
+        9999 = Shared revenues game / 99999 = No limit
       </p>
       <p>
         <q-btn
@@ -64,6 +65,9 @@ export default {
     async getQuest(id, version) {
       let response = await QuestService.getByIdOnline(id, version);
       this.quest = response.data;
+      if (this.quest && this.quest.limitations && this.quest.limitations.plan) {
+        this.numberOfPlaysAllowed = this.quest.limitations.plan 
+      }
     },
     /*
      * publish the quest

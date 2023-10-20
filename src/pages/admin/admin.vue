@@ -8,6 +8,7 @@
         <q-tab name="validation" icon="check_box" label="Validation" default/>
         <!--<q-tab name="rejected" icon="sentiment_very_dissatisfied" label="Rejected"/>-->
         <q-tab name="earnings" icon="euro" label="paying games"/>
+        <q-tab name="missingcredits" icon="euro" label="Missing credits"/>
         <q-tab name="needtopay" icon="euro" label="Need to pay"/>
         <q-tab name="statisticsMonth" icon="bar_chart" label="Best games (month)"/>
         <q-tab name="statisticsYear" icon="bar_chart" label="Best games (year)"/>
@@ -35,6 +36,12 @@
           <earning-quest-panel/>
         </q-tab-panel>
 
+        <!------------------ NEED TO PAY TAB ------------------------>
+
+        <q-tab-panel name="missingcredits">
+          <missing-credits-panel/>
+        </q-tab-panel>
+        
         <!------------------ NEED TO PAY TAB ------------------------>
 
         <q-tab-panel name="needtopay">
@@ -81,6 +88,7 @@ import validateQuestPanel from "../../components/admin/validateQuestPanel";
 import rejectedQuestPanel from "../../components/admin/rejectedQuestPanel";
 import earningQuestPanel from "../../components/admin/earningQuestPanel";
 import needToPayQuestPanel from "../../components/admin/needToPayQuestPanel";
+import missingCreditsPanel from "../../components/admin/missingCreditsPanel";
 import statisticQuestPanel from "../../components/admin/statisticQuestPanel";
 import statisticYearQuestPanel from "../../components/admin/statisticYearQuestPanel";
 import statisticMonthQuestPanel from "../../components/admin/statisticMonthQuestPanel";
@@ -93,6 +101,7 @@ export default {
     rejectedQuestPanel,
     earningQuestPanel,
     needToPayQuestPanel,
+    missingCreditsPanel,
     statisticQuestPanel,
     statisticYearQuestPanel,
     statisticMonthQuestPanel,
