@@ -9,7 +9,8 @@
     <div class="q-pa-md row items-start q-gutter-md">
       <q-card class="my-card">
         <q-card-section class="bg-secondary text-white">
-          <div class="text-subtitle2">{{ $t('label.CreditsBought') }}</div>
+          <div class="text-subtitle2" v-if="credits.paid !== 50">{{ $t('label.CreditsBought') }}</div>
+          <div class="text-subtitle2" v-if="credits.paid === 50">{{ $t('label.CreditsOffered') }}</div>
           <div class="text-h6">{{ credits.paid }}</div>
         </q-card-section>
       </q-card>

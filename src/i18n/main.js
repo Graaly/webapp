@@ -1294,6 +1294,7 @@ module.exports = {
       ContactUsForMorePlays: "Please contact us to increase the number of games allowed.",
       Credits: "Credits (available games)",
       CreditsBought: "Credits bought",
+      CreditsOffered: "Credits Offered",
       CreditsUsed: "Credits used",
       CreditsRemaining: "Credits remaining",
       CreditsToPay: "Credits to pay"
@@ -2582,6 +2583,7 @@ module.exports = {
     ContactUsForMorePlays: "Póngase en contacto con nosotros para aumentar el número de juegos permitidos",
     Credits: "Créditos (juegos disponibles)",
     CreditsBought: "Créditos comprados",
+    CreditsOffered: "Créditos ofrecidos",
     CreditsUsed: "Créditos utilizados",
     CreditsRemaining: "Créditos restantes",
     CreditsToPay: "Créditos por pagar"
@@ -3872,6 +3874,7 @@ module.exports = {
       ContactUsForMorePlays: "Veuillez nous contacter pour augmenter le nombre de parties autorisées",
       Credits: "Crédits (parties)",
       CreditsBought: "Crédits achetés",
+      CreditsOffered: "Crédits offerts",
       CreditsUsed: "Crédits utilisés",
       CreditsRemaining: "Crédits restants",
       CreditsToPay: "Crédits à acheter"
