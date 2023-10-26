@@ -100,14 +100,15 @@
                   <div class="dialog-title">{{ $t('label.PrivateQuest') }}</div>
                 </div>
                 <div class="dialog-text q-mb-md">
-                  <div>{{ $t('label.PrivateQuestDesc1') }}"</div>
+                  <div>{{ $t('label.PrivateQuestDesc1') }}</div>
+                  <div>{{ $t('label.AnIndividualDesc1') }}</div>
                 </div>
                 <text-btn-square
                   class="q-mb-lg"
                   @click.native="selectAccess('private')"
-                  :title="$t('label.BuyPrivateQuest')"
+                  :title="$t('label.CreatePrivateQuest')"
                   :color="userType === 'education' ? 'secondary' : 'accent'"
-                  icon="attach_money"
+                  icon="play_arrow"
                 />
               </div>
             </q-card-section>
@@ -150,9 +151,9 @@
                 v-if="userType === 'individual'"
                 class="q-mb-lg"
                 @click.native="buyPrivateQuest()"
-                :title="$t('label.AcceptAndBuyAPrivateQuest') + ' - ' + privateQuest.price"
+                :title="$t('label.AcceptTheRules')"
                 :color="userType === 'education' ? 'secondary' : 'accent'"
-                icon="attach_money"
+                icon="done"
               />
             </q-card-section>
           </q-card>
@@ -276,7 +277,9 @@ export default {
      * Buy a private quest
      */
     async buyPrivateQuest() {
-      store.order('privatequestprice')
+      // disable purchase
+      //store.order('privatequestprice')
+      this.createNewQuest()
     },
     /*
      * Create a new quest

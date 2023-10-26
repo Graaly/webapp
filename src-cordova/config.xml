@@ -146,6 +146,7 @@
     <plugin name="cordova-plugin-ble-central" spec="^1.2.5">
         <variable name="BLUETOOTH_USAGE_DESCRIPTION" value=" " />
     </plugin>
+    <plugin name="cordova-plugin-purchase" spec="^13.8.2" />
     <plugin name="cordova-plugin-apprate" spec="^1.5.0" />
     <plugin name="cordova-plugin-inappbrowser" spec="^4.0.0" />
     <plugin name="cordova-plugin-camera" spec="^4.1.0">
