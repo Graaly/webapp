@@ -653,8 +653,10 @@ export default {
         }
       }
 
+      const {store, ProductType, Platform} = CdvPurchase
+
       // Fix EMA on 18/12/2019 - products in store remains if I open several paying quests
-      if (window.cordova && this.quest.premiumPrice && this.quest.premiumPrice.androidId && store.products.length > 0) {
+      if (window.cordova && this.quest.premiumPrice && this.quest.premiumPrice.androidId && store.products && store.products.length > 0) {
         this.$router.go(0)
       }
 
@@ -665,8 +667,9 @@ export default {
       if (this.$store.state.user.isAdmin) {
         this.isAdmin = true
       }
+      
       // check if the user is one of the authors of the quest
-      if (this.quest.editorsUserId) {
+      if (this.quest.editorsUserId && this.quest.editorsUserId.length) {
         for (var i = 0; i < this.quest.editorsUserId.length; i++) {
           if (this.quest.editorsUserId[i] === this.$store.state.user._id) {
             this.isOwner = true
@@ -677,7 +680,7 @@ export default {
           this.isOwner = true
         }
       }
-
+      
       // check if quest is open (opening hours)
       this.checkIfQuestIsOpened()
 
@@ -799,9 +802,12 @@ export default {
      * Check if user must pay to play this quest
      */
     async initPay() {
+      const {store, ProductType, Platform} = CdvPurchase;
+
       if (!this.quest.premiumPrice || !this.quest.premiumPrice.androidId) {
         return 'free'
       }
+
       // if game is free
       if (!this.quest.premiumPrice.active) {
         return 'free'
@@ -823,6 +829,7 @@ export default {
         this.shop.premiumQuest.priceCode = 'notplayableonweb'
         return
       }
+
       if (!this.quest.premiumPrice || !this.quest.premiumPrice.androidId) {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
         return
@@ -834,15 +841,32 @@ export default {
         this.shop.premiumQuest.alreadyPayed = true
         return "free"
       }
+
       this.shop.premiumQuest.priceCode = this.quest.premiumPrice.androidId
 
-      store.register({
+      /*store.register([{
         id: this.quest.premiumPrice.androidId,
         alias: this.quest.premiumPrice.androidId,
-        type: store.CONSUMABLE
-      })
+        type: CdvPurchase.CONSUMABLE
+      }])*/
+      // for testing on webapp
+      /*store.register([{
+        id: this.quest.premiumPrice.androidId,
+        type: CdvPurchase.CONSUMABLE,
+        platform: Platform.TEST,
+      }])*/
+      store.register([{
+        id: this.quest.premiumPrice.androidId,
+        type: CdvPurchase.CONSUMABLE,
+        platform: Platform.APPLE_APPSTORE,
+      }, {
+        id: this.quest.premiumPrice.androidId,
+        type: CdvPurchase.CONSUMABLE,
+        platform: Platform.GOOGLE_PLAY,
+      }])
 
       store.error(function(error) {
+        console.log(error)
         Notification(error.message + '(code: ' + error.code + ')', 'error')
       })
 
@@ -863,11 +887,14 @@ export default {
         }
       });
 
-      store.refresh()
+      store.initialize([Platform.APPLE_APPSTORE, Platform.GOOGLE_PLAY]).then(() => {
+        console.log('Store Ready!');
+      });
+      //store.refresh()
     },
     displayPrice(product) {
       // check if product is orderable
-      this.shop.premiumQuest.priceValue = product.price
+      this.shop.premiumQuest.priceValue = product.pricing.price
       if (product.canPurchase) {
         this.shop.premiumQuest.buyable = true
       }
@@ -891,6 +918,7 @@ export default {
      * Buy the quest
      */
     async buyQuest () {
+      const {store, ProductType, Platform} = CdvPurchase;
       store.order(this.quest.premiumPrice.androidId)
     },
     /*
