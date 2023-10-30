@@ -1154,7 +1154,7 @@
             </div>
           </q-card-section>
         </q-card>
-        <q-card v-if="quest.limitations.plan !== 999" bordered class="my-card q-mb-md">
+        <q-card v-if="quest.limitations.plan !== 999 && quest.limitations.plan !== 9999 && quest.limitations.plan !== 99999 && quest.limitations.plan > 50" bordered class="my-card q-mb-md">
           <q-card-section>
             <div class="subtitle3">{{ $t('label.NumberOfAllowedPlay') }}</div>
           </q-card-section>
@@ -1166,7 +1166,7 @@
             <div class="centered"><a class="text-primary" href="mailto:sales@graaly.com">{{ $t('label.ContactUsForMorePlays') }}</a></div>
           </q-card-section>
         </q-card>
-        <q-card v-if="quest.limitations.plan !== 999" bordered class="my-card q-mb-md" :class="{'bg-secondary': statistics.statistics.remainingPlays < 10}">
+        <q-card v-if="quest.limitations.plan !== 999 && quest.limitations.plan !== 9999 && quest.limitations.plan !== 99999 && quest.limitations.plan > 50" bordered class="my-card q-mb-md" :class="{'bg-secondary': statistics.statistics.remainingPlays < 10}">
           <q-card-section>
             <div class="subtitle3">{{ $t('label.NumberOfRemainingPlay') }}</div>
           </q-card-section>

@@ -33,6 +33,7 @@
     "cordova-plugin-nativestorage": "^2.3.2",
     "cordova-plugin-network-information": "^2.0.2",
     "cordova-plugin-phone-call": "^1.0.0",
+    "cordova-plugin-purchase": "13.8.6",
     "cordova-plugin-qrscanner": "^3.0.1",
     "cordova-plugin-save-image": "^0.3.0",
     "cordova-plugin-save-image-gallery": "0.0.26",
