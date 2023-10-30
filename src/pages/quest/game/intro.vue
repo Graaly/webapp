@@ -653,7 +653,7 @@ export default {
         }
       }
 
-      const {store, ProductType, Platform} = CdvPurchase
+      const store = window.cordova ? CdvPurchase.store : {}
 
       // Fix EMA on 18/12/2019 - products in store remains if I open several paying quests
       if (window.cordova && this.quest.premiumPrice && this.quest.premiumPrice.androidId && store.products && store.products.length > 0) {
@@ -802,8 +802,6 @@ export default {
      * Check if user must pay to play this quest
      */
     async initPay() {
-      const {store, ProductType, Platform} = CdvPurchase;
-
       if (!this.quest.premiumPrice || !this.quest.premiumPrice.androidId) {
         return 'free'
       }
@@ -821,7 +819,7 @@ export default {
         return 'free'
       }*/
       // init Store pay
-      //if (!window.store) {
+      //if (!CdvPurchase) {
       if (!window.cordova) {
         if (!this.isAdmin && !this.isOwner) {
           Notification(this.$t('label.YouMustPlayThisKindOfQuestOnAMobileDevice'), 'error')
@@ -855,6 +853,8 @@ export default {
         type: CdvPurchase.CONSUMABLE,
         platform: Platform.TEST,
       }])*/
+      
+      const {store, ProductType, Platform} = CdvPurchase;
       store.register([{
         id: this.quest.premiumPrice.androidId,
         type: CdvPurchase.CONSUMABLE,
