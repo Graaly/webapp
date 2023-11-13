@@ -407,13 +407,10 @@ export default {
       StatusBar.show()
     }
     //GMMS.Connect(this.questId)
-    window.addEventListener('message', (event) => {
-      console.log("graaly receive message")
-      // Do a DOM manipulation on https://video.example.com.
-
-      // Send a success message to https://parent.example.com
+    /*window.addEventListener('message', (event) => {
       event.source.postMessage('succeeded', event.origin);
-    });
+      console.log("graaly resend message")
+    });*/
   },
   methods: {
     initialState () {
@@ -1235,9 +1232,7 @@ export default {
     sendStepIdToParent () {
       try {
         if (window.self !== window.top) {
-          console.log("send to parent " + this.step.id)
           window.parent.postMessage(this.step.id, "https://graaly.com")
-          console.log("sent to parent " + this.step.id)
           //document.domain = "graaly.com"
           //parent.document.getElementById("stepid").value = this.step.id
         }
