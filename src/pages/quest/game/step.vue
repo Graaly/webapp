@@ -1228,7 +1228,9 @@ export default {
     sendStepIdToParent () {
       try {
         if (window.self !== window.top) {
+          console.log("send to parent " + this.step.id)
           window.parent.postMessage(this.step.id, "https://graaly.com")
+          console.log("sent to parent " + this.step.id)
           //document.domain = "graaly.com"
           //parent.document.getElementById("stepid").value = this.step.id
         }
