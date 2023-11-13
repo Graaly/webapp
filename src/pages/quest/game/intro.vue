@@ -616,6 +616,7 @@ export default {
             this.isQuestOpen.status = true
           } else {
             this.isQuestOpen.status = false
+            //this.isQuestOpen.status = true
           }
         }
       }
@@ -854,29 +855,46 @@ export default {
         platform: Platform.TEST,
       }])*/
       
-      const {store, ProductType, Platform} = CdvPurchase;
+      const store = CdvPurchase.store
+      const ProductType = CdvPurchase.ProductType
+      const Platform = CdvPurchase.Platform
+      
       store.register([{
         id: this.quest.premiumPrice.androidId,
-        type: CdvPurchase.CONSUMABLE,
+        type: ProductType.CONSUMABLE,
         platform: Platform.APPLE_APPSTORE,
       }, {
         id: this.quest.premiumPrice.androidId,
-        type: CdvPurchase.CONSUMABLE,
+        type: ProductType.CONSUMABLE,
         platform: Platform.GOOGLE_PLAY,
       }])
 
       store.error(function(error) {
-        console.log(error)
         Notification(error.message + '(code: ' + error.code + ')', 'error')
       })
+      
+      store.when()
+        .approved(transaction => transaction.verify())
+        .verified(async(product) => {
+          // save the product purchase
+          let productCompleted = product
+          product.price = this.shop.premiumQuest.priceValue
+          const purchaseStatus = await this.savePurchase(product)
 
-      store.when(this.quest.premiumPrice.androidId).updated(this.displayPrice)
+          if (purchaseStatus) {
+            product.finish()
+          } else {
+            Notification(this.$t('label.ErrorStandardMessage'), 'error')
+          }
+        })
+        .finished(transaction => console.log('Products owned: ' + transaction.products.map(p => p.id).join(',')))
+        .productUpdated(p => this.displayPrice(p));
 
-      store.when(this.quest.premiumPrice.androidId).approved(function(product) {
+      //store.when(this.quest.premiumPrice.androidId).updated(this.displayPrice)
+      /*store.when(this.quest.premiumPrice.androidId).approved(function(product) {
         product.verify()
-      });
-
-      store.when(this.quest.premiumPrice.androidId).verified(async(product) => {
+      });*/
+      /*store.when(this.quest.premiumPrice.androidId).verified(async(product) => {
         // save the product purchase
         const purchaseStatus = await this.savePurchase(product)
 
@@ -885,7 +903,7 @@ export default {
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
-      });
+      });*/
 
       store.initialize([Platform.APPLE_APPSTORE, Platform.GOOGLE_PLAY]).then(() => {
         console.log('Store Ready!');
@@ -918,8 +936,11 @@ export default {
      * Buy the quest
      */
     async buyQuest () {
-      const {store, ProductType, Platform} = CdvPurchase;
-      store.order(this.quest.premiumPrice.androidId)
+      CdvPurchase.store.get(this.quest.premiumPrice.androidId).getOffer().order()
+      //const {store, ProductType, Platform} = CdvPurchase;
+      //const myProduct = store.get(this.quest.premiumPrice.androidId, Platform.GOOGLE_PLAY);
+      //myProduct.getOffer().order()
+      //store.order(this.quest.premiumPrice.androidId)
     },
     /*
      * Add a new friend

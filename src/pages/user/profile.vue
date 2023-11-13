@@ -83,6 +83,9 @@
           <div v-if="user.description" class="q-pa-md subtitle6">
             {{ user.description }}
           </div>
+          <div v-if="user.email === 'eric@graaly.com'">
+            <div class="centered q-mt-xl q-mb-sm cursor-pointer"><a @click="$router.push('/testpayment')">test payment</a></div>
+          </div>
         </div>
       <div style="clear:both;"></div>
       <div>
