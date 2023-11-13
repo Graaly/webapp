@@ -30,6 +30,7 @@ import Search from 'pages/search'
 import Admin from 'pages/admin/admin'
 import AdminValidation from 'pages/admin/validation'
 import AdminMinigamesBuilder from 'pages/admin/minigamebuilder.vue'
+import TestPayment from 'pages/testpayment.vue'
 
 import UserCreateAccount from 'pages/user/createAccount'
 //import UserFirstUsage from 'pages/user/firstusage'
@@ -291,6 +292,12 @@ export default [
         path: 'user/ranking/:type/:subtype',
         name: 'ranking',
         component: UserRanking,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'testpayment',
+        name: 'testpayment',
+        component: TestPayment,
         meta: { requiresAuth: true }
       },
     ]
