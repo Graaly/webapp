@@ -407,6 +407,13 @@ export default {
       StatusBar.show()
     }
     //GMMS.Connect(this.questId)
+    window.addEventListener('message', (event) => {
+      console.log("graaly receive message")
+      // Do a DOM manipulation on https://video.example.com.
+
+      // Send a success message to https://parent.example.com
+      event.source.postMessage('succeeded', event.origin);
+    });
   },
   methods: {
     initialState () {
