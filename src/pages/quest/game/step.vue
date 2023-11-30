@@ -335,7 +335,7 @@
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
-            :disable="$store.state.history.index === 0"
+            :disable="$store.state.history.index === 0 || (step.options && step.options.hideBackButton)"
             icon="arrow_back"
             v-show="previousStepId !== ''"
             @click="previousStep()"
@@ -355,9 +355,10 @@
       </div>
     </div>
     <!------------------ COMMON COMPONENTS ------------------>
-    <div v-if="step && step.options && (step.options.displayTime || step.options.displayGoodAnswers)" style="position: absolute; left: 0; bottom: 70px; background-color: #000; color: #fff;" class="subtitle-5">
+    <div v-if="step && step.options && (step.options.displayTime || step.options.displayGoodAnswers || (step.options.displayCounterText && step.options.displayCounterText[lang] && step.options.displayCounterText[lang] !== ''))" style="position: absolute; left: 0; bottom: 70px; background-color: #000; color: #fff;" class="subtitle-5">
       <span v-if="step.options.displayTime">{{currentDate}}&nbsp;</span>
       <span v-if="step.options.displayGoodAnswers">&nbsp;{{ $t('label.Score')}} {{ score.nbGoodAnwers }}/{{ score.nbQuestions }}</span>
+      <span v-if="step.options.displayCounterText && step.options.displayCounterText[lang] && step.options.displayCounterText[lang] !== ''">&nbsp;{{step.options.displayCounterText[lang]}} {{getCounterValue()}}</span>
     </div>
   </div>
 </template>
@@ -410,7 +411,6 @@ export default {
     //GMMS.Connect(this.questId)
     /*window.addEventListener('message', (event) => {
       event.source.postMessage('succeeded', event.origin);
-      console.log("graaly resend message")
     });*/
   },
   methods: {
@@ -565,13 +565,13 @@ export default {
 
       this.loadStepData = false
 
-      // get current run or create it
-      //await this.getRun() // on sync mode to load step while run is checked
-      await this.getRun()
-
       // get Player number
       this.player = await this.getPlayer()
 
+      // get current run or create it
+      //await this.getRun() // on sync mode to load step while run is checked
+      await this.getRun()
+      
       // get current step
       await this.getStep()
 
@@ -686,14 +686,14 @@ export default {
 
       this.loadStepData = false
 
-      // get current run or create it
-      await this.getRun()
-
       // get Player number
       this.player = await this.getPlayer()
 
       // get current step
       await this.getStep(forceStepId, extra)
+      
+      // get current run or create it
+      await this.getRun()
 
       // send stepId to parent if in a frame
       this.sendStepIdToParent()
@@ -893,7 +893,6 @@ export default {
         }
       } else if (!this.offline.active) {
         response = await RunService.getNextStep(this.questId, this.player, extra)
-
         if (response && response.data && response.status === 200) {
           // timer
           if (response.data.extra && response.data.extra.chapter) {
@@ -2391,13 +2390,7 @@ export default {
       var locationMarkerFound = false
       var geolocationFound = false
 
-      // Count counter value
-      let counter = 0
-      for (let i = 0; i < conditionsDone.length; i++) {
-        if (conditionsDone[i].indexOf("counterIncrement_") !== -1) {
-          counter++
-        }
-      }
+      let counter = getCounterValue()
       
       // if chapter timer is over
       /*if (extra && extra.type === 'chapterCounterOver') {
@@ -2754,6 +2747,16 @@ export default {
       }
 
       return false
+    },
+    getCounterValue() {
+      // Count counter value
+      let counter = 0
+      for (let i = 0; i < this.run.conditionsDone.length; i++) {
+        if (this.run.conditionsDone[i].indexOf("counterIncrement_") !== -1) {
+          counter++
+        }
+      }
+      return counter
     },
     /*
      * Update the run conditions done

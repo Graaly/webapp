@@ -2183,10 +2183,7 @@ export default {
         // alert if the network is low
         var _this = this
         var lowNetworkTimeout = utils.setTimeout(function () { _this.isNetworkLow = true }, 8000)
-        console.log("sendAnswer 2")
-        console.log(answerData)
         answerData.useHint = this.hintsUsed
-        console.log(answerData)
         var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player, { retries: 0 })
 
         // clear low network alerte if displayed
@@ -2213,10 +2210,7 @@ export default {
         }
       } else { // offline mode
         // call web API (non blocking => no await) to attempt to update runs
-        console.log("sendAnswer 2")
-        console.log(answerData)
         answerData.useHint = this.hintsUsed
-        console.log(answerData)
         StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player, { retries: 0 })
         
         let offlineAnswer = await this.checkOfflineAnswer(answerData.answer)

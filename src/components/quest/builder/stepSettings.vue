@@ -1245,6 +1245,17 @@
             <div v-if="options.type.code !== 'help' && options.type.code !== 'end-chapter' && options.type.code !== 'increment-counter'">
               <q-toggle v-model="selectedStep.form.options.html" :label="$t('label.UseHtmlInDescription')" />
             </div>
+            <div>
+              <q-toggle v-model="selectedStep.form.options.hideBackButton" :label="$t('label.HideBackButton')" />
+            </div>
+            <div v-if="selectedStep.form.options && selectedStep.form.options.displayCounterText">
+              <q-input
+                :label="$t('label.DisplayCounterText') + ' ' + currentLanguageForLabels"
+                v-model="selectedStep.form.options.displayCounterText[lang]"
+                class="full-width"
+                :hint="$t('label.DisplayCounterTextHint')"
+              />
+            </div>
             <div v-show="options.type.code !== 'end-chapter' && options.type.code !== 'increment-counter'">
               <q-input
                 :label="$t('label.ExtraTextFieldLabel') + ' ' + currentLanguageForLabels"
@@ -1969,6 +1980,10 @@ export default {
       // initialize option "use HTML in description"
       if (!this.selectedStep.form.options.hasOwnProperty('html')) {
         this.selectedStep.form.options.html = false
+      }
+      // initialize option displayCounterText
+      if (!this.selectedStep.form.options.hasOwnProperty('displayCounterText')) {
+        this.selectedStep.form.options.displayCounterText = {fr: '', en: '', es: ''}
       }
       
       await this.getQuestItemsAsOptions()

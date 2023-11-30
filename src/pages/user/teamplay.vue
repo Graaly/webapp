@@ -39,7 +39,16 @@
             <q-input
               outlined
               :label="$t('label.YourFullName')"
-              v-if="options.indexOf('firstandlast') === -1"
+              v-if="options.indexOf('firstandlast') === -1 && options.indexOf('email') === -1"
+              v-model="form.name"
+              @blur="$v.form.name.$touch"
+              :error="$v.form.name.$error"
+              :error-message="$t('label.PleaseFillThisForm')"
+              />
+            <q-input
+              outlined
+              :label="$t('label.YourEmail')"
+              v-if="options.indexOf('email') !== -1"
               v-model="form.name"
               @blur="$v.form.name.$touch"
               :error="$v.form.name.$error"
