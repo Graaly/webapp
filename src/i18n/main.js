@@ -808,7 +808,7 @@ module.exports = {
       TimeRemainingHoursMin: "{day} d {hour} h {min} m {sec} s",
       PuzzleChangeMode: "The jigsaw puzzle does not work?",
       PuzzleHelpTextClick: "Press on the piece you want to move, then on the place to move it",
-      QRCodeIsNotWorking: "The QR Code is not recognized",
+      QRCodeIsNotWorking: "The QR Code is not recognized or you don't have a network connection",
       ScanQRCodeToStartQuest: "Scan a QR Code",
       ScanQRCode: "Scan a QR Code",
       MarkersToPrint: "Game's QR Codes",
@@ -1297,7 +1297,10 @@ module.exports = {
       CreditsOffered: "Credits Offered",
       CreditsUsed: "Credits used",
       CreditsRemaining: "Credits remaining",
-      CreditsToPay: "Credits to pay"
+      CreditsToPay: "Credits to pay",
+      HideBackButton: "Hide the back button", 
+      DisplayCounterText: "Display the counter preceded by this text",
+      DisplayCounterTextHint: "Leave empty to avoid displaying the counter value"
     }
   },
   
@@ -2097,7 +2100,7 @@ module.exports = {
 		"TimeRemainingHoursMin": "{día} d {hora} h {min} m {seg} s",
 		"PuzzleChangeMode": "¿El rompecabezas no funciona?",
 		"PuzzleHelpTextClick": "Pulse sobre la pieza que desea mover y luego sobre el lugar para moverla",
-		"QRCodeIsNotWorking": "No se reconoce el código QR",
+		"QRCodeIsNotWorking": "No se reconoce el código QR o no tiene conexión a Internet",
 		"ScanQRCodeToStartQuest": "Escanear un código QR",
 		"ScanQRCode": "Escanear un código QR",
 		"MarkersToPrint": "Códigos QR del juego",
@@ -2586,7 +2589,10 @@ module.exports = {
     CreditsOffered: "Créditos ofrecidos",
     CreditsUsed: "Créditos utilizados",
     CreditsRemaining: "Créditos restantes",
-    CreditsToPay: "Créditos por pagar"
+    CreditsToPay: "Créditos por pagar",
+    HideBackButton: "Ocultar el botón de atrás", 
+    DisplayCounterText: "Mostrar el contador precedido de este texto",
+    DisplayCounterTextHint: "Dejar vacío para evitar mostrar el valor del contador"
 	}
 },
   
@@ -3388,7 +3394,7 @@ module.exports = {
       TimeRemainingHoursMin: "{day} j {hour} h {min} m {sec} s",
       PuzzleChangeMode: "Le puzzle ne fonctionne pas ?",
       PuzzleHelpTextClick: "Pressez la pièce à bouger, puis sur l'emplacement final",
-      QRCodeIsNotWorking: "Le QR Code n'est pas reconnu",
+      QRCodeIsNotWorking: "Le QR Code n'est pas reconnu ou vous n'avez pas de réseau internet",
       ScanQRCodeToStartQuest: "Scanner un QR Code",
       ScanQRCode: "Scanner un QR Code",
       MarkersToPrint: "QR Codes du jeu",
@@ -3877,7 +3883,10 @@ module.exports = {
       CreditsOffered: "Crédits offerts",
       CreditsUsed: "Crédits utilisés",
       CreditsRemaining: "Crédits restants",
-      CreditsToPay: "Crédits à acheter"
+      CreditsToPay: "Crédits à acheter",
+      HideBackButton: "Cacher le bouton de retour", 
+      DisplayCounterText: "Afficher le conteur précédé par ce texte",
+      DisplayCounterTextHint: "Laisser vide pour ne pas afficher la valeur du compteur"
     }
   }
 }

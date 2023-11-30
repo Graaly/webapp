@@ -50,6 +50,7 @@
         :player="player"
         :timer="countDownTime"
         :quest="info.quest"
+        :hintsUsed="hint.totalUsed"
         :offline="offline.active"
         @played="trackStepPlayed"
         @success="trackStepSuccess"
@@ -334,7 +335,7 @@
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
-            :disable="$store.state.history.index === 0"
+            :disable="$store.state.history.index === 0 || (step.options && step.options.hideBackButton)"
             icon="arrow_back"
             v-show="previousStepId !== ''"
             @click="previousStep()"
@@ -354,9 +355,10 @@
       </div>
     </div>
     <!------------------ COMMON COMPONENTS ------------------>
-    <div v-if="step && step.options && (step.options.displayTime || step.options.displayGoodAnswers)" style="position: absolute; left: 0; bottom: 70px; background-color: #000; color: #fff;" class="subtitle-5">
+    <div v-if="step && step.options && (step.options.displayTime || step.options.displayGoodAnswers || (step.options.displayCounterText && step.options.displayCounterText[lang] && step.options.displayCounterText[lang] !== ''))" style="position: absolute; left: 0; bottom: 70px; background-color: #000; color: #fff;" class="subtitle-5">
       <span v-if="step.options.displayTime">{{currentDate}}&nbsp;</span>
       <span v-if="step.options.displayGoodAnswers">&nbsp;{{ $t('label.Score')}} {{ score.nbGoodAnwers }}/{{ score.nbQuestions }}</span>
+      <span v-if="step.options.displayCounterText && step.options.displayCounterText[lang] && step.options.displayCounterText[lang] !== ''">&nbsp;{{step.options.displayCounterText[lang]}} {{getCounterValue()}}</span>
     </div>
   </div>
 </template>
@@ -409,7 +411,6 @@ export default {
     //GMMS.Connect(this.questId)
     /*window.addEventListener('message', (event) => {
       event.source.postMessage('succeeded', event.origin);
-      console.log("graaly resend message")
     });*/
   },
   methods: {
@@ -438,6 +439,7 @@ export default {
           suggest: false,
           show: false,
           used: false,
+          totalUsed: 0,
           number: 0,
           remainingNumber: 0
         },
@@ -563,13 +565,13 @@ export default {
 
       this.loadStepData = false
 
-      // get current run or create it
-      //await this.getRun() // on sync mode to load step while run is checked
-      await this.getRun()
-
       // get Player number
       this.player = await this.getPlayer()
 
+      // get current run or create it
+      //await this.getRun() // on sync mode to load step while run is checked
+      await this.getRun()
+      
       // get current step
       await this.getStep()
 
@@ -684,14 +686,14 @@ export default {
 
       this.loadStepData = false
 
-      // get current run or create it
-      await this.getRun()
-
       // get Player number
       this.player = await this.getPlayer()
 
       // get current step
       await this.getStep(forceStepId, extra)
+      
+      // get current run or create it
+      await this.getRun()
 
       // send stepId to parent if in a frame
       this.sendStepIdToParent()
@@ -891,7 +893,6 @@ export default {
         }
       } else if (!this.offline.active) {
         response = await RunService.getNextStep(this.questId, this.player, extra)
-
         if (response && response.data && response.status === 200) {
           // timer
           if (response.data.extra && response.data.extra.chapter) {
@@ -1719,10 +1720,10 @@ export default {
      * Get the hint and display
      */
     async getHint() {
-      var hintLabel
-      if (!this.offline.active) {
-        hintLabel = await RunService.getHint(this.runId, this.step.stepId, this.run.version)
-      }
+      let hintLabel
+      //if (!this.offline.active) {
+      hintLabel = await RunService.getHint(this.runId, this.step.stepId, this.run.version)
+      //}
 
       if (hintLabel && hintLabel.hint) {
         // online hint
@@ -1731,9 +1732,13 @@ export default {
         // offline hint
         this.hint.label = this.step.hint[this.hint.number]
       }
+
       // update hint number, used for offline
       if (this.step.hint && this.hint.number < this.step.hint.length - 1) {
         this.hint.number++
+        /*if (this.hint.number > this.hint.totalUsed) {
+          this.hint.totalUsed = this.hint.number
+        }*/
       } else {
         this.hint.number = 0
       }
@@ -1741,8 +1746,9 @@ export default {
       this.closeAllPanels()
       this.hint.isOpened = true
       this.footer.tabSelected = 'hint'
-      if (this.hint.remainingNumber >0) {
+      if (this.hint.remainingNumber > 0) {
         this.hint.remainingNumber--
+        this.hint.totalUsed++
       }
     },
     closeAllPanels() {
@@ -2174,7 +2180,7 @@ export default {
       }
 
       // compute nb points
-      answer = {stepId: this.step.stepId, stepNumber: this.step.number, nbTry: (answer && answer.nbTry) ? answer.nbTry : 1, ended: ended, score: score, reward: 0, status: stepStatus, useHint: false, date: new Date(), online: false}
+      answer = {stepId: this.step.stepId, stepNumber: this.step.number, nbTry: (answer && answer.nbTry) ? answer.nbTry : 1, ended: ended, score: score, reward: 0, status: stepStatus, useHint: this.hint.totalUsed ? this.hint.totalUsed : false, date: new Date(), online: false}
       // add new item in inventory
       if (this.step.type === 'new-item') {
         if (this.run.inventory) {
@@ -2189,17 +2195,17 @@ export default {
 
       if (!stepAlreadyPlayed) {
         // save answer
-        var update = false
+        let update = false
         if (this.run.answers && this.run.answers.length > 1) {
-          for (var i = 0; i < this.run.answers.length; i++) {
+          for (let i = 0; i < this.run.answers.length; i++) {
             if (this.run.answers[i] && this.run.answers[i].stepId && this.run.answers[i].stepId !== null && this.run.answers[i].stepId === this.step.stepId) {
               update = true
               answer.nbTry = (this.run && this.run.answers[i]) ? this.run.answers[i].nbTry + 1 : 1
-              answer.useHint = this.run.answers[i].useHint
               this.run.answers[i] = answer
             }
           }
         }
+
         if (!update) {
           if (!this.run.answers) {
             this.run.answers = []
@@ -2372,7 +2378,7 @@ export default {
           conditionsDone.push('stepDone' + this.player + '_' + stepId.toString())
 
           // update run
-          this.run.conditionDone = conditionsDone
+          this.run.conditionsDone = conditionsDone
           this.run.currentStep = stepId
         }
         // reset markerCode
@@ -2384,13 +2390,7 @@ export default {
       var locationMarkerFound = false
       var geolocationFound = false
 
-      // Count counter value
-      let counter = 0
-      for (let i = 0; i < conditionsDone.length; i++) {
-        if (conditionsDone[i].indexOf("counterIncrement_") !== -1) {
-          counter++
-        }
-      }
+      let counter = getCounterValue()
       
       // if chapter timer is over
       /*if (extra && extra.type === 'chapterCounterOver') {
@@ -2532,7 +2532,7 @@ export default {
               conditionsDone.push('counterIncrement_' + stepsofChapter[i].stepId.toString())
               conditionsDone.push('stepDone_' + stepsofChapter[i].stepId.toString())
               conditionsDone.push('stepDone' + player + '_' + stepsofChapter[i].stepId.toString())
-              this.run.conditionDone = conditionsDone
+              this.run.conditionsDone = conditionsDone
               counter++
 
               // find if a step is triggered by counter value
@@ -2573,7 +2573,7 @@ export default {
                   // save that chapter-end is done, except if reset chapter progression
                   conditionsDone.push('stepDone_' + stepsofChapter[i].stepId.toString())
                   conditionsDone.push('stepDone' + this.player + '_' + stepsofChapter[i].stepId.toString())
-                  this.run.conditionDone = conditionsDone
+                  this.run.conditionsDone = conditionsDone
                 }
 
                 // get next step by running the process again for new chapter
@@ -2747,6 +2747,16 @@ export default {
       }
 
       return false
+    },
+    getCounterValue() {
+      // Count counter value
+      let counter = 0
+      for (let i = 0; i < this.run.conditionsDone.length; i++) {
+        if (this.run.conditionsDone[i].indexOf("counterIncrement_") !== -1) {
+          counter++
+        }
+      }
+      return counter
     },
     /*
      * Update the run conditions done
