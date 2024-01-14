@@ -1300,7 +1300,8 @@ module.exports = {
       CreditsToPay: "Credits to pay",
       HideBackButton: "Hide the back button", 
       DisplayCounterText: "Display the counter preceded by this text",
-      DisplayCounterTextHint: "Leave empty to avoid displaying the counter value"
+      DisplayCounterTextHint: "Leave empty to avoid displaying the counter value",
+      NoNetworkConnection: "Please check your network connection"
     }
   },
   
@@ -2592,7 +2593,8 @@ module.exports = {
     CreditsToPay: "Créditos por pagar",
     HideBackButton: "Ocultar el botón de atrás", 
     DisplayCounterText: "Mostrar el contador precedido de este texto",
-    DisplayCounterTextHint: "Dejar vacío para evitar mostrar el valor del contador"
+    DisplayCounterTextHint: "Dejar vacío para evitar mostrar el valor del contador",
+    NoNetworkConnection: "Por favor, compruebe su conexión de red"
 	}
 },
   
@@ -3886,7 +3888,8 @@ module.exports = {
       CreditsToPay: "Crédits à acheter",
       HideBackButton: "Cacher le bouton de retour", 
       DisplayCounterText: "Afficher le conteur précédé par ce texte",
-      DisplayCounterTextHint: "Laisser vide pour ne pas afficher la valeur du compteur"
+      DisplayCounterTextHint: "Laisser vide pour ne pas afficher la valeur du compteur",
+      NoNetworkConnection: "Veuillez vérifier votre connexion internet"
     }
   }
 }
