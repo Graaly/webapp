@@ -103,7 +103,7 @@
         <div class="centered smaller version secondary-font">
           Version {{ version }} -
           <img src="statics/icons/game/flag-en.png" @click="switchLanguage('en')" /> -
-          <img src="statics/icons/game/flag-fr.png" @click="switchLanguage('fr')" />
+          <img src="statics/icons/game/flag-fr.png" @click="switchLanguage('fr')" /> - 
           <img src="statics/icons/game/flag-es.png" @click="switchLanguage('es')" />
         </div>
 

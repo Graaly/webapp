@@ -59,7 +59,9 @@ export default {
         // From login page
         if (this.fromLogin) {
           let checkStatus = await QuestService.checkLoginQRCode(code, this.$t('label.shortLang'))
-          if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
+          if (!checkStatus) {
+            Notification(this.$t('label.NoNetworkConnection'), 'error')
+          } else if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
             //this.closeQRCodeReader()
             if (checkStatus.data.user) {
               window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
@@ -104,7 +106,9 @@ export default {
         // From Other page
         else {
           let checkStatus = await QuestService.checkQRCode(code, this.$t('label.shortLang'))
-          if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
+          if (!checkStatus) {
+            Notification(this.$t('label.NoNetworkConnection'), 'error')
+          } else if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
             if (code.indexOf('_score') === -1) {
               if (checkStatus.data.questId) {
                 this.$router.push('/quest/play/' + checkStatus.data.questId)

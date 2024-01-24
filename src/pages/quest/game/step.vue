@@ -38,7 +38,7 @@
 
       <stepPlay
         v-if="!startDate.enabled"
-        :step="step"
+        :step="newStep"
         :runId="runId"
         :inventory="inventory"
         :itemUsed="selectedItem"
@@ -521,7 +521,8 @@ export default {
         score: {
           nbGoodAnwers: 0,
           nbQuestions: 0
-        }
+        },
+        newStep: {}
       }
     },
     resetData () {
@@ -529,6 +530,7 @@ export default {
       this.inventory = defaultVars.inventory
       this.hint = defaultVars.hint
       this.step = defaultVars.step
+      this.newStep = defaultVars.newStep
       this.next = defaultVars.next
       this.nbTry = defaultVars.nbTry
       this.warnings = defaultVars.warnings
@@ -574,6 +576,8 @@ export default {
       
       // get current step
       await this.getStep()
+      // init step after run to avoid that step appear twice
+      this.newStep = this.step
 
       // send stepId to parent if in a frame
       this.sendStepIdToParent()
@@ -694,6 +698,9 @@ export default {
       
       // get current run or create it
       await this.getRun()
+      
+      // init step after run to avoid that step appear twice
+      this.newStep = this.step
 
       // send stepId to parent if in a frame
       this.sendStepIdToParent()
@@ -1252,6 +1259,7 @@ export default {
       this.step = {
         id: "waiting"
       }
+      this.newStep = this.step
       //this.footer.show = false
       this.next.enabled = false
       this.next.canPass = false
@@ -1534,6 +1542,7 @@ export default {
     },
     hideHint() {
       this.step.hint = {}
+      this.newStep = this.step
     },
     /*
      * get background image
@@ -2390,7 +2399,7 @@ export default {
       var locationMarkerFound = false
       var geolocationFound = false
 
-      let counter = getCounterValue()
+      let counter = this.getCounterValue()
       
       // if chapter timer is over
       /*if (extra && extra.type === 'chapterCounterOver') {
