@@ -2578,7 +2578,7 @@ export default {
                 }
               }
               if (nextStepId !== 'end') {
-                if (!stepsofChapter[i].options || !stepsofChapter[i].options.resetChapterProgression) {
+                if (!stepsofChapter[i].options || (!stepsofChapter[i].options.resetChapterProgression && !stepsofChapter[i].options.resetChapterProgressionAndMoveNext)) {
                   // save that chapter-end is done, except if reset chapter progression
                   conditionsDone.push('stepDone_' + stepsofChapter[i].stepId.toString())
                   conditionsDone.push('stepDone' + this.player + '_' + stepsofChapter[i].stepId.toString())
