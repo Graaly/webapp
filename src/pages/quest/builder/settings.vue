@@ -2163,7 +2163,7 @@ export default {
 
             // Get the steps of current chapter & check if chapter has and end step
             for (let i = 0; i < steps.length; i++) {
-              if (steps[i].chapterId.toString() === this.chapters.items[j].chapterId.toString()) {
+              if (steps[i].chapterId && steps[i].chapterId.toString() === this.chapters.items[j].chapterId.toString()) {
                 // create steps array
                 if (!this.chapters.items[j].steps) {
                   this.chapters.items[j].steps = []
